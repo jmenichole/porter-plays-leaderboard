@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Porter Plays - Casino Leaderboard</title>
-    <meta name="description" content="Join Porter Robinson's exclusive casino community with VIP benefits, deposit matches, and exclusive challenges on Shuffle, Thrill, and Goated.">
+    <title>Porter Plays - Live Casino Leaderboard</title>
+    <meta name="description" content="Join Porter's exclusive casino community with VIP benefits, deposit matches, and exclusive challenges on Shuffle, Thrill, and Goated.">
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -72,17 +72,51 @@
     <!-- Hero Section -->
     <section class="hero">
         <div class="hero-content">
-            <h1 class="hero-title">Join Porter Robinson's<br>Exclusive Casino Community</h1>
-            <p class="hero-subtitle">Experience premium gaming with VIP benefits, exclusive bonuses, and live leaderboard competitions</p>
+            <h1 class="hero-title">Porter Plays<br>Live Casino Leaderboard</h1>
+            <p class="hero-subtitle">Compete with the best players and climb the rankings on exclusive partner casinos with real-time wager tracking</p>
             <div class="hero-cta">
-                <a href="#casinos" class="btn-primary">Get Started</a>
-                <a href="#leaderboard" class="btn-secondary">View Leaderboard</a>
+                <a href="#leaderboard" class="btn-primary">View Live Rankings</a>
+                <a href="#casinos" class="btn-secondary">Join Now</a>
             </div>
         </div>
         <div class="hero-visual">
             <div class="leaderboard-preview">
-                <h3>Live Leaderboard</h3>
+                <h3>🏆 Live Leaderboard</h3>
                 <div class="leaderboard-loading">Loading latest standings...</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Leaderboard Section - Main Focus -->
+    <section class="leaderboard" id="leaderboard">
+        <div class="container">
+            <h2 class="section-title">🎯 Live Wager Leaderboard</h2>
+            <p class="section-subtitle">Real-time rankings updated every 30 seconds • Compete for exclusive rewards</p>
+            
+            <div class="leaderboard-tabs">
+                <button class="tab-btn active" data-casino="thrill">
+                    <div class="tab-logo thrill-logo">T</div>
+                    Thrill
+                </button>
+                <button class="tab-btn" data-casino="goated">
+                    <div class="tab-logo goated-logo">G</div>
+                    Goated
+                </button>
+            </div>
+
+            <div class="leaderboard-container">
+                <div class="leaderboard-content" id="thrill-leaderboard">
+                    <div class="leaderboard-loading">
+                        <div class="loading-spinner"></div>
+                        <p>Loading Thrill leaderboard...</p>
+                    </div>
+                </div>
+                <div class="leaderboard-content" id="goated-leaderboard" style="display: none;">
+                    <div class="leaderboard-loading">
+                        <div class="loading-spinner"></div>
+                        <p>Loading Goated leaderboard...</p>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -125,21 +159,32 @@
     <!-- Casino Sites Section -->
     <section class="casinos" id="casinos">
         <div class="container">
-            <h2 class="section-title">Exclusive Porter Partner Casinos</h2>
-            <p class="section-subtitle">Join through Porter's codes for maximum benefits and exclusive features</p>
+            <h2 class="section-title">🎰 Partner Casino Platforms</h2>
+            <p class="section-subtitle">Exclusive access with Porter's codes • Maximum bonuses • VIP treatment guaranteed</p>
             
             <div class="casino-grid">
                 <!-- Shuffle.com -->
                 <div class="casino-card shuffle">
                     <div class="casino-header">
                         <div class="casino-logo">
-                            <div class="casino-icon shuffle-icon">S</div>
+                            <div class="casino-icon shuffle-icon">
+                                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                                    <rect width="32" height="32" rx="8" fill="url(#shuffleGradient)"/>
+                                    <path d="M8 12h16M8 20h16M12 8v16M20 8v16" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                                    <defs>
+                                        <linearGradient id="shuffleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" style="stop-color:#8B5CF6"/>
+                                            <stop offset="100%" style="stop-color:#7C3AED"/>
+                                        </linearGradient>
+                                    </defs>
+                                </svg>
+                            </div>
                             <h3>Shuffle</h3>
                         </div>
-                        <div class="casino-badge">Exclusive Challenges</div>
+                        <div class="casino-badge hot-badge">🔥 $1K Match</div>
                     </div>
                     <div class="casino-content">
-                        <h4>Premium Gaming Experience</h4>
+                        <h4>💎 Premium Gaming Experience</h4>
                         <div class="features">
                             <div class="feature">
                                 <span class="feature-icon">🎰</span>
@@ -147,7 +192,7 @@
                             </div>
                             <div class="feature">
                                 <span class="feature-icon">💰</span>
-                                <span>Deposit Match up to $1,000</span>
+                                <span><strong>Deposit Match up to $1,000</strong></span>
                             </div>
                             <div class="feature">
                                 <span class="feature-icon">🏆</span>
@@ -159,9 +204,9 @@
                             </div>
                         </div>
                         <div class="promo-code">
-                            <span>Porter's Code: <strong>PORTER1K</strong></span>
+                            <span>🎟️ Porter's Code: <strong>PORTER1K</strong></span>
                         </div>
-                        <a href="https://shuffle.com/?ref=porter" target="_blank" class="casino-btn">Join Shuffle</a>
+                        <a href="https://shuffle.com/?ref=porter" target="_blank" class="casino-btn">🚀 Join Shuffle</a>
                     </div>
                 </div>
 
@@ -169,17 +214,28 @@
                 <div class="casino-card thrill">
                     <div class="casino-header">
                         <div class="casino-logo">
-                            <div class="casino-icon thrill-icon">T</div>
+                            <div class="casino-icon thrill-icon">
+                                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                                    <rect width="32" height="32" rx="8" fill="url(#thrillGradient)"/>
+                                    <path d="M16 6l6 10H10l6-10zM16 26l-6-10h12l-6 10z" fill="white"/>
+                                    <defs>
+                                        <linearGradient id="thrillGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" style="stop-color:#EF4444"/>
+                                            <stop offset="100%" style="stop-color:#DC2626"/>
+                                        </linearGradient>
+                                    </defs>
+                                </svg>
+                            </div>
                             <h3>Thrill</h3>
                         </div>
-                        <div class="casino-badge">VIP Transfer</div>
+                        <div class="casino-badge vip-badge">👑 VIP Transfer</div>
                     </div>
                     <div class="casino-content">
-                        <h4>VIP Gaming Paradise</h4>
+                        <h4>👑 VIP Gaming Paradise</h4>
                         <div class="features">
                             <div class="feature">
                                 <span class="feature-icon">👑</span>
-                                <span>VIP Status Transfer</span>
+                                <span><strong>VIP Status Transfer</strong></span>
                             </div>
                             <div class="feature">
                                 <span class="feature-icon">💎</span>
@@ -195,9 +251,9 @@
                             </div>
                         </div>
                         <div class="promo-code">
-                            <span>Porter's Code: <strong>PORTERVIP</strong></span>
+                            <span>🎟️ Porter's Code: <strong>PORTERVIP</strong></span>
                         </div>
-                        <a href="https://thrill.com/?ref=porter" target="_blank" class="casino-btn">Join Thrill</a>
+                        <a href="https://thrill.com/?ref=porter" target="_blank" class="casino-btn">👑 Join Thrill</a>
                     </div>
                 </div>
 
@@ -205,17 +261,28 @@
                 <div class="casino-card goated">
                     <div class="casino-header">
                         <div class="casino-logo">
-                            <div class="casino-icon goated-icon">G</div>
+                            <div class="casino-icon goated-icon">
+                                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                                    <rect width="32" height="32" rx="8" fill="url(#goatedGradient)"/>
+                                    <path d="M16 4l4 8 8 4-8 4-4 8-4-8-8-4 8-4 4-8z" fill="white"/>
+                                    <defs>
+                                        <linearGradient id="goatedGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" style="stop-color:#10B981"/>
+                                            <stop offset="100%" style="stop-color:#059669"/>
+                                        </linearGradient>
+                                    </defs>
+                                </svg>
+                            </div>
                             <h3>Goated</h3>
                         </div>
-                        <div class="casino-badge">VIP Transfer</div>
+                        <div class="casino-badge elite-badge">⭐ Elite</div>
                     </div>
                     <div class="casino-content">
-                        <h4>Elite Gaming Platform</h4>
+                        <h4>⭐ Elite Gaming Platform</h4>
                         <div class="features">
                             <div class="feature">
                                 <span class="feature-icon">🔥</span>
-                                <span>VIP Transfer Available</span>
+                                <span><strong>VIP Transfer Available</strong></span>
                             </div>
                             <div class="feature">
                                 <span class="feature-icon">🎲</span>
@@ -231,9 +298,9 @@
                             </div>
                         </div>
                         <div class="promo-code">
-                            <span>Porter's Code: <strong>PORTERGOAT</strong></span>
+                            <span>🎟️ Porter's Code: <strong>PORTERGOAT</strong></span>
                         </div>
-                        <a href="https://goated.com/?ref=porter" target="_blank" class="casino-btn">Join Goated</a>
+                        <a href="https://goated.com/?ref=porter" target="_blank" class="casino-btn">⭐ Join Goated</a>
                     </div>
                 </div>
             </div>
@@ -243,12 +310,12 @@
     <!-- Community Section -->
     <section class="community" id="community">
         <div class="container">
-            <h2 class="section-title">Porter's Gaming Community</h2>
-            <p class="section-subtitle">Connect with fellow players and stay updated with the latest news</p>
+            <h2 class="section-title">📈 Community Stats & Updates</h2>
+            <p class="section-subtitle">Stay connected with Porter's gaming community • Latest news and performance metrics</p>
             
             <div class="community-grid">
                 <div class="community-card">
-                    <h3>Latest Updates</h3>
+                    <h3>🔥 Latest Updates</h3>
                     <div class="updates-content">
                         <div class="update-item">
                             <div class="update-date">Dec 19, 2024</div>
@@ -266,7 +333,7 @@
                 </div>
                 
                 <div class="community-card">
-                    <h3>Weekly Stats</h3>
+                    <h3>💰 Weekly Performance</h3>
                     <div class="stats-content">
                         <div class="stat-item">
                             <div class="stat-number">$2.5M</div>
@@ -280,34 +347,6 @@
                             <div class="stat-number">$125K</div>
                             <div class="stat-label">Total Winnings</div>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Leaderboard Section -->
-    <section class="leaderboard" id="leaderboard">
-        <div class="container">
-            <h2 class="section-title">Live Wager Leaderboard</h2>
-            <p class="section-subtitle">Compete with Porter's community and climb the rankings</p>
-            
-            <div class="leaderboard-tabs">
-                <button class="tab-btn active" data-casino="thrill">Thrill</button>
-                <button class="tab-btn" data-casino="goated">Goated</button>
-            </div>
-
-            <div class="leaderboard-container">
-                <div class="leaderboard-content" id="thrill-leaderboard">
-                    <div class="leaderboard-loading">
-                        <div class="loading-spinner"></div>
-                        <p>Loading Thrill leaderboard...</p>
-                    </div>
-                </div>
-                <div class="leaderboard-content" id="goated-leaderboard" style="display: none;">
-                    <div class="leaderboard-loading">
-                        <div class="loading-spinner"></div>
-                        <p>Loading Goated leaderboard...</p>
                     </div>
                 </div>
             </div>

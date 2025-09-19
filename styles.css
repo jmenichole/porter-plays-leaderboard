@@ -504,6 +504,24 @@ body {
     font-weight: 600;
 }
 
+.hot-badge {
+    background: linear-gradient(135deg, #F59E0B, #D97706);
+    animation: pulse 2s infinite;
+}
+
+.vip-badge {
+    background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+}
+
+.elite-badge {
+    background: linear-gradient(135deg, #10B981, #059669);
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
 .casino-content {
     padding: 1.5rem;
 }
@@ -639,6 +657,9 @@ body {
 }
 
 .tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     padding: 0.75rem 1.5rem;
     border: 2px solid var(--border-color);
     background: var(--bg-primary);
@@ -647,6 +668,26 @@ body {
     cursor: pointer;
     font-weight: 600;
     transition: all 0.2s;
+}
+
+.tab-logo {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: white;
+}
+
+.thrill-logo {
+    background: linear-gradient(135deg, #EF4444, #DC2626);
+}
+
+.goated-logo {
+    background: linear-gradient(135deg, #10B981, #059669);
 }
 
 .tab-btn.active,
