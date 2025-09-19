@@ -462,7 +462,7 @@ class LeaderboardManager {
                             username: this.anonymizeUsername(player.username)
                         }));
                     }
-                    return data;
+                    return { ...data, isMock: false };
                 }
             }
             
@@ -489,7 +489,8 @@ class LeaderboardManager {
                     { rank: 9, username: 'L***reak', wager: '$32,100', profit: '+$1,900' },
                     { rank: 10, username: 'W***Wars', wager: '$28,500', profit: '+$1,500' }
                 ],
-                lastUpdated: new Date().toLocaleTimeString()
+                lastUpdated: new Date().toLocaleTimeString(),
+                isMock: true
             },
             goated: {
                 players: [
@@ -504,7 +505,8 @@ class LeaderboardManager {
                     { rank: 9, username: 'W***izard', wager: '$49,600', profit: '+$3,800' },
                     { rank: 10, username: 'S***ensei', wager: '$42,100', profit: '+$3,200' }
                 ],
-                lastUpdated: new Date().toLocaleTimeString()
+                lastUpdated: new Date().toLocaleTimeString(),
+                isMock: true
             }
         };
 
@@ -529,17 +531,51 @@ class LeaderboardManager {
         
         try {
             const data = await this.fetchLeaderboardData(casino);
-            this.renderLeaderboard(container, data);
-            
-            if (casino === 'thrill') {
-                this.updateHeroPreview(data);
+            // Render legacy table if container exists
+            if (container) {
+                this.renderLeaderboard(container, data);
             }
+            // Update snapshot table in new layout (only with real API data)
+            this.renderSnapshot(data);
         } catch (error) {
             console.error('Error updating leaderboard:', error);
-            this.renderError(container);
+            if (container) this.renderError(container);
         } finally {
             this.isLoading = false;
         }
+    }
+
+    // Render the top snapshot rows in the new pp-table layout
+    renderSnapshot(data) {
+        const table = document.querySelector('.pp-table');
+        if (!table) return;
+
+        // Only populate when using real API data to avoid fabricated numbers
+        if (!data || data.isMock || !Array.isArray(data.players)) {
+            return;
+        }
+
+        const top3 = data.players.slice(0, 3);
+        top3.forEach((player, idx) => {
+            const row = table.querySelector(`.pp-row-${idx + 1}`);
+            if (!row) return;
+            const userEl = row.querySelector('.pp-user');
+            const wagerEl = row.querySelector('.pp-wager');
+            const prizeEl = row.querySelector('.pp-prize');
+
+            if (userEl) userEl.textContent = player.username || '';
+            if (wagerEl) {
+                wagerEl.textContent = player.wager ?? '';
+                wagerEl.removeAttribute('data-placeholder');
+            }
+            if (prizeEl) {
+                // Populate prize if provided by API; otherwise leave em dash
+                if (player.prize !== undefined && player.prize !== null && `${player.prize}`.trim() !== '') {
+                    prizeEl.textContent = player.prize;
+                    prizeEl.removeAttribute('data-placeholder');
+                }
+            }
+        });
     }
 
     renderLeaderboard(container, data) {
@@ -909,7 +945,8 @@ function initializeSmoothScrolling() {
             e.preventDefault();
             const target = document.querySelector(this.getAttribute('href'));
             if (target) {
-                const headerHeight = document.querySelector('.header').offsetHeight;
+                const headerEl = document.querySelector('.header') || document.querySelector('.pp-header');
+                const headerHeight = headerEl ? headerEl.offsetHeight : 0;
                 const targetPosition = target.offsetTop - headerHeight - 20;
                 
                 window.scrollTo({
@@ -920,6 +957,19 @@ function initializeSmoothScrolling() {
         });
     });
 }
+
+// Period chips (UI only)
+document.addEventListener('DOMContentLoaded', () => {
+    const chips = document.querySelectorAll('.pp-controls .pp-chip');
+    if (!chips.length) return;
+    chips.forEach(chip => {
+        chip.addEventListener('click', () => {
+            chips.forEach(c => c.classList.remove('is-active'));
+            chip.classList.add('is-active');
+            // Hook for future: we could filter data based on selected period if API supports it.
+        });
+    });
+});
 
 // Animations
 function initializeAnimations() {
