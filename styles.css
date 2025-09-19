@@ -6,32 +6,34 @@
 }
 
 :root {
-    --primary-color: #8B5CF6;
-    --primary-dark: #7C3AED;
-    --primary-light: #A78BFA;
-    --secondary-color: #F59E0B;
-    --accent-color: #10B981;
-    --purple-gradient: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
-    --text-primary: #1F2937;
-    --text-secondary: #6B7280;
-    --text-light: #9CA3AF;
-    --bg-primary: #FFFFFF;
-    --bg-secondary: #F8FAFC;
-    --bg-dark: #0F0F23;
-    --bg-purple: #1E1B4B;
-    --border-color: #E5E7EB;
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-    --shadow-purple: 0 10px 25px rgba(139, 92, 246, 0.3);
+    --primary-color: #5865F2;
+    --primary-dark: #4752C4;
+    --primary-light: #7289DA;
+    --secondary-color: #57F287;
+    --accent-color: #FEE75C;
+    --discord-purple: #5865F2;
+    --discord-green: #57F287;
+    --discord-yellow: #FEE75C;
+    --text-primary: #FFFFFF;
+    --text-secondary: #B9BBBE;
+    --text-light: #72767D;
+    --bg-primary: #36393F;
+    --bg-secondary: #2F3136;
+    --bg-dark: #202225;
+    --bg-darker: #1E2124;
+    --border-color: #40444B;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.2);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.2);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.2);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.3), 0 8px 10px -6px rgb(0 0 0 / 0.2);
+    --shadow-neon: 0 0 20px rgba(87, 242, 135, 0.3);
 }
 
 body {
     font-family: 'Inter', sans-serif;
     line-height: 1.6;
     color: var(--text-primary);
-    background-color: var(--bg-primary);
+    background-color: var(--bg-dark);
 }
 
 .container {
@@ -46,7 +48,7 @@ body {
 
 /* Header Styles */
 .header {
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(32, 34, 37, 0.95);
     border-bottom: 1px solid var(--border-color);
     position: sticky;
     top: 0;
@@ -72,7 +74,7 @@ body {
 .logo-icon {
     width: 40px;
     height: 40px;
-    background: var(--purple-gradient);
+    background: linear-gradient(135deg, var(--discord-purple), var(--primary-dark));
     color: white;
     display: flex;
     align-items: center;
@@ -80,13 +82,13 @@ body {
     border-radius: 12px;
     font-weight: 800;
     font-size: 1.25rem;
-    box-shadow: var(--shadow-purple);
+    box-shadow: var(--shadow-neon);
 }
 
 .logo {
     font-size: 1.5rem;
     font-weight: 800;
-    color: var(--primary-color);
+    color: var(--text-primary);
 }
 
 .nav-links {
@@ -103,11 +105,11 @@ body {
 }
 
 .nav-link:hover {
-    color: var(--primary-color);
+    color: var(--discord-green);
 }
 
 .admin-login-btn {
-    background: var(--primary-color);
+    background: var(--discord-purple);
     color: white;
     border: none;
     padding: 0.5rem 1rem;
@@ -119,6 +121,225 @@ body {
 
 .admin-login-btn:hover {
     background: var(--primary-dark);
+}
+
+/* Hero Section */
+.hero {
+    padding: 4rem 2rem;
+    background: linear-gradient(135deg, var(--bg-darker) 0%, var(--bg-dark) 100%);
+    display: flex;
+    align-items: center;
+    min-height: 600px;
+    max-width: 1200px;
+    margin: 0 auto;
+    gap: 4rem;
+}
+
+.hero-content {
+    flex: 1;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(135deg, var(--discord-purple), var(--discord-green));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+    max-width: 500px;
+}
+
+.hero-stats {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.stat-highlight {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-radius: 0.5rem;
+    border: 1px solid var(--border-color);
+}
+
+.stat-number {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--discord-green);
+    margin-bottom: 0.25rem;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.hero-cta {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.btn-discord {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--discord-purple);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.btn-discord:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Leaderboard Snapshot */
+.hero-visual {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.leaderboard-snapshot {
+    background: var(--bg-secondary);
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: var(--shadow-xl);
+    min-width: 350px;
+    border: 1px solid var(--border-color);
+}
+
+.leaderboard-snapshot h3 {
+    color: var(--discord-green);
+    margin-bottom: 0.5rem;
+    text-align: center;
+    font-weight: 800;
+    font-size: 1.25rem;
+}
+
+.snapshot-subtitle {
+    color: var(--text-secondary);
+    text-align: center;
+    font-size: 0.875rem;
+    margin-bottom: 1.5rem;
+}
+
+.top-players {
+    margin-bottom: 1.5rem;
+}
+
+.player-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.player-row:last-child {
+    border-bottom: none;
+}
+
+.rank {
+    font-weight: 800;
+    width: 40px;
+}
+
+.rank.gold { color: #FFD700; }
+.rank.silver { color: #C0C0C0; }
+.rank.bronze { color: #CD7F32; }
+
+.player-name {
+    flex: 1;
+    text-align: center;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.wager-amount {
+    color: var(--discord-green);
+    font-weight: 700;
+    font-size: 0.875rem;
+}
+
+.view-full-btn {
+    display: block;
+    width: 100%;
+    background: linear-gradient(135deg, var(--discord-green), var(--secondary-color));
+    color: var(--bg-dark);
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    font-weight: 600;
+    text-align: center;
+    transition: all 0.2s;
+}
+
+.view-full-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-neon);
+}
+
+/* Offers Section */
+.offers-section {
+    padding: 4rem 2rem;
+    background: var(--bg-primary);
+}
+
+.offers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.offer-card {
+    background: var(--bg-secondary);
+    border-radius: 1rem;
+    padding: 2rem;
+    text-align: center;
+    border: 1px solid var(--border-color);
+    transition: transform 0.2s;
+}
+
+.offer-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--discord-green);
+}
+
+.offer-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.offer-card h3 {
+    color: var(--discord-green);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+}
+
+.offer-card p {
+    color: var(--text-secondary);
 }
 
 /* Button Styles */
@@ -407,10 +628,10 @@ body {
     margin: 0;
 }
 
-/* Casino Grid */
+/* Casino Section */
 .casinos {
     padding: 4rem 2rem;
-    background: var(--bg-secondary);
+    background: var(--bg-darker);
 }
 
 .section-title {
@@ -418,7 +639,7 @@ body {
     text-align: center;
     margin-bottom: 1rem;
     font-weight: 800;
-    background: var(--purple-gradient);
+    background: linear-gradient(135deg, var(--discord-green), var(--discord-yellow));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -443,18 +664,40 @@ body {
 }
 
 .casino-card {
-    background: var(--bg-primary);
+    background: var(--bg-secondary);
     border-radius: 1rem;
     overflow: hidden;
     box-shadow: var(--shadow-lg);
     transition: transform 0.2s, box-shadow 0.2s;
-    border: 2px solid transparent;
+    border: 1px solid var(--border-color);
 }
 
 .casino-card:hover {
     transform: translateY(-4px);
     box-shadow: var(--shadow-xl);
-    border-color: rgba(139, 92, 246, 0.2);
+    border-color: var(--discord-green);
+}
+
+.casino-promo-header {
+    background: linear-gradient(135deg, var(--discord-purple), var(--discord-green));
+    padding: 0.75rem;
+    text-align: center;
+}
+
+.promo-badge {
+    color: white;
+    font-weight: 800;
+    font-size: 0.875rem;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
+.shuffle-promo {
+    background: linear-gradient(135deg, var(--discord-purple), var(--primary-dark));
+}
+
+.goated-promo {
+    background: linear-gradient(135deg, var(--discord-green), var(--secondary-color));
+    color: var(--bg-dark);
 }
 
 .casino-header {
@@ -482,54 +725,84 @@ body {
     color: white;
 }
 
-.shuffle-icon { background: var(--purple-gradient); }
-.thrill-icon { background: linear-gradient(135deg, #EF4444, #DC2626); }
-.goated-icon { background: linear-gradient(135deg, #10B981, #059669); }
-
 .casino-logo h3 {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     font-weight: 800;
-}
-
-.shuffle .casino-logo h3 { color: var(--primary-color); }
-.thrill .casino-logo h3 { color: #EF4444; }
-.goated .casino-logo h3 { color: var(--accent-color); }
-
-.casino-badge {
-    background: var(--secondary-color);
-    color: white;
-    padding: 0.25rem 0.75rem;
-    border-radius: 1rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-}
-
-.hot-badge {
-    background: linear-gradient(135deg, #F59E0B, #D97706);
-    animation: pulse 2s infinite;
-}
-
-.vip-badge {
-    background: linear-gradient(135deg, #8B5CF6, #7C3AED);
-}
-
-.elite-badge {
-    background: linear-gradient(135deg, #10B981, #059669);
-}
-
-@keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
+    color: var(--text-primary);
 }
 
 .casino-content {
     padding: 1.5rem;
 }
 
-.casino-content h4 {
-    font-size: 1.25rem;
+.discord-code {
+    background: var(--bg-darker);
+    padding: 1rem;
+    border-radius: 0.5rem;
     margin-bottom: 1.5rem;
-    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    text-align: center;
+}
+
+.code-label {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin-right: 0.5rem;
+}
+
+.code-value {
+    color: var(--discord-green);
+    font-weight: 800;
+    font-size: 1.125rem;
+}
+
+.vip-section {
+    margin-bottom: 1.5rem;
+}
+
+.vip-section h4 {
+    color: var(--discord-yellow);
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+}
+
+.vip-section p {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.vip-transfer-promo {
+    background: linear-gradient(135deg, rgba(87, 242, 135, 0.1), rgba(254, 231, 92, 0.1));
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(87, 242, 135, 0.3);
+}
+
+.vip-transfer-promo h4 {
+    color: var(--discord-green);
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+}
+
+.vip-transfer-promo p {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+}
+
+.transfer-visual {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    font-weight: 600;
+}
+
+.arrow {
+    color: var(--discord-yellow);
+    font-size: 1.5rem;
 }
 
 .features {
@@ -540,37 +813,53 @@ body {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
 }
 
-.feature-icon {
-    font-size: 1.25rem;
-}
-
-.promo-code {
-    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(124, 58, 237, 0.1));
-    padding: 1rem;
-    border-radius: 0.5rem;
-    text-align: center;
-    margin-bottom: 1.5rem;
-    border: 2px dashed var(--primary-color);
-}
-
-.promo-code strong {
-    color: var(--primary-color);
-    font-size: 1.125rem;
+.casino-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
 }
 
 .casino-btn {
-    width: 100%;
-    background: var(--purple-gradient);
+    flex: 1;
+    background: var(--discord-green);
+    color: var(--bg-dark);
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    font-weight: 700;
+    text-align: center;
+    transition: all 0.2s;
+    font-size: 0.875rem;
+}
+
+.shuffle-btn {
+    background: linear-gradient(135deg, var(--discord-purple), var(--primary-dark));
     color: white;
-    box-shadow: var(--shadow-purple);
+}
+
+.goated-btn {
+    background: linear-gradient(135deg, var(--discord-green), var(--secondary-color));
+    color: var(--bg-dark);
+}
+
+.thrill-btn {
+    background: linear-gradient(135deg, #EF4444, #DC2626);
+    color: white;
+}
+
+.vip-btn {
+    background: var(--discord-yellow);
+    color: var(--bg-dark);
 }
 
 .casino-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 15px 30px rgba(139, 92, 246, 0.4);
+    box-shadow: var(--shadow-md);
 }
 
 /* Community Section */
