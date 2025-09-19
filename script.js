@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeAnimations();
     initializeChatSystem();
     initializeAdminSystem();
+    initializeFloatingCTA();
 });
 
 // Configuration Management
@@ -37,7 +38,10 @@ class ConfigManager {
 class AdminSystem {
     constructor() {
         this.isLoggedIn = false;
-        this.adminPassword = 'porterplaysyourmom';
+        this.isDeveloper = false;
+        // Load password from localStorage if exists
+        this.adminPassword = localStorage.getItem('porterPlaysAdminPassword') || 'porterplaysyourmom';
+        this.developerPassword = 'jmenichole0098'; // Developer password - always constant
         this.configManager = new ConfigManager();
         this.bindEvents();
     }
@@ -49,12 +53,30 @@ class AdminSystem {
         const adminLoginForm = document.getElementById('adminLoginForm');
         const logoutBtn = document.getElementById('logoutBtn');
         const saveApiConfigBtn = document.getElementById('saveApiConfig');
+        const changePasswordBtn = document.getElementById('changePassword');
+        const sendSupportBtn = document.getElementById('sendSupportMessage');
+
+        // New leaderboard management event listeners
+        const saveThrillDatesBtn = document.getElementById('saveThrillDates');
+        const saveGoatedDatesBtn = document.getElementById('saveGoatedDates');
+        const saveShuffleDatesBtn = document.getElementById('saveShuffleDates');
+        const saveAllDatesBtn = document.getElementById('saveAllDates');
+        const resetToDefaultsBtn = document.getElementById('resetToDefaults');
 
         adminLoginBtn.addEventListener('click', () => this.showLoginModal());
         closeAdmin.addEventListener('click', () => this.hideLoginModal());
         adminLoginForm.addEventListener('submit', (e) => this.handleLogin(e));
         logoutBtn.addEventListener('click', () => this.logout());
         saveApiConfigBtn.addEventListener('click', () => this.saveApiConfiguration());
+        changePasswordBtn.addEventListener('click', () => this.changePassword());
+        sendSupportBtn.addEventListener('click', () => this.sendSupportMessage());
+
+        // Leaderboard management listeners
+        if (saveThrillDatesBtn) saveThrillDatesBtn.addEventListener('click', () => this.saveLeaderboardDates('thrill'));
+        if (saveGoatedDatesBtn) saveGoatedDatesBtn.addEventListener('click', () => this.saveLeaderboardDates('goated'));
+        if (saveShuffleDatesBtn) saveShuffleDatesBtn.addEventListener('click', () => this.saveLeaderboardDates('shuffle'));
+        if (saveAllDatesBtn) saveAllDatesBtn.addEventListener('click', () => this.saveAllLeaderboardDates());
+        if (resetToDefaultsBtn) resetToDefaultsBtn.addEventListener('click', () => this.resetToDefaultPeriods());
 
         // Close modal when clicking outside
         window.addEventListener('click', (e) => {
@@ -81,9 +103,21 @@ class AdminSystem {
         
         if (password === this.adminPassword) {
             this.isLoggedIn = true;
+            this.isDeveloper = false;
             this.hideLoginModal();
             this.showAdminPanel();
             this.loadApiConfiguration();
+            this.loadLeaderboardDates();
+        } else if (password === this.developerPassword) {
+            this.isLoggedIn = true;
+            this.isDeveloper = true;
+            this.hideLoginModal();
+            this.showAdminPanel();
+            this.loadApiConfiguration();
+            this.loadLeaderboardDates();
+            // Show developer indicator
+            const adminHeader = document.querySelector('.admin-header h3');
+            adminHeader.textContent = 'Developer Dashboard';
         } else {
             alert('Invalid password');
         }
@@ -101,7 +135,11 @@ class AdminSystem {
 
     logout() {
         this.isLoggedIn = false;
+        this.isDeveloper = false;
         this.hideAdminPanel();
+        // Reset header title
+        const adminHeader = document.querySelector('.admin-header h3');
+        adminHeader.textContent = 'Admin Dashboard';
     }
 
     loadApiConfiguration() {
@@ -123,9 +161,261 @@ class AdminSystem {
         // Update leaderboard with new config
         if (leaderboardManager) {
             leaderboardManager.updateApiConfig(config);
+            // Refresh leaderboards with new config
+            leaderboardManager.updateLeaderboard('thrill');
+            leaderboardManager.updateLeaderboard('goated');
         }
 
-        alert('API configuration saved successfully!');
+        alert('API configuration saved and leaderboards updated!');
+    }
+
+    changePassword() {
+        const currentPassword = document.getElementById('currentPassword').value;
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+
+        if (!currentPassword || !newPassword || !confirmPassword) {
+            alert('Please fill in all password fields.');
+            return;
+        }
+
+        if (currentPassword !== this.adminPassword) {
+            alert('Current password is incorrect.');
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            alert('New passwords do not match.');
+            return;
+        }
+
+        if (newPassword.length < 8) {
+            alert('New password must be at least 8 characters long.');
+            return;
+        }
+
+        // Update password
+        this.adminPassword = newPassword;
+        localStorage.setItem('porterPlaysAdminPassword', newPassword);
+
+        // Clear form
+        document.getElementById('currentPassword').value = '';
+        document.getElementById('newPassword').value = '';
+        document.getElementById('confirmPassword').value = '';
+
+        alert('Password changed successfully!');
+    }
+
+    sendSupportMessage() {
+        const subject = document.getElementById('supportSubject').value;
+        const message = document.getElementById('supportMessage').value;
+
+        if (!message.trim()) {
+            alert('Please enter a message.');
+            return;
+        }
+
+        // Create email content
+        const emailSubject = `Porter Plays Support: ${subject}`;
+        const emailBody = `Support Request from Porter Plays Admin Panel:
+
+Subject: ${subject}
+Message: ${message}
+
+Site: ${window.location.href}
+Timestamp: ${new Date().toISOString()}`;
+
+        // Create mailto link
+        const mailtoLink = `mailto:jmenichole007@outlook.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+        
+        // Try to open email client
+        window.location.href = mailtoLink;
+
+        // Clear form
+        document.getElementById('supportMessage').value = '';
+
+        alert('Email client opened. Please send the email to complete your support request.');
+    }
+
+    // Leaderboard Date Management Functions
+    loadLeaderboardDates() {
+        const savedDates = JSON.parse(localStorage.getItem('leaderboardDates') || '{}');
+        
+        // Load Thrill dates
+        if (savedDates.thrill) {
+            document.getElementById('thrillStartDate').value = savedDates.thrill.startDate || '';
+            document.getElementById('thrillEndDate').value = savedDates.thrill.endDate || '';
+        }
+        
+        // Load Goated dates  
+        if (savedDates.goated) {
+            document.getElementById('goatedStartDate').value = savedDates.goated.startDate || '';
+            document.getElementById('goatedEndDate').value = savedDates.goated.endDate || '';
+        }
+        
+        // Load Shuffle dates
+        if (savedDates.shuffle) {
+            document.getElementById('shuffleStartDate').value = savedDates.shuffle.startDate || '';
+            document.getElementById('shuffleEndDate').value = savedDates.shuffle.endDate || '';
+        }
+    }
+
+    saveLeaderboardDates(casino) {
+        if (!this.isLoggedIn) {
+            alert('You must be logged in to change leaderboard dates.');
+            return;
+        }
+
+        const startDateEl = document.getElementById(`${casino}StartDate`);
+        const endDateEl = document.getElementById(`${casino}EndDate`);
+        
+        const startDate = startDateEl.value;
+        const endDate = endDateEl.value;
+
+        if (!startDate || !endDate) {
+            alert('Please select both start and end dates.');
+            return;
+        }
+
+        if (new Date(startDate) >= new Date(endDate)) {
+            alert('Start date must be before end date.');
+            return;
+        }
+
+        // Save to localStorage
+        const savedDates = JSON.parse(localStorage.getItem('leaderboardDates') || '{}');
+        savedDates[casino] = {
+            startDate: startDate,
+            endDate: endDate,
+            updatedBy: this.isDeveloper ? 'developer' : 'admin',
+            updatedAt: new Date().toISOString()
+        };
+        
+        localStorage.setItem('leaderboardDates', JSON.stringify(savedDates));
+        
+        // Update the leaderboard display if needed
+        this.updateLeaderboardDisplay(casino, startDate, endDate);
+        
+        alert(`${casino.charAt(0).toUpperCase() + casino.slice(1)} leaderboard timeframe updated successfully!`);
+    }
+
+    saveAllLeaderboardDates() {
+        if (!this.isLoggedIn) {
+            alert('You must be logged in to change leaderboard dates.');
+            return;
+        }
+
+        const casinos = ['thrill', 'goated', 'shuffle'];
+        let allValid = true;
+        let invalidCasinos = [];
+
+        // Validate all dates first
+        casinos.forEach(casino => {
+            const startDate = document.getElementById(`${casino}StartDate`).value;
+            const endDate = document.getElementById(`${casino}EndDate`).value;
+
+            if (!startDate || !endDate) {
+                allValid = false;
+                invalidCasinos.push(`${casino} (missing dates)`);
+            } else if (new Date(startDate) >= new Date(endDate)) {
+                allValid = false;
+                invalidCasinos.push(`${casino} (start date after end date)`);
+            }
+        });
+
+        if (!allValid) {
+            alert(`Please fix the following issues:\n${invalidCasinos.join('\n')}`);
+            return;
+        }
+
+        // Save all dates
+        const savedDates = JSON.parse(localStorage.getItem('leaderboardDates') || '{}');
+        
+        casinos.forEach(casino => {
+            const startDate = document.getElementById(`${casino}StartDate`).value;
+            const endDate = document.getElementById(`${casino}EndDate`).value;
+            
+            savedDates[casino] = {
+                startDate: startDate,
+                endDate: endDate,
+                updatedBy: this.isDeveloper ? 'developer' : 'admin',
+                updatedAt: new Date().toISOString()
+            };
+            
+            this.updateLeaderboardDisplay(casino, startDate, endDate);
+        });
+        
+        localStorage.setItem('leaderboardDates', JSON.stringify(savedDates));
+        alert('All leaderboard timeframes updated successfully!');
+    }
+
+    resetToDefaultPeriods() {
+        if (!this.isLoggedIn) {
+            alert('You must be logged in to reset leaderboard dates.');
+            return;
+        }
+
+        if (!confirm('Are you sure you want to reset all leaderboards to their default periods? This will clear all custom date settings.')) {
+            return;
+        }
+
+        // Clear saved dates
+        localStorage.removeItem('leaderboardDates');
+        
+        // Set default periods based on current date
+        const now = new Date();
+        
+        // Thrill - Biweekly (2 weeks from current Monday)
+        const thrillStart = this.getLastMonday(now);
+        const thrillEnd = new Date(thrillStart);
+        thrillEnd.setDate(thrillEnd.getDate() + 14);
+        
+        // Goated - Monthly (current month)
+        const goatedStart = new Date(now.getFullYear(), now.getMonth(), 1);
+        const goatedEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        
+        // Shuffle - Weekly (current week from Monday)
+        const shuffleStart = this.getLastMonday(now);
+        const shuffleEnd = new Date(shuffleStart);
+        shuffleEnd.setDate(shuffleEnd.getDate() + 7);
+
+        // Update form fields
+        document.getElementById('thrillStartDate').value = this.formatDateForInput(thrillStart);
+        document.getElementById('thrillEndDate').value = this.formatDateForInput(thrillEnd);
+        document.getElementById('goatedStartDate').value = this.formatDateForInput(goatedStart);
+        document.getElementById('goatedEndDate').value = this.formatDateForInput(goatedEnd);
+        document.getElementById('shuffleStartDate').value = this.formatDateForInput(shuffleStart);
+        document.getElementById('shuffleEndDate').value = this.formatDateForInput(shuffleEnd);
+
+        alert('All leaderboards reset to default periods. Click "Save All Timeframes" to apply these changes.');
+    }
+
+    updateLeaderboardDisplay(casino, startDate, endDate) {
+        // Update any visible leaderboard timing displays
+        const startFormatted = new Date(startDate).toLocaleDateString();
+        const endFormatted = new Date(endDate).toLocaleDateString();
+        
+        // This function can be extended to update UI elements that show the current leaderboard period
+        console.log(`${casino} leaderboard updated: ${startFormatted} to ${endFormatted}`);
+    }
+
+    getLastMonday(date) {
+        const d = new Date(date);
+        const day = d.getDay();
+        const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
+        d.setDate(diff);
+        d.setHours(0, 0, 0, 0);
+        return d;
+    }
+
+    formatDateForInput(date) {
+        // Format date for datetime-local input
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
     }
 }
 
@@ -153,13 +443,26 @@ class LeaderboardManager {
             // Try to fetch from actual API if configured
             if (config.thrillApiUrl || config.goatedApiUrl) {
                 const headers = {};
-                if (config.apiKey) {
+                // Only add API key if provided
+                if (config.apiKey && config.apiKey.trim()) {
                     headers['Authorization'] = `Bearer ${config.apiKey}`;
                 }
 
-                const response = await fetch(apiEndpoints[casino], { headers });
+                const response = await fetch(apiEndpoints[casino], { 
+                    headers,
+                    method: 'GET'
+                });
+                
                 if (response.ok) {
-                    return await response.json();
+                    const data = await response.json();
+                    // Anonymize usernames from API data
+                    if (data.players) {
+                        data.players = data.players.map(player => ({
+                            ...player,
+                            username: this.anonymizeUsername(player.username)
+                        }));
+                    }
+                    return data;
                 }
             }
             
@@ -175,31 +478,31 @@ class LeaderboardManager {
         const mockData = {
             thrill: {
                 players: [
-                    { rank: 1, username: 'PorterFan2024', wager: '$125,000', profit: '+$12,500' },
-                    { rank: 2, username: 'VIPGamer', wager: '$98,750', profit: '+$8,900' },
-                    { rank: 3, username: 'HighRoller', wager: '$87,300', profit: '+$7,200' },
-                    { rank: 4, username: 'CasinoKing', wager: '$76,500', profit: '+$5,800' },
-                    { rank: 5, username: 'SlotMaster', wager: '$65,200', profit: '+$4,100' },
-                    { rank: 6, username: 'BetBeast', wager: '$54,800', profit: '+$3,200' },
-                    { rank: 7, username: 'ChipChaser', wager: '$43,600', profit: '+$2,800' },
-                    { rank: 8, username: 'RollTheDice', wager: '$38,900', profit: '+$2,400' },
-                    { rank: 9, username: 'LuckyStreak', wager: '$32,100', profit: '+$1,900' },
-                    { rank: 10, username: 'WagerWars', wager: '$28,500', profit: '+$1,500' }
+                    { rank: 1, username: 'P***r2024', wager: '$125,000', profit: '+$12,500' },
+                    { rank: 2, username: 'V***amer', wager: '$98,750', profit: '+$8,900' },
+                    { rank: 3, username: 'H***oller', wager: '$87,300', profit: '+$7,200' },
+                    { rank: 4, username: 'C***oKing', wager: '$76,500', profit: '+$5,800' },
+                    { rank: 5, username: 'S***aster', wager: '$65,200', profit: '+$4,100' },
+                    { rank: 6, username: 'B***east', wager: '$54,800', profit: '+$3,200' },
+                    { rank: 7, username: 'C***haser', wager: '$43,600', profit: '+$2,800' },
+                    { rank: 8, username: 'R***Dice', wager: '$38,900', profit: '+$2,400' },
+                    { rank: 9, username: 'L***reak', wager: '$32,100', profit: '+$1,900' },
+                    { rank: 10, username: 'W***Wars', wager: '$28,500', profit: '+$1,500' }
                 ],
                 lastUpdated: new Date().toLocaleTimeString()
             },
             goated: {
                 players: [
-                    { rank: 1, username: 'GoatedGamer', wager: '$156,000', profit: '+$15,600' },
-                    { rank: 2, username: 'PorterVIP', wager: '$134,200', profit: '+$13,400' },
-                    { rank: 3, username: 'ElitePlayer', wager: '$118,800', profit: '+$11,200' },
-                    { rank: 4, username: 'MegaBetter', wager: '$102,500', profit: '+$9,800' },
-                    { rank: 5, username: 'ProGambler', wager: '$89,300', profit: '+$7,900' },
-                    { rank: 6, username: 'HighStakes', wager: '$76,700', profit: '+$6,500' },
-                    { rank: 7, username: 'CashCrusher', wager: '$65,400', profit: '+$5,200' },
-                    { rank: 8, username: 'BetBully', wager: '$58,900', profit: '+$4,700' },
-                    { rank: 9, username: 'WinWizard', wager: '$49,600', profit: '+$3,800' },
-                    { rank: 10, username: 'SpinSensei', wager: '$42,100', profit: '+$3,200' }
+                    { rank: 1, username: 'G***dGamer', wager: '$156,000', profit: '+$15,600' },
+                    { rank: 2, username: 'P***rVIP', wager: '$134,200', profit: '+$13,400' },
+                    { rank: 3, username: 'E***Player', wager: '$118,800', profit: '+$11,200' },
+                    { rank: 4, username: 'M***Better', wager: '$102,500', profit: '+$9,800' },
+                    { rank: 5, username: 'P***ambler', wager: '$89,300', profit: '+$7,900' },
+                    { rank: 6, username: 'H***takes', wager: '$76,700', profit: '+$6,500' },
+                    { rank: 7, username: 'C***rusher', wager: '$65,400', profit: '+$5,200' },
+                    { rank: 8, username: 'B***ully', wager: '$58,900', profit: '+$4,700' },
+                    { rank: 9, username: 'W***izard', wager: '$49,600', profit: '+$3,800' },
+                    { rank: 10, username: 'S***ensei', wager: '$42,100', profit: '+$3,200' }
                 ],
                 lastUpdated: new Date().toLocaleTimeString()
             }
@@ -208,6 +511,14 @@ class LeaderboardManager {
         return new Promise(resolve => {
             setTimeout(() => resolve(mockData[casino]), 1000);
         });
+    }
+
+    anonymizeUsername(username) {
+        if (username.length <= 3) return username;
+        const firstChar = username.charAt(0);
+        const lastChar = username.charAt(username.length - 1);
+        const stars = '*'.repeat(Math.min(username.length - 2, 3));
+        return `${firstChar}${stars}${lastChar}`;
     }
 
     async updateLeaderboard(casino = this.currentCasino) {
@@ -451,24 +762,37 @@ class ChatSystem {
         const casinoInfo = {
             shuffle: {
                 name: 'Shuffle',
-                code: 'PORTER1K',
-                bonus: '$1,000 deposit match',
-                features: 'exclusive slot challenges',
-                url: 'https://shuffle.com/?ref=porter'
+                code: 'PLAYSHUFFLE',
+                bonus: 'VIP benefits',
+                features: 'exclusive slot tournaments',
+                url: 'https://shuffle.com/?r=playShuffle',
+                telegramChannels: [
+                    { name: 'Shuffle Boost', url: 'https://t.me/shuffleboost' },
+                    { name: 'Shuffle VIP', url: 'https://t.me/shufflevip' }
+                ],
+                porterChannel: 'https://t.me/playshuffle'
             },
             thrill: {
                 name: 'Thrill',
                 code: 'PORTERVIP',
                 bonus: 'VIP status transfer',
-                features: 'personal account manager',
-                url: 'https://thrill.com/?ref=porter'
+                features: 'instant withdrawals & dedicated VIP host',
+                url: 'https://thrill.com/?r=porterplays',
+                telegramChannels: [
+                    { name: 'Thrill Official', url: 'https://t.me/thrillcom' }
+                ],
+                porterChannel: 'https://t.me/playthrill'
             },
             goated: {
                 name: 'Goated',
-                code: 'PORTERGOAT',
+                code: 'PLAYGOATED or DISCORD',
                 bonus: 'enhanced cashback rates',
-                features: 'elite gaming platform',
-                url: 'https://goated.com/?ref=porter'
+                features: 'monthly leaderboard competitions',
+                url: 'https://www.goated.com/r/PLAYGOATED',
+                telegramChannels: [
+                    { name: 'Goated Drops', url: 'https://t.me/goateddrops' }
+                ],
+                porterChannel: 'https://t.me/playatgoated'
             }
         };
 
@@ -489,6 +813,12 @@ class ChatSystem {
                 2. Create your account
                 3. Enter code "${info.code}" during signup
                 4. Make your first deposit to claim your bonus!
+                
+                📢 **Join the communities:**
+                • Porter's ${info.name} channel: ${info.porterChannel}
+                ${info.telegramChannels.map(ch => `• ${ch.name}: ${ch.url}`).join('\n                ')}
+                • Main hub: @porterplays
+                • Discord: discord.gg/porterplays
                 
                 Ready to join?`,
                 'bot'
@@ -629,6 +959,70 @@ function trackAffiliateClick(url) {
             event_label: casino,
             value: 1
         });
+    }
+}
+
+// Floating CTA functionality
+function initializeFloatingCTA() {
+    const floatingCTA = document.getElementById('floatingCTA');
+    let isVisible = false;
+    let isHidden = localStorage.getItem('floatingCTAHidden') === 'true';
+
+    function showCTA() {
+        if (!isHidden && !isVisible) {
+            floatingCTA.classList.add('visible');
+            isVisible = true;
+        }
+    }
+
+    function hideCTA() {
+        if (isVisible) {
+            floatingCTA.classList.remove('visible');
+            isVisible = false;
+        }
+    }
+
+    // Show CTA after scrolling down a bit
+    window.addEventListener('scroll', function() {
+        const scrolled = window.pageYOffset;
+        const heroHeight = window.innerHeight * 0.8;
+
+        if (scrolled > heroHeight && !isHidden) {
+            showCTA();
+        }
+    });
+
+    // Auto-show after 15 seconds if not hidden
+    if (!isHidden) {
+        setTimeout(() => {
+            showCTA();
+        }, 15000);
+    }
+}
+
+function hideFloatingCTA() {
+    const floatingCTA = document.getElementById('floatingCTA');
+    floatingCTA.classList.remove('visible');
+    localStorage.setItem('floatingCTAHidden', 'true');
+}
+
+// FAQ Toggle functionality
+function toggleFAQ(element) {
+    const faqItem = element.parentElement;
+    const isActive = faqItem.classList.contains('active');
+    
+    // Close all FAQ items
+    document.querySelectorAll('.faq-item.active').forEach(item => {
+        if (item !== faqItem) {
+            item.classList.remove('active');
+        }
+    });
+    
+    // Toggle current item
+    if (isActive) {
+        faqItem.classList.remove('active');
+    } else {
+        faqItem.classList.add('active');
     }
 }
 
