@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Porter Plays - Casino Leaderboard</title>
+    <meta name="description" content="Join Porter Robinson's exclusive casino community with VIP benefits, deposit matches, and exclusive challenges on Shuffle, Thrill, and Goated.">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Admin Login Modal -->
+    <div id="adminModal" class="admin-modal">
+        <div class="admin-modal-content">
+            <span class="close-admin">&times;</span>
+            <h2>Admin Login</h2>
+            <form id="adminLoginForm">
+                <input type="password" id="adminPassword" placeholder="Enter admin password" required>
+                <button type="submit">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="adminPanel" class="admin-panel hidden">
+        <div class="admin-header">
+            <h3>Admin Dashboard</h3>
+            <button id="logoutBtn" class="logout-btn">Logout</button>
+        </div>
+        <div class="admin-content">
+            <div class="api-config">
+                <h4>API Configuration</h4>
+                <div class="api-form">
+                    <div class="form-group">
+                        <label for="thrillApiUrl">Thrill API URL:</label>
+                        <input type="url" id="thrillApiUrl" placeholder="https://api.thrill.com/leaderboard">
+                    </div>
+                    <div class="form-group">
+                        <label for="goatedApiUrl">Goated API URL:</label>
+                        <input type="url" id="goatedApiUrl" placeholder="https://api.goated.com/leaderboard">
+                    </div>
+                    <div class="form-group">
+                        <label for="apiKey">API Key:</label>
+                        <input type="password" id="apiKey" placeholder="Enter API key">
+                    </div>
+                    <button type="button" id="saveApiConfig" class="save-btn">Save Configuration</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header Section -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <div class="logo-container">
+                    <div class="logo-icon">S</div>
+                    <h1 class="logo">Porter Plays</h1>
+                </div>
+            </div>
+            <div class="nav-links">
+                <a href="#casinos" class="nav-link">Casinos</a>
+                <a href="#leaderboard" class="nav-link">Leaderboard</a>
+                <a href="#community" class="nav-link">Community</a>
+                <button id="adminLoginBtn" class="admin-login-btn">Admin</button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">Join Porter Robinson's<br>Exclusive Casino Community</h1>
+            <p class="hero-subtitle">Experience premium gaming with VIP benefits, exclusive bonuses, and live leaderboard competitions</p>
+            <div class="hero-cta">
+                <a href="#casinos" class="btn-primary">Get Started</a>
+                <a href="#leaderboard" class="btn-secondary">View Leaderboard</a>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="leaderboard-preview">
+                <h3>Live Leaderboard</h3>
+                <div class="leaderboard-loading">Loading latest standings...</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- VIP Transfer Highlight -->
+    <section class="vip-highlight" id="vip">
+        <div class="container">
+            <div class="vip-content">
+                <div class="vip-badge">VIP EXCLUSIVE</div>
+                <h2>Seamless VIP Transfer to Thrill.com</h2>
+                <p>Already a VIP member elsewhere? Transfer your status instantly to Thrill.com and maintain all your exclusive benefits without starting over.</p>
+                <div class="vip-benefits">
+                    <div class="benefit">
+                        <div class="benefit-icon">🎯</div>
+                        <div class="benefit-text">
+                            <h4>Instant VIP Status</h4>
+                            <p>Keep your current VIP level</p>
+                        </div>
+                    </div>
+                    <div class="benefit">
+                        <div class="benefit-icon">💎</div>
+                        <div class="benefit-text">
+                            <h4>Exclusive Bonuses</h4>
+                            <p>Higher deposit matches & cashback</p>
+                        </div>
+                    </div>
+                    <div class="benefit">
+                        <div class="benefit-icon">⚡</div>
+                        <div class="benefit-text">
+                            <h4>Priority Support</h4>
+                            <p>Dedicated VIP account manager</p>
+                        </div>
+                    </div>
+                </div>
+                <a href="https://thrill.com/?ref=porter" target="_blank" class="btn-primary">Transfer VIP Status</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Casino Sites Section -->
+    <section class="casinos" id="casinos">
+        <div class="container">
+            <h2 class="section-title">Exclusive Porter Partner Casinos</h2>
+            <p class="section-subtitle">Join through Porter's codes for maximum benefits and exclusive features</p>
+            
+            <div class="casino-grid">
+                <!-- Shuffle.com -->
+                <div class="casino-card shuffle">
+                    <div class="casino-header">
+                        <div class="casino-logo">
+                            <div class="casino-icon shuffle-icon">S</div>
+                            <h3>Shuffle</h3>
+                        </div>
+                        <div class="casino-badge">Exclusive Challenges</div>
+                    </div>
+                    <div class="casino-content">
+                        <h4>Premium Gaming Experience</h4>
+                        <div class="features">
+                            <div class="feature">
+                                <span class="feature-icon">🎰</span>
+                                <span>Exclusive Slot Challenges</span>
+                            </div>
+                            <div class="feature">
+                                <span class="feature-icon">💰</span>
+                                <span>Deposit Match up to $1,000</span>
+                            </div>
+                            <div class="feature">
+                                <span class="feature-icon">🏆</span>
+                                <span>Weekly Tournaments</span>
+                            </div>
+                            <div class="feature">
+                                <span class="feature-icon">⚡</span>
+                                <span>Instant Withdrawals</span>
+                            </div>
+                        </div>
+                        <div class="promo-code">
+                            <span>Porter's Code: <strong>PORTER1K</strong></span>
+                        </div>
+                        <a href="https://shuffle.com/?ref=porter" target="_blank" class="casino-btn">Join Shuffle</a>
+                    </div>
+                </div>
+
+                <!-- Thrill.com -->
+                <div class="casino-card thrill">
+                    <div class="casino-header">
+                        <div class="casino-logo">
+                            <div class="casino-icon thrill-icon">T</div>
+                            <h3>Thrill</h3>
+                        </div>
+                        <div class="casino-badge">VIP Transfer</div>
+                    </div>
+                    <div class="casino-content">
+                        <h4>VIP Gaming Paradise</h4>
+                        <div class="features">
+                            <div class="feature">
+                                <span class="feature-icon">👑</span>
+                                <span>VIP Status Transfer</span>
+                            </div>
+                            <div class="feature">
+                                <span class="feature-icon">💎</span>
+                                <span>Exclusive VIP Bonuses</span>
+                            </div>
+                            <div class="feature">
+                                <span class="feature-icon">🎯</span>
+                                <span>Personal Account Manager</span>
+                            </div>
+                            <div class="feature">
+                                <span class="feature-icon">🚀</span>
+                                <span>Higher Betting Limits</span>
+                            </div>
+                        </div>
+                        <div class="promo-code">
+                            <span>Porter's Code: <strong>PORTERVIP</strong></span>
+                        </div>
+                        <a href="https://thrill.com/?ref=porter" target="_blank" class="casino-btn">Join Thrill</a>
+                    </div>
+                </div>
+
+                <!-- Goated.com -->
+                <div class="casino-card goated">
+                    <div class="casino-header">
+                        <div class="casino-logo">
+                            <div class="casino-icon goated-icon">G</div>
+                            <h3>Goated</h3>
+                        </div>
+                        <div class="casino-badge">VIP Transfer</div>
+                    </div>
+                    <div class="casino-content">
+                        <h4>Elite Gaming Platform</h4>
+                        <div class="features">
+                            <div class="feature">
+                                <span class="feature-icon">🔥</span>
+                                <span>VIP Transfer Available</span>
+                            </div>
+                            <div class="feature">
+                                <span class="feature-icon">🎲</span>
+                                <span>Exclusive Game Selection</span>
+                            </div>
+                            <div class="feature">
+                                <span class="feature-icon">💸</span>
+                                <span>Enhanced Cashback Rates</span>
+                            </div>
+                            <div class="feature">
+                                <span class="feature-icon">🏅</span>
+                                <span>Priority Customer Support</span>
+                            </div>
+                        </div>
+                        <div class="promo-code">
+                            <span>Porter's Code: <strong>PORTERGOAT</strong></span>
+                        </div>
+                        <a href="https://goated.com/?ref=porter" target="_blank" class="casino-btn">Join Goated</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Community Section -->
+    <section class="community" id="community">
+        <div class="container">
+            <h2 class="section-title">Porter's Gaming Community</h2>
+            <p class="section-subtitle">Connect with fellow players and stay updated with the latest news</p>
+            
+            <div class="community-grid">
+                <div class="community-card">
+                    <h3>Latest Updates</h3>
+                    <div class="updates-content">
+                        <div class="update-item">
+                            <div class="update-date">Dec 19, 2024</div>
+                            <div class="update-text">New VIP tier rewards added to Thrill.com</div>
+                        </div>
+                        <div class="update-item">
+                            <div class="update-date">Dec 18, 2024</div>
+                            <div class="update-text">Shuffle exclusive tournament starts tomorrow</div>
+                        </div>
+                        <div class="update-item">
+                            <div class="update-date">Dec 17, 2024</div>
+                            <div class="update-text">Goated launch special bonuses available</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="community-card">
+                    <h3>Weekly Stats</h3>
+                    <div class="stats-content">
+                        <div class="stat-item">
+                            <div class="stat-number">$2.5M</div>
+                            <div class="stat-label">Total Wagered</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">1,247</div>
+                            <div class="stat-label">Active Players</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">$125K</div>
+                            <div class="stat-label">Total Winnings</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Leaderboard Section -->
+    <section class="leaderboard" id="leaderboard">
+        <div class="container">
+            <h2 class="section-title">Live Wager Leaderboard</h2>
+            <p class="section-subtitle">Compete with Porter's community and climb the rankings</p>
+            
+            <div class="leaderboard-tabs">
+                <button class="tab-btn active" data-casino="thrill">Thrill</button>
+                <button class="tab-btn" data-casino="goated">Goated</button>
+            </div>
+
+            <div class="leaderboard-container">
+                <div class="leaderboard-content" id="thrill-leaderboard">
+                    <div class="leaderboard-loading">
+                        <div class="loading-spinner"></div>
+                        <p>Loading Thrill leaderboard...</p>
+                    </div>
+                </div>
+                <div class="leaderboard-content" id="goated-leaderboard" style="display: none;">
+                    <div class="leaderboard-loading">
+                        <div class="loading-spinner"></div>
+                        <p>Loading Goated leaderboard...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h3>Porter Plays</h3>
+                    <p>Join the exclusive gaming community</p>
+                </div>
+                <div class="footer-links">
+                    <div class="link-group">
+                        <h4>Casinos</h4>
+                        <a href="https://shuffle.com/?ref=porter" target="_blank">Shuffle</a>
+                        <a href="https://thrill.com/?ref=porter" target="_blank">Thrill</a>
+                        <a href="https://goated.com/?ref=porter" target="_blank">Goated</a>
+                    </div>
+                    <div class="link-group">
+                        <h4>Features</h4>
+                        <a href="#leaderboard">Leaderboard</a>
+                        <a href="#vip">VIP Transfer</a>
+                        <a href="#casinos">Exclusive Codes</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Porter Plays. Gamble responsibly. 18+</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Chat Bubble -->
+    <div id="chatBubble" class="chat-bubble">
+        <div class="chat-icon">💬</div>
+        <div class="chat-tooltip">Need help signing up?</div>
+    </div>
+
+    <!-- Chat Widget -->
+    <div id="chatWidget" class="chat-widget hidden">
+        <div class="chat-header">
+            <h4>Porter Plays Assistant</h4>
+            <button id="closeChatBtn" class="close-chat">&times;</button>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="chat-message bot-message">
+                <div class="message-text">
+                    Hi! I'm here to help you get started with Porter's exclusive casino codes. Which casino interests you most?
+                </div>
+            </div>
+        </div>
+        <div class="chat-options">
+            <button class="chat-option" data-casino="shuffle">🎰 Shuffle - $1K Match</button>
+            <button class="chat-option" data-casino="thrill">👑 Thrill - VIP Transfer</button>
+            <button class="chat-option" data-casino="goated">🔥 Goated - Elite Gaming</button>
+        </div>
+        <div class="chat-input-area hidden">
+            <input type="text" id="chatInput" placeholder="Ask me anything...">
+            <button id="sendChatBtn">Send</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
