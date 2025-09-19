@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Porter Plays - Live Casino Leaderboard</title>
     <meta name="description" content="Join Porter's exclusive casino community with VIP benefits, deposit matches, and exclusive challenges on Shuffle, Thrill, and Goated.">
+    <!-- Fonts: Oxanium (display) + Barlow Condensed (UI/labels) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;600;800&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -23,66 +27,300 @@
     <!-- Admin Panel -->
     <div id="adminPanel" class="admin-panel hidden">
         <div class="admin-header">
-            <h3>Admin Dashboard</h3>
-            <button id="logoutBtn" class="logout-btn">Logout</button>
-        </div>
-        <div class="admin-content">
-            <div class="api-config">
-                <h4>API Configuration</h4>
-                <div class="leaderboard-timing-info">
-                    <div class="timing-item">
-                        <span class="casino-name">Thrill:</span>
-                        <span class="timing">Biweekly Leaderboard</span>
-                    </div>
-                    <div class="timing-item">
-                        <span class="casino-name">Goated:</span>
-                        <span class="timing">Monthly Leaderboard</span>
-                    </div>
-                </div>
-                <div class="api-form">
-                    <div class="form-group">
-                        <label for="thrillApiUrl">Thrill API URL (Biweekly):</label>
-                        <input type="url" id="thrillApiUrl" placeholder="https://api.thrill.com/leaderboard">
-                        <small>Leaderboard updates every 2 weeks (URL only required if no API key)</small>
-                    </div>
-                    <div class="form-group">
-                        <label for="goatedApiUrl">Goated API URL (Monthly):</label>
-                        <input type="url" id="goatedApiUrl" placeholder="https://api.goated.com/leaderboard">
-                        <small>Leaderboard updates monthly (URL only required if no API key)</small>
-                    </div>
-                    <div class="form-group">
-                        <label for="apiKey">API Key (Optional):</label>
-                        <input type="password" id="apiKey" placeholder="Enter API key (not required if URLs work)">
-                        <small>Only needed if URLs require authentication</small>
-                    </div>
-                    <button type="button" id="saveApiConfig" class="save-btn">Save & Update Leaderboards</button>
-                </div>
-            </div>
+            <!doctype html>
+            <html lang="en">
+                <head>
+                    <meta charset="utf-8" />
+                    <meta name="viewport" content="width=device-width, initial-scale=1" />
+                    <title>Porter Plays — Leaderboards & VIP</title>
+                    <meta name="description" content="Your arena for competitive play. Track leaderboards, claim elite bonuses, and transfer VIP status on Shuffle, Thrill, and Goated." />
 
-            <div class="leaderboard-management">
-                <h4>Leaderboard Timeframe Management</h4>
-                <div class="leaderboard-configs">
-                    <div class="leaderboard-config">
-                        <h5>Thrill Leaderboard</h5>
-                        <div class="date-controls">
-                            <div class="form-group">
-                                <label for="thrillStartDate">Start Date:</label>
-                                <input type="datetime-local" id="thrillStartDate" class="date-input">
+                    <!-- Fonts: Bruno Ace & Bruno Ace SC (requested) -->
+                    <link rel="preconnect" href="https://fonts.googleapis.com">
+                    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+                    <link href="https://fonts.googleapis.com/css2?family=Bruno+Ace&family=Bruno+Ace+SC&display=swap" rel="stylesheet">
+
+                    <link rel="stylesheet" href="styles.css" />
+                </head>
+                <body class="pp-root">
+                    <!-- Top bar -->
+                    <header class="pp-header">
+                        <div class="pp-container">
+                            <div class="pp-brand">
+                                <span class="pp-logo">PP</span>
+                                <span class="pp-title">Porter Plays</span>
                             </div>
-                            <div class="form-group">
-                                <label for="thrillEndDate">End Date:</label>
-                                <input type="datetime-local" id="thrillEndDate" class="date-input">
+                            <nav class="pp-nav">
+                                <a href="#bonuses">Bonuses</a>
+                                <a href="#snapshot">Leaderboards</a>
+                                <a href="#vip">VIP Transfer</a>
+                                <a href="https://discord.gg/porterplays" target="_blank" rel="noopener">Discord</a>
+                                <button id="adminLoginBtn" class="admin-login-btn" type="button">Admin</button>
+                            </nav>
+                        </div>
+                    </header>
+
+                    <!-- Hero -->
+                    <section class="pp-hero">
+                        <div class="pp-container">
+                            <p class="pp-kicker">Your arena for</p>
+                            <h1 class="pp-hero-title"><span>COMPETITIVE PLAY.</span></h1>
+                            <p class="pp-hero-sub">Official hub for Porter Plays leaderboards. Track performance, compete for exclusive prize pools, and secure your place at the top.</p>
+                            <div class="pp-hero-cta">
+                                <a class="pp-btn pp-btn-primary" href="#snapshot">View Leaderboards</a>
+                                <a class="pp-btn pp-btn-ghost" href="#bonuses">Claim Bonuses</a>
                             </div>
                         </div>
-                        <button type="button" id="saveThrillDates" class="save-btn">Update Thrill Timeframe</button>
+                    </section>
+
+                    <!-- Bonuses Grid -->
+                    <section id="bonuses" class="pp-section">
+                        <div class="pp-container">
+                            <div class="pp-card pp-card-elevated pp-bonuses">
+                                <p class="pp-eyebrow">New to Porter Plays?</p>
+                                <h2 class="pp-section-title">Claim Your Exclusive <span class="pp-gradient">Elite Bonuses</span></h2>
+                                <p class="pp-section-sub">Unlock special promotions you can’t access elsewhere. Join the supporter community and dominate with VIP perks and challenges.</p>
+
+                                <div class="pp-bonus-grid">
+                                    <article class="pp-bonus">
+                                        <img src="Thrill Logo- Dark Blue.svg" alt="Thrill" class="pp-bonus-logo" />
+                                        <h3>Thrill</h3>
+                                        <p>High‑energy gameplay with competitive events and VIP boosts.</p>
+                                        <div class="pp-actions">
+                                            <a class="pp-btn pp-btn-primary" href="https://thrill.com/?r=porterplays" target="_blank" rel="noopener">Play Now</a>
+                                        </div>
+                                    </article>
+
+                                    <article class="pp-bonus">
+                                        <img src="goatedlogo.png" alt="Goated" class="pp-bonus-logo" />
+                                        <h3>Goated</h3>
+                                        <p>Premium platform and VIP program with transfer support.</p>
+                                        <div class="pp-actions">
+                                            <a class="pp-btn pp-btn-primary" href="https://goated.com/r/PLAYGOATED" target="_blank" rel="noopener">Play Now</a>
+                                            <a class="pp-btn pp-btn-ghost" href="https://www.goated.com/vip-program" target="_blank" rel="noopener">VIP Program</a>
+                                        </div>
+                                    </article>
+
+                                    <article class="pp-bonus">
+                                        <img src="shufflelogo.png" alt="Shuffle" class="pp-bonus-logo" />
+                                        <h3>Shuffle</h3>
+                                        <p>Modern experience with original games and active events.</p>
+                                        <div class="pp-actions">
+                                            <a class="pp-btn pp-btn-primary" href="https://shuffle.com/?r=playShuffle" target="_blank" rel="noopener">Play Now</a>
+                                        </div>
+                                    </article>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Leaderboard Snapshot -->
+                    <section id="snapshot" class="pp-section">
+                        <div class="pp-container">
+                            <h2 class="pp-section-title">Leaderboard <span class="pp-gradient">Snapshot</span></h2>
+                            <p class="pp-section-sub">Here’s a look at current contenders. Live values appear when connected to your source. No fabricated numbers.</p>
+
+                            <div class="pp-controls">
+                                <button class="pp-chip is-active" type="button">Today</button>
+                                <button class="pp-chip" type="button">This Week</button>
+                                <button class="pp-chip" type="button">This Month</button>
+                                <button class="pp-chip" type="button">All Time</button>
+                            </div>
+
+                            <div class="pp-table">
+                                <div class="pp-row pp-row-1">
+                                    <div class="pp-rank">#1</div>
+                                    <div class="pp-user">A****2</div>
+                                    <div class="pp-wager" data-placeholder>Updating…</div>
+                                    <div class="pp-prize" data-placeholder>—</div>
+                                </div>
+                                <div class="pp-row pp-row-2">
+                                    <div class="pp-rank">#2</div>
+                                    <div class="pp-user">D****T</div>
+                                    <div class="pp-wager" data-placeholder>Updating…</div>
+                                    <div class="pp-prize" data-placeholder>—</div>
+                                </div>
+                                <div class="pp-row pp-row-3">
+                                    <div class="pp-rank">#3</div>
+                                    <div class="pp-user">L****e</div>
+                                    <div class="pp-wager" data-placeholder>Updating…</div>
+                                    <div class="pp-prize" data-placeholder>—</div>
+                                </div>
+                            </div>
+
+                            <div class="pp-cta-center">
+                                <a class="pp-btn pp-btn-primary" href="#bonuses">View Full Leaderboards</a>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- VIP Transfer (Goated highlight) -->
+                    <section id="vip" class="pp-section">
+                        <div class="pp-container">
+                            <div class="pp-card pp-card-elevated pp-vip">
+                                <h2 class="pp-section-title"><span class="pp-emoji">🏆</span> Goated VIP Transfer Program</h2>
+                                <p class="pp-section-sub">Already VIP elsewhere? Transfer your status instantly—no grinding from zero.</p>
+
+                                <div class="pp-vip-grid">
+                                    <div class="pp-vip-col">
+                                        <h3 class="pp-col-title">What You Need</h3>
+                                        <ul class="pp-list">
+                                            <li>Higher VIP status on any competing platform</li>
+                                            <li>Meet wagering targets in your first 30 days at Goated*</li>
+                                            <li>Public account stats on your current platform</li>
+                                        </ul>
+                                        <div class="pp-note">*Terms apply. See program page for details.</div>
+                                    </div>
+                                    <div class="pp-vip-col">
+                                        <h3 class="pp-col-title">How It Works</h3>
+                                        <ol class="pp-steps">
+                                            <li>Contact live support and request VIP Transfer</li>
+                                            <li>Verify your current VIP status with public stats</li>
+                                            <li>Submit proof via bet link when prompted</li>
+                                            <li>Enjoy your transferred status + eligible bonuses</li>
+                                        </ol>
+                                    </div>
+                                </div>
+
+                                <div class="pp-cta-right">
+                                    <a class="pp-btn pp-btn-primary" href="https://www.goated.com/vip-program" target="_blank" rel="noopener">Transfer VIP Status</a>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Footer -->
+                    <footer class="pp-footer">
+                        <div class="pp-container pp-footer-inner">
+                            <div class="pp-footer-left">
+                                <div class="pp-brand"><span class="pp-logo">PP</span><span class="pp-title">Porter Plays</span></div>
+                                <p class="pp-footnote">18+ only. Gambling can be addictive. Play responsibly.</p>
+                            </div>
+                            <div class="pp-footer-links">
+                                <a href="https://shuffle.com/?r=playShuffle" target="_blank" rel="noopener">Shuffle</a>
+                                <a href="https://thrill.com/?r=porterplays" target="_blank" rel="noopener">Thrill</a>
+                                <a href="https://goated.com/r/PLAYGOATED" target="_blank" rel="noopener">Goated</a>
+                                <a href="https://discord.gg/porterplays" target="_blank" rel="noopener">Discord</a>
+                            </div>
+                        </div>
+                    </footer>
+
+                    <!-- Admin Login Modal -->
+                    <div id="adminModal" class="admin-modal">
+                        <div class="admin-modal-content">
+                            <span class="close-admin">&times;</span>
+                            <h2>Admin Login</h2>
+                            <form id="adminLoginForm">
+                                <input type="password" id="adminPassword" placeholder="Enter admin password" required />
+                                <button type="submit">Login</button>
+                            </form>
+                        </div>
                     </div>
 
-                    <div class="leaderboard-config">
-                        <h5>Goated Leaderboard</h5>
-                        <div class="date-controls">
-                            <div class="form-group">
-                                <label for="goatedStartDate">Start Date:</label>
-                                <input type="datetime-local" id="goatedStartDate" class="date-input">
+                    <!-- Admin Panel -->
+                    <div id="adminPanel" class="admin-panel hidden">
+                        <div class="admin-header">
+                            <h3>Admin Dashboard</h3>
+                            <button id="logoutBtn" class="logout-btn">Logout</button>
+                        </div>
+                        <div class="admin-content">
+                            <div class="api-config">
+                                <h4>API Configuration</h4>
+                                <div class="leaderboard-timing-info">
+                                    <div class="timing-item"><span class="casino-name">Thrill:</span><span class="timing">Biweekly Leaderboard</span></div>
+                                    <div class="timing-item"><span class="casino-name">Goated:</span><span class="timing">Monthly Leaderboard</span></div>
+                                </div>
+                                <div class="api-form">
+                                    <div class="form-group">
+                                        <label for="thrillApiUrl">Thrill API URL (Biweekly):</label>
+                                        <input type="url" id="thrillApiUrl" placeholder="https://api.thrill.com/leaderboard" />
+                                        <small>Leaderboard updates every 2 weeks (URL only required if no API key)</small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="goatedApiUrl">Goated API URL (Monthly):</label>
+                                        <input type="url" id="goatedApiUrl" placeholder="https://api.goated.com/leaderboard" />
+                                        <small>Leaderboard updates monthly (URL only required if no API key)</small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="apiKey">API Key (Optional):</label>
+                                        <input type="password" id="apiKey" placeholder="Enter API key (not required if URLs work)" />
+                                        <small>Only needed if URLs require authentication</small>
+                                    </div>
+                                    <button type="button" id="saveApiConfig" class="save-btn">Save & Update Leaderboards</button>
+                                </div>
+                            </div>
+
+                            <div class="leaderboard-management">
+                                <h4>Leaderboard Timeframe Management</h4>
+                                <div class="leaderboard-configs">
+                                    <div class="leaderboard-config">
+                                        <h5>Thrill Leaderboard</h5>
+                                        <div class="date-controls">
+                                            <div class="form-group"><label for="thrillStartDate">Start Date:</label><input type="datetime-local" id="thrillStartDate" class="date-input" /></div>
+                                            <div class="form-group"><label for="thrillEndDate">End Date:</label><input type="datetime-local" id="thrillEndDate" class="date-input" /></div>
+                                        </div>
+                                        <button type="button" id="saveThrillDates" class="save-btn">Update Thrill Timeframe</button>
+                                    </div>
+
+                                    <div class="leaderboard-config">
+                                        <h5>Goated Leaderboard</h5>
+                                        <div class="date-controls">
+                                            <div class="form-group"><label for="goatedStartDate">Start Date:</label><input type="datetime-local" id="goatedStartDate" class="date-input" /></div>
+                                            <div class="form-group"><label for="goatedEndDate">End Date:</label><input type="datetime-local" id="goatedEndDate" class="date-input" /></div>
+                                        </div>
+                                        <button type="button" id="saveGoatedDates" class="save-btn">Update Goated Timeframe</button>
+                                    </div>
+
+                                    <div class="leaderboard-config">
+                                        <h5>Shuffle Leaderboard</h5>
+                                        <div class="date-controls">
+                                            <div class="form-group"><label for="shuffleStartDate">Start Date:</label><input type="datetime-local" id="shuffleStartDate" class="date-input" /></div>
+                                            <div class="form-group"><label for="shuffleEndDate">End Date:</label><input type="datetime-local" id="shuffleEndDate" class="date-input" /></div>
+                                        </div>
+                                        <button type="button" id="saveShuffleDates" class="save-btn">Update Shuffle Timeframe</button>
+                                    </div>
+                                </div>
+                                <div class="bulk-actions">
+                                    <button type="button" id="saveAllDates" class="save-btn primary">Save All Timeframes</button>
+                                    <button type="button" id="resetToDefaults" class="save-btn secondary">Reset to Default Periods</button>
+                                </div>
+                            </div>
+
+                            <div class="admin-security">
+                                <h4>Security Settings</h4>
+                                <div class="security-form">
+                                    <div class="form-group"><label for="currentPassword">Current Password:</label><input type="password" id="currentPassword" placeholder="Enter current password" /></div>
+                                    <div class="form-group"><label for="newPassword">New Password:</label><input type="password" id="newPassword" placeholder="Enter new password" /></div>
+                                    <div class="form-group"><label for="confirmPassword">Confirm New Password:</label><input type="password" id="confirmPassword" placeholder="Confirm new password" /></div>
+                                    <button type="button" id="changePassword" class="save-btn">Change Password</button>
+                                </div>
+                            </div>
+
+                            <div class="developer-support">
+                                <h4>Developer Support</h4>
+                                <div class="support-form">
+                                    <div class="form-group">
+                                        <label for="supportSubject">Subject:</label>
+                                        <select id="supportSubject">
+                                            <option value="technical">Technical Issue</option>
+                                            <option value="feature">Feature Request</option>
+                                            <option value="bug">Bug Report</option>
+                                            <option value="general">General Support</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="supportMessage">Message:</label>
+                                        <textarea id="supportMessage" rows="4" placeholder="Describe your issue or request…"></textarea>
+                                    </div>
+                                    <button type="button" id="sendSupportMessage" class="save-btn">Send</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <script src="script.js"></script>
+                </body>
+            </html>
                             </div>
                             <div class="form-group">
                                 <label for="goatedEndDate">End Date:</label>
@@ -176,7 +414,7 @@
     <section class="hero">
         <div class="hero-content">
             <div class="hero-badge">🔥 #1 CRYPTO CASINO COMMUNITY</div>
-            <h1 class="hero-title">Turn Your<br><span class="gradient-text">Crypto Bets</span> Into<br>VIP Status</h1>
+            <h1 class="hero-title">Turn Your<br><span class="gradient-text">Game</span> Into<br>VIP Status</h1>
             <p class="hero-subtitle">Join elite players getting <strong>exclusive codes, instant VIP transfers,</strong> and access to the highest-paying casino bonuses in crypto.</p>
             <div class="hero-benefits">
                 <div class="benefit-item">✅ Instant VIP status transfers</div>
