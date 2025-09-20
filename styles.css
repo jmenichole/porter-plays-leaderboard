@@ -116,6 +116,7 @@ body.pp-root {
     opacity: 0.85;
     font-weight: 600;
     letter-spacing: 0.8px;
+    transform: scaleY(-1);
 }
 .pp-nav {
     display: flex;
@@ -456,6 +457,7 @@ body.pp-root {
     }
     .pp-logo-plays {
         font-size: 13px;
+        transform: scaleY(-1);
     }
     .pp-nav {
         gap: 16px;
@@ -511,6 +513,7 @@ body.pp-root {
     }
     .pp-logo-plays {
         font-size: 12px;
+        transform: scaleY(-1);
     }
     .pp-nav {
         gap: 12px;

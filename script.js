@@ -83,6 +83,10 @@ class AdminSystem {
     this.goatedPlacesPaid = document.getElementById('goatedPlacesPaid');
     this.goatedEnabled = document.getElementById('goatedEnabled');
     this.goatedPrizeEditor = document.getElementById('goatedPrizeEditor');
+    this.shufflePrizeTotal = document.getElementById('shufflePrizeTotal');
+    this.shufflePlacesPaid = document.getElementById('shufflePlacesPaid');
+    this.shuffleEnabled = document.getElementById('shuffleEnabled');
+    this.shufflePrizeEditor = document.getElementById('shufflePrizeEditor');
 
         adminLoginBtn.addEventListener('click', () => this.showLoginModal());
         closeAdmin.addEventListener('click', () => this.hideLoginModal());
@@ -201,6 +205,7 @@ class AdminSystem {
         const config = {
             thrillApiUrl: document.getElementById('thrillApiUrl').value,
             goatedApiUrl: document.getElementById('goatedApiUrl').value,
+            shuffleApiUrl: document.getElementById('shuffleApiUrl').value,
             apiKey: document.getElementById('apiKey').value
         };
 
@@ -212,6 +217,7 @@ class AdminSystem {
             // Refresh leaderboards with new config
             leaderboardManager.updateLeaderboard('thrill');
             leaderboardManager.updateLeaderboard('goated');
+            leaderboardManager.updateLeaderboard('shuffle');
         }
 
         alert('API configuration saved and leaderboards updated!');
@@ -221,6 +227,7 @@ class AdminSystem {
         const config = this.configManager.getApiConfig();
         const thrillCustom = this.collectCustomPrizes('thrill');
         const goatedCustom = this.collectCustomPrizes('goated');
+        const shuffleCustom = this.collectCustomPrizes('shuffle');
         config.settings = {
             thrill: {
                 enabled: this.thrillEnabled?.checked ?? true,
@@ -233,6 +240,12 @@ class AdminSystem {
                 prizeTotal: Number(this.goatedPrizeTotal?.value ?? 1000),
                 placesPaid: Number(this.goatedPlacesPaid?.value ?? 3),
                 customPrizes: goatedCustom
+            },
+            shuffle: {
+                enabled: this.shuffleEnabled?.checked ?? true,
+                prizeTotal: Number(this.shufflePrizeTotal?.value ?? 2000),
+                placesPaid: Number(this.shufflePlacesPaid?.value ?? 3),
+                customPrizes: shuffleCustom
             }
         };
         this.configManager.saveApiConfig(config);
@@ -240,6 +253,7 @@ class AdminSystem {
             leaderboardManager.applySettings(config.settings);
             leaderboardManager.updateLeaderboard('thrill');
             leaderboardManager.updateLeaderboard('goated');
+            leaderboardManager.updateLeaderboard('shuffle');
         }
     }
 
@@ -628,7 +642,8 @@ class LeaderboardManager {
         const config = this.configManager.getApiConfig();
         const apiEndpoints = {
             thrill: config.thrillApiUrl || 'https://api.thrill.com/leaderboard',
-            goated: config.goatedApiUrl || 'https://api.goated.com/leaderboard'
+            goated: config.goatedApiUrl || 'https://api.goated.com/leaderboard',
+            shuffle: config.shuffleApiUrl || 'https://api.shuffle.com/leaderboard'
         };
 
         try {
