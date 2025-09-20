@@ -102,6 +102,14 @@ class AdminSystem {
         if (saveShuffleDatesBtn) saveShuffleDatesBtn.addEventListener('click', () => this.saveLeaderboardDates('shuffle'));
         if (saveAllDatesBtn) saveAllDatesBtn.addEventListener('click', () => this.saveAllLeaderboardDates());
         if (resetToDefaultsBtn) resetToDefaultsBtn.addEventListener('click', () => this.resetToDefaultPeriods());
+
+        // Individual settings save listeners
+        const saveThrillSettingsBtn = document.getElementById('saveThrillSettings');
+        const saveGoatedSettingsBtn = document.getElementById('saveGoatedSettings');
+        const saveShuffleSettingsBtn = document.getElementById('saveShuffleSettings');
+        if (saveThrillSettingsBtn) saveThrillSettingsBtn.addEventListener('click', () => this.saveLeaderboardSettings('thrill'));
+        if (saveGoatedSettingsBtn) saveGoatedSettingsBtn.addEventListener('click', () => this.saveLeaderboardSettings('goated'));
+        if (saveShuffleSettingsBtn) saveShuffleSettingsBtn.addEventListener('click', () => this.saveLeaderboardSettings('shuffle'));
         // Save settings on change
         [this.thrillPrizeTotal, this.thrillPlacesPaid, this.thrillEnabled, this.goatedPrizeTotal, this.goatedPlacesPaid, this.goatedEnabled].forEach(el => {
             if (!el) return;
@@ -110,6 +118,7 @@ class AdminSystem {
         // Rebuild editors when placesPaid changes
         if (this.thrillPlacesPaid) this.thrillPlacesPaid.addEventListener('change', () => this.renderPrizeEditor('thrill'));
         if (this.goatedPlacesPaid) this.goatedPlacesPaid.addEventListener('change', () => this.renderPrizeEditor('goated'));
+        if (this.shufflePlacesPaid) this.shufflePlacesPaid.addEventListener('change', () => this.renderPrizeEditor('shuffle'));
 
         // Preset button listeners
         document.addEventListener('click', (e) => {
@@ -124,10 +133,19 @@ class AdminSystem {
         const addNewsBtn = document.getElementById('addNewsItem');
         if (addNewsBtn) addNewsBtn.addEventListener('click', () => this.addNewsItem());
 
+        // Help modal listeners
+        const helpBtn = document.getElementById('helpBtn');
+        const closeHelpBtn = document.getElementById('closeHelpBtn');
+        if (helpBtn) helpBtn.addEventListener('click', () => this.showHelpModal());
+        if (closeHelpBtn) closeHelpBtn.addEventListener('click', () => this.hideHelpModal());
+
         // Close modal when clicking outside
         window.addEventListener('click', (e) => {
             if (e.target === adminModal) {
                 this.hideLoginModal();
+            }
+            if (e.target === document.getElementById('helpModal')) {
+                this.hideHelpModal();
             }
         });
     }
@@ -181,6 +199,16 @@ class AdminSystem {
         panel.classList.add('hidden');
     }
 
+    showHelpModal() {
+        const modal = document.getElementById('helpModal');
+        modal.classList.remove('hidden');
+    }
+
+    hideHelpModal() {
+        const modal = document.getElementById('helpModal');
+        modal.classList.add('hidden');
+    }
+
     logout() {
         this.isLoggedIn = false;
         this.isDeveloper = false;
@@ -202,9 +230,13 @@ class AdminSystem {
         if (this.goatedPrizeTotal) this.goatedPrizeTotal.value = config.settings?.goated?.prizeTotal ?? 1000;
         if (this.goatedPlacesPaid) this.goatedPlacesPaid.value = config.settings?.goated?.placesPaid ?? 3;
         if (this.goatedEnabled) this.goatedEnabled.checked = config.settings?.goated?.enabled ?? true;
+        if (this.shufflePrizeTotal) this.shufflePrizeTotal.value = config.settings?.shuffle?.prizeTotal ?? 2000;
+        if (this.shufflePlacesPaid) this.shufflePlacesPaid.value = config.settings?.shuffle?.placesPaid ?? 3;
+        if (this.shuffleEnabled) this.shuffleEnabled.checked = config.settings?.shuffle?.enabled ?? true;
         // Render editors with any existing custom prizes
         this.renderPrizeEditor('thrill');
         this.renderPrizeEditor('goated');
+        this.renderPrizeEditor('shuffle');
     }
 
     saveApiConfiguration() {
@@ -263,10 +295,60 @@ class AdminSystem {
         }
     }
 
+    saveLeaderboardSettings(casino) {
+        const config = this.configManager.getApiConfig();
+        const customPrizes = this.collectCustomPrizes(casino);
+        
+        // Get the specific values for this casino
+        let prizeTotal, placesPaid, enabled;
+        if (casino === 'thrill') {
+            prizeTotal = Number(this.thrillPrizeTotal?.value ?? 5000);
+            placesPaid = Number(this.thrillPlacesPaid?.value ?? 3);
+            enabled = this.thrillEnabled?.checked ?? true;
+        } else if (casino === 'goated') {
+            prizeTotal = Number(this.goatedPrizeTotal?.value ?? 1000);
+            placesPaid = Number(this.goatedPlacesPaid?.value ?? 3);
+            enabled = this.goatedEnabled?.checked ?? true;
+        } else if (casino === 'shuffle') {
+            prizeTotal = Number(this.shufflePrizeTotal?.value ?? 2000);
+            placesPaid = Number(this.shufflePlacesPaid?.value ?? 3);
+            enabled = this.shuffleEnabled?.checked ?? true;
+        }
+
+        // Update only this casino's settings
+        if (!config.settings) config.settings = {};
+        config.settings[casino] = {
+            enabled: enabled,
+            prizeTotal: prizeTotal,
+            placesPaid: placesPaid,
+            customPrizes: customPrizes
+        };
+
+        this.configManager.saveApiConfig(config);
+        if (leaderboardManager) {
+            leaderboardManager.applySettings(config.settings);
+            leaderboardManager.updateLeaderboard(casino);
+        }
+
+        alert(`${casino.charAt(0).toUpperCase() + casino.slice(1)} settings saved successfully!`);
+    }
+
     renderPrizeEditor(casino) {
         const config = this.configManager.getApiConfig();
-        const places = Number((casino === 'thrill' ? this.thrillPlacesPaid?.value : this.goatedPlacesPaid?.value) || 0);
-        const container = casino === 'thrill' ? this.thrillPrizeEditor : this.goatedPrizeEditor;
+        let places;
+        let container;
+        
+        if (casino === 'thrill') {
+            places = Number(this.thrillPlacesPaid?.value || 0);
+            container = this.thrillPrizeEditor;
+        } else if (casino === 'goated') {
+            places = Number(this.goatedPlacesPaid?.value || 0);
+            container = this.goatedPrizeEditor;
+        } else if (casino === 'shuffle') {
+            places = Number(this.shufflePlacesPaid?.value || 0);
+            container = this.shufflePrizeEditor;
+        }
+        
         if (!container || !places) return;
         const existing = (config.settings?.[casino]?.customPrizes || []).slice(0, places);
         const html = Array.from({ length: places }).map((_, idx) => {
@@ -281,7 +363,15 @@ class AdminSystem {
     }
 
     collectCustomPrizes(casino) {
-        const container = casino === 'thrill' ? this.thrillPrizeEditor : this.goatedPrizeEditor;
+        let container;
+        if (casino === 'thrill') {
+            container = this.thrillPrizeEditor;
+        } else if (casino === 'goated') {
+            container = this.goatedPrizeEditor;
+        } else if (casino === 'shuffle') {
+            container = this.shufflePrizeEditor;
+        }
+        
         if (!container) return [];
         const inputs = Array.from(container.querySelectorAll(`.prize-${casino}`));
         const values = inputs

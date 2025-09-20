@@ -187,7 +187,10 @@
     <div id="adminPanel" class="admin-panel hidden">
         <div class="admin-header">
             <h3>Admin Dashboard</h3>
-            <button id="logoutBtn" class="logout-btn">Logout</button>
+            <div class="admin-header-actions">
+                <button id="helpBtn" class="help-btn" type="button" title="Help & Tips">?</button>
+                <button id="logoutBtn" class="logout-btn">Logout</button>
+            </div>
         </div>
         <div class="admin-content">
             <div class="api-config">
@@ -248,6 +251,7 @@
                             <small>Leave blank to auto-split evenly from Prize Total.</small>
                         </div>
                         <div class="form-group"><label><input type="checkbox" id="thrillEnabled" checked /> Enable Thrill Leaderboard</label></div>
+                        <button type="button" id="saveThrillSettings" class="save-btn">Save Thrill Settings</button>
                         <button type="button" id="saveThrillDates" class="save-btn">Update Thrill Timeframe</button>
                     </div>
 
@@ -274,6 +278,7 @@
                             <small>Leave blank to auto-split evenly from Prize Total.</small>
                         </div>
                         <div class="form-group"><label><input type="checkbox" id="goatedEnabled" checked /> Enable Goated Leaderboard</label></div>
+                        <button type="button" id="saveGoatedSettings" class="save-btn">Save Goated Settings</button>
                         <button type="button" id="saveGoatedDates" class="save-btn">Update Goated Timeframe</button>
                     </div>
 
@@ -300,6 +305,7 @@
                             <small>Leave blank to auto-split evenly from Prize Total.</small>
                         </div>
                         <div class="form-group"><label><input type="checkbox" id="shuffleEnabled" checked /> Enable Shuffle Leaderboard</label></div>
+                        <button type="button" id="saveShuffleSettings" class="save-btn">Save Shuffle Settings</button>
                         <button type="button" id="saveShuffleDates" class="save-btn">Update Shuffle Timeframe</button>
                     </div>
                
@@ -389,7 +395,94 @@
         </div>
     </div>
 
-    <!-- Chat Bubble -->
+    <!-- Help Modal -->
+    <div id="helpModal" class="help-modal hidden">
+        <div class="help-modal-content">
+            <div class="help-modal-header">
+                <h3>Admin Panel Help & Tips</h3>
+                <button id="closeHelpBtn" class="close-help">&times;</button>
+            </div>
+            <div class="help-content">
+                <div class="help-section">
+                    <h4>🔧 API Configuration</h4>
+                    <p><strong>What it does:</strong> Connects the leaderboard to external casino APIs to fetch player data.</p>
+                    <p><strong>How to use:</strong></p>
+                    <ul>
+                        <li>Enter the API URLs for each casino (Thrill, Goated, Shuffle)</li>
+                        <li>Add an API key if the endpoints require authentication</li>
+                        <li>Click "Save & Update Leaderboards" to test the connection and refresh data</li>
+                        <li>URLs are optional if you have a working API key</li>
+                    </ul>
+                    <p><strong>Tip:</strong> Test with one casino first before configuring all three.</p>
+                </div>
+
+                <div class="help-section">
+                    <h4>📅 Leaderboard Timeframe Management</h4>
+                    <p><strong>What it does:</strong> Controls when each leaderboard competition runs and resets.</p>
+                    <p><strong>How to use:</strong></p>
+                    <ul>
+                        <li>Set start and end dates for each leaderboard period</li>
+                        <li>Configure prize pools and number of places paid</li>
+                        <li>Use preset buttons to quickly distribute prizes (Even, Winner Takes All, etc.)</li>
+                        <li>Enable/disable individual leaderboards as needed</li>
+                        <li>Use individual save buttons to update only specific leaderboards</li>
+                    </ul>
+                    <p><strong>Tip:</strong> Use "Save All Timeframes" to update everything at once, or individual buttons for targeted changes.</p>
+                </div>
+
+                <div class="help-section">
+                    <h4>📰 News & Updates Management</h4>
+                    <p><strong>What it does:</strong> Manages the news feed and social media content displayed on the site.</p>
+                    <p><strong>How to use:</strong></p>
+                    <ul>
+                        <li>Add news titles, content, and sources</li>
+                        <li>Include social media handles and URLs for proper attribution</li>
+                        <li>Add embed links for videos, tweets, or other media</li>
+                        <li>Set publication dates for proper chronological ordering</li>
+                        <li>Items appear in the "Latest News" section on the main page</li>
+                    </ul>
+                    <p><strong>Tip:</strong> Use the source dropdown to categorize different types of content.</p>
+                </div>
+
+                <div class="help-section">
+                    <h4>🔒 Security Settings</h4>
+                    <p><strong>What it does:</strong> Manages admin access and password security.</p>
+                    <p><strong>How to use:</strong></p>
+                    <ul>
+                        <li>Enter your current password for verification</li>
+                        <li>Choose a strong new password (at least 8 characters)</li>
+                        <li>Confirm the new password by typing it again</li>
+                        <li>Click "Change Password" to update your credentials</li>
+                    </ul>
+                    <p><strong>Tip:</strong> Use a unique password and change it regularly for security.</p>
+                </div>
+
+                <div class="help-section">
+                    <h4>🆘 Developer Support</h4>
+                    <p><strong>What it does:</strong> Provides a way to contact the development team for assistance.</p>
+                    <p><strong>How to use:</strong></p>
+                    <ul>
+                        <li>Select the appropriate subject from the dropdown</li>
+                        <li>Write a clear, detailed description of your issue or request</li>
+                        <li>Include any error messages or specific details</li>
+                        <li>Click "Send" to submit your support request</li>
+                    </ul>
+                    <p><strong>Tip:</strong> Be specific about what you're trying to accomplish and any error messages you see.</p>
+                </div>
+
+                <div class="help-section">
+                    <h4>💡 Pro Tips</h4>
+                    <ul>
+                        <li><strong>Individual Saves:</strong> Use individual save buttons to avoid affecting other leaderboards when making changes</li>
+                        <li><strong>Preset Distributions:</strong> Try different prize distribution presets to see what works best for your community</li>
+                        <li><strong>Regular Updates:</strong> Update timeframes before competitions end to ensure smooth transitions</li>
+                        <li><strong>Test Changes:</strong> Always test API connections and leaderboard updates in a development environment first</li>
+                        <li><strong>Backup Settings:</strong> Your settings are automatically saved to browser storage, but consider manual backups for important configurations</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="chatBubble" class="chat-bubble">
         <div class="chat-icon">💬</div>
         <div class="chat-tooltip">Need help signing up?</div>
