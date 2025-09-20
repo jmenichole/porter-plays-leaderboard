@@ -469,6 +469,11 @@ Timestamp: ${new Date().toISOString()}`;
         // Update the leaderboard display if needed
         this.updateLeaderboardDisplay(casino, startDate, endDate);
         
+        // Update the leaderboard with new date range
+        if (leaderboardManager) {
+            leaderboardManager.updateLeaderboard(casino);
+        }
+        
         alert(`${casino.charAt(0).toUpperCase() + casino.slice(1)} leaderboard timeframe updated successfully!`);
     }
 
@@ -519,6 +524,14 @@ Timestamp: ${new Date().toISOString()}`;
         });
         
         localStorage.setItem('leaderboardDates', JSON.stringify(savedDates));
+        
+        // Update all leaderboards with new date ranges
+        if (leaderboardManager) {
+            leaderboardManager.updateLeaderboard('thrill');
+            leaderboardManager.updateLeaderboard('goated');
+            leaderboardManager.updateLeaderboard('shuffle');
+        }
+        
         alert('All leaderboard timeframes updated successfully!');
     }
 
@@ -595,7 +608,7 @@ Timestamp: ${new Date().toISOString()}`;
 // Leaderboard Management
 class LeaderboardManager {
     constructor() {
-        this.currentCasino = 'thrill';
+        this.currentCasino = 'goated';
         this.updateInterval = 30000;
         this.isLoading = false;
         this.configManager = new ConfigManager();
@@ -1101,8 +1114,8 @@ function initializeLeaderboard() {
     leaderboardManager = new LeaderboardManager();
     // Choose initial tab based on enabled settings
     const settings = leaderboardManager.settings;
-    const preferThrill = settings?.thrill?.enabled !== false;
-    const initial = preferThrill ? 'thrill' : 'goated';
+    const preferGoated = settings?.goated?.enabled !== false;
+    const initial = preferGoated ? 'goated' : 'thrill';
     leaderboardManager.currentCasino = initial;
     // Activate the correct tab visually
     const tabButtons = document.querySelectorAll('.tab-btn');
