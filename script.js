@@ -171,12 +171,23 @@ class AdminSystem {
     showLoginModal() {
         const modal = document.getElementById('adminModal');
         modal.style.display = 'block';
+        // Hide chat bubble when admin login modal is open
+        const chatBubble = document.getElementById('chatBubble');
+        if (chatBubble) {
+            chatBubble.style.display = 'none';
+        }
     }
 
     hideLoginModal() {
         const modal = document.getElementById('adminModal');
         modal.style.display = 'none';
         document.getElementById('adminPassword').value = '';
+        // Show chat bubble when admin login modal is closed (if admin panel is not open)
+        const adminPanel = document.getElementById('adminPanel');
+        const chatBubble = document.getElementById('chatBubble');
+        if (chatBubble && adminPanel && adminPanel.classList.contains('hidden')) {
+            chatBubble.style.display = 'flex';
+        }
     }
 
     handleLogin(e) {
@@ -208,6 +219,11 @@ class AdminSystem {
     showAdminPanel() {
         const panel = document.getElementById('adminPanel');
         panel.classList.remove('hidden');
+        // Hide chat bubble when admin panel is open
+        const chatBubble = document.getElementById('chatBubble');
+        if (chatBubble) {
+            chatBubble.style.display = 'none';
+        }
         // Initialize news management
         this.initializeNewsManagement();
     }
@@ -215,6 +231,11 @@ class AdminSystem {
     hideAdminPanel() {
         const panel = document.getElementById('adminPanel');
         panel.classList.add('hidden');
+        // Show chat bubble when admin panel is closed
+        const chatBubble = document.getElementById('chatBubble');
+        if (chatBubble) {
+            chatBubble.style.display = 'flex';
+        }
     }
 
     showHelpModal() {
@@ -1477,6 +1498,12 @@ function trackAffiliateClick(url) {
 // Floating CTA functionality
 function initializeFloatingCTA() {
     const floatingCTA = document.getElementById('floatingCTA');
+    
+    // Exit early if floating CTA element doesn't exist (it was removed)
+    if (!floatingCTA) {
+        return;
+    }
+    
     let isVisible = false;
     let isHidden = localStorage.getItem('floatingCTAHidden') === 'true';
 
