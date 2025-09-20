@@ -1533,12 +1533,16 @@ body.pp-root {
     top: 0;
     right: 0;
     width: 400px;
+    min-width: 350px;
+    max-width: 800px;
     height: 100%;
     background: var(--bg-primary);
     box-shadow: var(--shadow-xl);
     z-index: 999;
     padding: 2rem;
     overflow-y: auto;
+    resize: horizontal;
+    overflow: auto;
 }
 
 .admin-header {
@@ -3102,15 +3106,16 @@ body.pp-root {
 
 .help-modal-content {
     background: var(--bg-primary);
-    margin: 2% auto;
+    margin: 5% auto;
     padding: 0;
     border-radius: 1rem;
-    width: 90%;
-    max-width: 800px;
-    max-height: 90vh;
+    width: 85%;
+    max-width: 700px;
+    max-height: 80vh;
     overflow-y: auto;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
     border: 1px solid var(--border-color);
+    position: relative;
 }
 
 .help-modal-header {
@@ -3164,6 +3169,65 @@ body.pp-root {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+}
+
+.help-section p {
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+.help-section ul {
+    margin-left: 1.5rem;
+    color: var(--text-secondary);
+}
+
+.help-section li {
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+}
+
+.help-section strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* Responsive Help Modal */
+@media (max-width: 768px) {
+    .help-modal-content {
+        width: 95%;
+        max-width: none;
+        margin: 2% auto;
+        max-height: 85vh;
+    }
+    
+    .help-modal-header {
+        padding: 1.5rem;
+    }
+    
+    .help-content {
+        padding: 1.5rem;
+    }
+    
+    .help-section {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .help-modal-content {
+        width: 98%;
+        margin: 1% auto;
+        max-height: 90vh;
+    }
+    
+    .help-modal-header {
+        padding: 1rem;
+    }
+    
+    .help-content {
+        padding: 1rem;
+    }
 }
 
 .help-section p {
@@ -3336,7 +3400,7 @@ body.pp-root {
 .chat-bubble {
     position: fixed;
     bottom: 2rem;
-    right: 2rem;
+    left: 2rem;
     width: 60px;
     height: 60px;
     background: var(--purple-gradient);
@@ -3362,7 +3426,7 @@ body.pp-root {
 
 .chat-tooltip {
     position: absolute;
-    right: 70px;
+    left: 70px;
     top: 50%;
     transform: translateY(-50%);
     background: var(--bg-dark);
@@ -3384,7 +3448,7 @@ body.pp-root {
 .chat-widget {
     position: fixed;
     bottom: 2rem;
-    right: 2rem;
+    left: 2rem;
     width: 350px;
     height: 500px;
     background: var(--bg-primary);
