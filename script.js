@@ -174,7 +174,7 @@ class AdminSystem {
         // Hide chat bubble when admin login modal is open
         const chatBubble = document.getElementById('chatBubble');
         if (chatBubble) {
-            chatBubble.style.display = 'none';
+            chatBubble.classList.add('admin-open');
         }
     }
 
@@ -186,7 +186,7 @@ class AdminSystem {
         const adminPanel = document.getElementById('adminPanel');
         const chatBubble = document.getElementById('chatBubble');
         if (chatBubble && adminPanel && adminPanel.classList.contains('hidden')) {
-            chatBubble.style.display = 'flex';
+            chatBubble.classList.remove('admin-open');
         }
     }
 
@@ -222,7 +222,7 @@ class AdminSystem {
         // Hide chat bubble when admin panel is open
         const chatBubble = document.getElementById('chatBubble');
         if (chatBubble) {
-            chatBubble.style.display = 'none';
+            chatBubble.classList.add('admin-open');
         }
         // Initialize news management
         this.initializeNewsManagement();
@@ -234,7 +234,7 @@ class AdminSystem {
         // Show chat bubble when admin panel is closed
         const chatBubble = document.getElementById('chatBubble');
         if (chatBubble) {
-            chatBubble.style.display = 'flex';
+            chatBubble.classList.remove('admin-open');
         }
     }
 

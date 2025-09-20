@@ -3434,6 +3434,11 @@ body.pp-root {
     box-shadow: 0 15px 30px rgba(139, 92, 246, 0.4);
 }
 
+/* Hide chat bubble when admin panel is open */
+.chat-bubble.admin-open {
+    display: none !important;
+}
+
 .chat-icon {
     font-size: 1.5rem;
     color: white;
