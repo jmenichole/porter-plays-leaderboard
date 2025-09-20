@@ -162,5 +162,7 @@ This project is proprietary software for Porter Plays. All rights reserved.
 ---
 
 **Made for degens by degens** ❤️
+**Lead Developer: Jamie Vargas**
+**Project Owner: Porter Robinson/Porter Plays Community**
 
 *Built with passion for the competitive gaming community* 
