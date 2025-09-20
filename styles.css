@@ -95,10 +95,14 @@ body.pp-root {
 .pp-header { position: sticky; top: 0; z-index: 50; backdrop-filter: saturate(140%) blur(8px); background: rgba(27,29,41,0.6); border-bottom: 1px solid var(--pp-border); }
 .pp-header .pp-container { display: flex; align-items: center; justify-content: space-between; height: 64px; }
 .pp-brand { display: flex; align-items: center; gap: 10px; font-weight: 700; }
-.pp-logo { width: 28px; height: 28px; border-radius: 8px; background: linear-gradient(180deg, var(--pp-accent-purple), #3c3af7); display: inline-flex; align-items: center; justify-content: center; color: var(--pp-white); font-size: 12px; }
-.pp-title { letter-spacing: 0.5px; font-family: 'Oxanium', 'Barlow Condensed', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+.pp-logo { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, var(--pp-accent-purple), var(--pp-accent-green)); display: inline-flex; align-items: center; justify-content: center; color: var(--pp-white); position: relative; box-shadow: 0 6px 18px rgba(89,86,255,0.35), inset 0 0 0 1px rgba(255,255,255,0.08); overflow: hidden; }
+.pp-logo::after { content: ''; position: absolute; inset: 0; background: radial-gradient(60% 60% at 30% 20%, rgba(255,255,255,0.18), transparent 60%); pointer-events: none; }
+.pp-letter { font-family: 'Oxanium', 'Barlow Condensed', sans-serif; font-weight: 900; letter-spacing: -0.02em; line-height: 1; display: inline-block; font-size: 16px; text-shadow: 0 2px 8px rgba(0,0,0,0.35); }
+.pp-letter.p1 { transform: translateX(-2px); }
+.pp-letter.p2 { transform: translateX(-3px) rotate(180deg); opacity: 0.9; }
+.pp-title { letter-spacing: 0.6px; font-family: 'Oxanium', 'Barlow Condensed', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; font-size: 1.05rem; }
 .pp-nav { display: flex; align-items: center; gap: 16px; }
-.pp-nav a { color: var(--pp-text); text-decoration: none; opacity: 0.9; font-size: 14px; font-family: 'Barlow Condensed', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+.pp-nav a { color: var(--pp-text); text-decoration: none; opacity: 0.9; font-size: 15px; font-family: 'Barlow Condensed', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
 .pp-nav a:hover { color: var(--pp-white); }
 
 /* Buttons */
@@ -113,7 +117,7 @@ body.pp-root {
 /* Hero */
 .pp-hero { padding: 80px 0 40px; position: relative; }
 .pp-kicker { letter-spacing: 2px; text-transform: uppercase; color: var(--pp-text-dim); margin-bottom: 8px; font-size: 14px; }
-.pp-hero-title { font-size: clamp(36px, 7vw, 72px); letter-spacing: 2px; font-weight: 800; margin: 0 0 12px; text-transform: uppercase; font-family: 'Oxanium', 'Barlow Condensed', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+.pp-hero-title { font-size: clamp(38px, 7.2vw, 76px); letter-spacing: 2.2px; font-weight: 800; margin: 0 0 12px; text-transform: uppercase; font-family: 'Oxanium', 'Barlow Condensed', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
 .pp-hero-title span { background: linear-gradient(90deg, var(--pp-accent-green), var(--pp-accent-purple)); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .pp-hero-sub { max-width: 760px; color: var(--pp-text-dim); margin-bottom: 20px; }
 .pp-hero-cta { display: flex; gap: 12px; }
@@ -124,7 +128,7 @@ body.pp-root {
 
 /* Bonuses */
 .pp-eyebrow { color: var(--pp-text-dim); text-transform: uppercase; letter-spacing: 1.6px; font-size: 12px; margin: 0 0 6px; }
-.pp-section-title { font-size: clamp(28px, 4.2vw, 44px); margin: 0 0 8px; font-family: 'Oxanium', 'Barlow Condensed', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+.pp-section-title { font-size: clamp(30px, 4.4vw, 46px); margin: 0 0 8px; font-family: 'Oxanium', 'Barlow Condensed', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
 .pp-section-sub { color: var(--pp-text-dim); margin: 0 0 24px; max-width: 820px; }
 .pp-section-sub, .pp-hero-sub, p, li { font-weight: 400; letter-spacing: 0; }
 .pp-bonuses { padding: 28px; }
@@ -137,7 +141,7 @@ body.pp-root {
 
 /* Snapshot */
 .pp-controls { display: flex; gap: 8px; margin: 10px 0 16px; }
-.pp-chip { padding: 8px 12px; border-radius: 999px; background: rgba(255,255,255,0.06); border: 1px solid var(--pp-border); color: var(--pp-text); font-weight: 700; font-family: 'Barlow Condensed', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+.pp-chip { padding: 9px 13px; border-radius: 999px; background: rgba(255,255,255,0.06); border: 1px solid var(--pp-border); color: var(--pp-text); font-weight: 700; font-family: 'Barlow Condensed', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; font-size: 15px; }
 .pp-chip.is-active { background: linear-gradient(90deg, rgba(92,255,193,0.2), rgba(89,86,255,0.18)); border-color: rgba(255,255,255,0.2); }
 
 .pp-table { margin-top: 10px; border-radius: 14px; overflow: hidden; border: 1px solid var(--pp-border); box-shadow: 0 10px 30px rgba(0,0,0,0.35); }
@@ -169,6 +173,11 @@ body.pp-root {
 
 /* Admin panel minor alignment in new layout context */
 .admin-modal, .admin-panel { font-family: inherit; }
+/* Prize editor layout */
+.prize-editor { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; margin-top: 6px; }
+.prize-editor .prize-input { display: flex; align-items: center; gap: 6px; }
+.prize-editor .prize-input input { width: 100%; padding: 0.5rem; border: 2px solid var(--border-color); border-radius: 0.5rem; background: var(--bg-darker); color: var(--text-primary); }
+.prize-editor .prize-input label { font-size: 0.85rem; color: var(--text-secondary); min-width: 2.5rem; }
 /* Admin panel sizing tweaks so date pickers fit */
 .admin-panel { font-size: 14px; }
 .admin-panel .form-group input,

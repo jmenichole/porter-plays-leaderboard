@@ -22,15 +22,15 @@ class ConfigManager {
             goatedApiUrl: '',
             apiKey: '',
             settings: {
-                thrill: { enabled: true, prizeTotal: 5000, placesPaid: 3 },
-                goated: { enabled: true, prizeTotal: 1000, placesPaid: 3 }
+                thrill: { enabled: true, prizeTotal: 5000, placesPaid: 3, customPrizes: [] },
+                goated: { enabled: true, prizeTotal: 1000, placesPaid: 3, customPrizes: [] }
             }
         };
         // Migrate old configs without settings
         if (!base.settings) {
             base.settings = {
-                thrill: { enabled: true, prizeTotal: 5000, placesPaid: 3 },
-                goated: { enabled: true, prizeTotal: 1000, placesPaid: 3 }
+                thrill: { enabled: true, prizeTotal: 5000, placesPaid: 3, customPrizes: [] },
+                goated: { enabled: true, prizeTotal: 1000, placesPaid: 3, customPrizes: [] }
             };
         }
         return base;
@@ -78,9 +78,11 @@ class AdminSystem {
     this.thrillPrizeTotal = document.getElementById('thrillPrizeTotal');
     this.thrillPlacesPaid = document.getElementById('thrillPlacesPaid');
     this.thrillEnabled = document.getElementById('thrillEnabled');
+    this.thrillPrizeEditor = document.getElementById('thrillPrizeEditor');
     this.goatedPrizeTotal = document.getElementById('goatedPrizeTotal');
     this.goatedPlacesPaid = document.getElementById('goatedPlacesPaid');
     this.goatedEnabled = document.getElementById('goatedEnabled');
+    this.goatedPrizeEditor = document.getElementById('goatedPrizeEditor');
 
         adminLoginBtn.addEventListener('click', () => this.showLoginModal());
         closeAdmin.addEventListener('click', () => this.hideLoginModal());
@@ -101,6 +103,9 @@ class AdminSystem {
             if (!el) return;
             el.addEventListener('change', () => this.saveSettings());
         });
+        // Rebuild editors when placesPaid changes
+        if (this.thrillPlacesPaid) this.thrillPlacesPaid.addEventListener('change', () => this.renderPrizeEditor('thrill'));
+        if (this.goatedPlacesPaid) this.goatedPlacesPaid.addEventListener('change', () => this.renderPrizeEditor('goated'));
 
         // Close modal when clicking outside
         window.addEventListener('click', (e) => {
@@ -178,6 +183,9 @@ class AdminSystem {
         if (this.goatedPrizeTotal) this.goatedPrizeTotal.value = config.settings?.goated?.prizeTotal ?? 1000;
         if (this.goatedPlacesPaid) this.goatedPlacesPaid.value = config.settings?.goated?.placesPaid ?? 3;
         if (this.goatedEnabled) this.goatedEnabled.checked = config.settings?.goated?.enabled ?? true;
+        // Render editors with any existing custom prizes
+        this.renderPrizeEditor('thrill');
+        this.renderPrizeEditor('goated');
     }
 
     saveApiConfiguration() {
@@ -202,16 +210,20 @@ class AdminSystem {
 
     saveSettings() {
         const config = this.configManager.getApiConfig();
+        const thrillCustom = this.collectCustomPrizes('thrill');
+        const goatedCustom = this.collectCustomPrizes('goated');
         config.settings = {
             thrill: {
                 enabled: this.thrillEnabled?.checked ?? true,
                 prizeTotal: Number(this.thrillPrizeTotal?.value ?? 5000),
-                placesPaid: Number(this.thrillPlacesPaid?.value ?? 3)
+                placesPaid: Number(this.thrillPlacesPaid?.value ?? 3),
+                customPrizes: thrillCustom
             },
             goated: {
                 enabled: this.goatedEnabled?.checked ?? true,
                 prizeTotal: Number(this.goatedPrizeTotal?.value ?? 1000),
-                placesPaid: Number(this.goatedPlacesPaid?.value ?? 3)
+                placesPaid: Number(this.goatedPlacesPaid?.value ?? 3),
+                customPrizes: goatedCustom
             }
         };
         this.configManager.saveApiConfig(config);
@@ -220,6 +232,38 @@ class AdminSystem {
             leaderboardManager.updateLeaderboard('thrill');
             leaderboardManager.updateLeaderboard('goated');
         }
+    }
+
+    renderPrizeEditor(casino) {
+        const config = this.configManager.getApiConfig();
+        const places = Number((casino === 'thrill' ? this.thrillPlacesPaid?.value : this.goatedPlacesPaid?.value) || 0);
+        const container = casino === 'thrill' ? this.thrillPrizeEditor : this.goatedPrizeEditor;
+        if (!container || !places) return;
+        const existing = (config.settings?.[casino]?.customPrizes || []).slice(0, places);
+        const html = Array.from({ length: places }).map((_, idx) => {
+            const val = existing[idx] ?? '';
+            return `<div class="prize-input"><label>#${idx+1}</label><input type="number" class="prize-${casino}" data-rank="${idx+1}" placeholder="$" min="0" step="50" value="${val}"></div>`;
+        }).join('');
+        container.innerHTML = html;
+        // Save on input change
+        container.querySelectorAll(`.prize-${casino}`).forEach(input => {
+            input.addEventListener('change', () => this.saveSettings());
+        });
+    }
+
+    collectCustomPrizes(casino) {
+        const container = casino === 'thrill' ? this.thrillPrizeEditor : this.goatedPrizeEditor;
+        if (!container) return [];
+        const inputs = Array.from(container.querySelectorAll(`.prize-${casino}`));
+        const values = inputs
+            .map(input => {
+                const raw = String(input.value || '').trim();
+                if (raw === '') return 0; // treat blank as no custom value
+                const n = Number(raw);
+                return isNaN(n) ? 0 : n;
+            })
+            .filter(v => v > 0);
+        return values;
     }
 
     changePassword() {
@@ -642,11 +686,19 @@ class LeaderboardManager {
     }
 
     renderLeaderboard(container, data, casino) {
-        const settings = this.settings?.[casino] || { prizeTotal: casino === 'thrill' ? 5000 : 1000, placesPaid: 3 };
+        const settings = this.settings?.[casino] || { prizeTotal: casino === 'thrill' ? 5000 : 1000, placesPaid: 3, customPrizes: [] };
         const lastUpdated = data.lastUpdated || new Date().toLocaleTimeString();
-        // Compute prize breakdown equally among places paid
-        const prizePerPlace = settings.placesPaid > 0 ? Math.floor((settings.prizeTotal || 0) / settings.placesPaid) : 0;
-        const prizeForRank = (rank) => rank <= settings.placesPaid ? `$${prizePerPlace.toLocaleString()}` : '—';
+        // Compute prize: prefer customPrizes if provided and valid; otherwise split evenly
+        const custom = Array.isArray(settings.customPrizes) ? settings.customPrizes : [];
+        const hasCustom = custom.length > 0;
+        const evenPrize = settings.placesPaid > 0 ? Math.floor((settings.prizeTotal || 0) / settings.placesPaid) : 0;
+        const prizeForRank = (rank) => {
+            if (rank <= settings.placesPaid) {
+                const amount = hasCustom && custom[rank - 1] ? custom[rank - 1] : evenPrize;
+                return amount > 0 ? `$${Number(amount).toLocaleString()}` : '—';
+            }
+            return '—';
+        };
         const liveDot = '<span class="live-dot" aria-hidden="true"></span>';
         const html = `
             <div class="leaderboard-header">

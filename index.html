@@ -16,7 +16,7 @@
     <header class="pp-header">
         <div class="pp-container">
             <div class="pp-brand">
-                <span class="pp-logo">PP</span>
+                <span class="pp-logo"><span class="pp-letter p1">P</span><span class="pp-letter p2">P</span></span>
                 <span class="pp-title">Porter Plays</span>
             </div>
             <nav class="pp-nav">
@@ -211,6 +211,11 @@
                         </div>
                         <div class="form-group"><label for="thrillPrizeTotal">Prize Total ($):</label><input type="number" id="thrillPrizeTotal" placeholder="5000" min="0" step="100" /></div>
                         <div class="form-group"><label for="thrillPlacesPaid">Places Paid:</label><input type="number" id="thrillPlacesPaid" placeholder="3" min="1" step="1" /></div>
+                        <div class="form-group">
+                            <label>Per-Place Prizes:</label>
+                            <div id="thrillPrizeEditor" class="prize-editor"></div>
+                            <small>Leave blank to auto-split evenly from Prize Total.</small>
+                        </div>
                         <div class="form-group"><label><input type="checkbox" id="thrillEnabled" checked /> Enable Thrill Leaderboard</label></div>
                         <button type="button" id="saveThrillDates" class="save-btn">Update Thrill Timeframe</button>
                     </div>
@@ -223,6 +228,11 @@
                         </div>
                         <div class="form-group"><label for="goatedPrizeTotal">Prize Total ($):</label><input type="number" id="goatedPrizeTotal" placeholder="1000" min="0" step="100" /></div>
                         <div class="form-group"><label for="goatedPlacesPaid">Places Paid:</label><input type="number" id="goatedPlacesPaid" placeholder="3" min="1" step="1" /></div>
+                        <div class="form-group">
+                            <label>Per-Place Prizes:</label>
+                            <div id="goatedPrizeEditor" class="prize-editor"></div>
+                            <small>Leave blank to auto-split evenly from Prize Total.</small>
+                        </div>
                         <div class="form-group"><label><input type="checkbox" id="goatedEnabled" checked /> Enable Goated Leaderboard</label></div>
                         <button type="button" id="saveGoatedDates" class="save-btn">Update Goated Timeframe</button>
                     </div>
