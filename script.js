@@ -17,11 +17,23 @@ class ConfigManager {
 
     loadApiConfig() {
         const saved = localStorage.getItem('porterPlaysApiConfig');
-        return saved ? JSON.parse(saved) : {
+        const base = saved ? JSON.parse(saved) : {
             thrillApiUrl: '',
             goatedApiUrl: '',
-            apiKey: ''
+            apiKey: '',
+            settings: {
+                thrill: { enabled: true, prizeTotal: 5000, placesPaid: 3 },
+                goated: { enabled: true, prizeTotal: 1000, placesPaid: 3 }
+            }
         };
+        // Migrate old configs without settings
+        if (!base.settings) {
+            base.settings = {
+                thrill: { enabled: true, prizeTotal: 5000, placesPaid: 3 },
+                goated: { enabled: true, prizeTotal: 1000, placesPaid: 3 }
+            };
+        }
+        return base;
     }
 
     saveApiConfig(config) {
@@ -62,6 +74,13 @@ class AdminSystem {
         const saveShuffleDatesBtn = document.getElementById('saveShuffleDates');
         const saveAllDatesBtn = document.getElementById('saveAllDates');
         const resetToDefaultsBtn = document.getElementById('resetToDefaults');
+    // Settings inputs
+    this.thrillPrizeTotal = document.getElementById('thrillPrizeTotal');
+    this.thrillPlacesPaid = document.getElementById('thrillPlacesPaid');
+    this.thrillEnabled = document.getElementById('thrillEnabled');
+    this.goatedPrizeTotal = document.getElementById('goatedPrizeTotal');
+    this.goatedPlacesPaid = document.getElementById('goatedPlacesPaid');
+    this.goatedEnabled = document.getElementById('goatedEnabled');
 
         adminLoginBtn.addEventListener('click', () => this.showLoginModal());
         closeAdmin.addEventListener('click', () => this.hideLoginModal());
@@ -77,6 +96,11 @@ class AdminSystem {
         if (saveShuffleDatesBtn) saveShuffleDatesBtn.addEventListener('click', () => this.saveLeaderboardDates('shuffle'));
         if (saveAllDatesBtn) saveAllDatesBtn.addEventListener('click', () => this.saveAllLeaderboardDates());
         if (resetToDefaultsBtn) resetToDefaultsBtn.addEventListener('click', () => this.resetToDefaultPeriods());
+        // Save settings on change
+        [this.thrillPrizeTotal, this.thrillPlacesPaid, this.thrillEnabled, this.goatedPrizeTotal, this.goatedPlacesPaid, this.goatedEnabled].forEach(el => {
+            if (!el) return;
+            el.addEventListener('change', () => this.saveSettings());
+        });
 
         // Close modal when clicking outside
         window.addEventListener('click', (e) => {
@@ -147,6 +171,13 @@ class AdminSystem {
         document.getElementById('thrillApiUrl').value = config.thrillApiUrl || '';
         document.getElementById('goatedApiUrl').value = config.goatedApiUrl || '';
         document.getElementById('apiKey').value = config.apiKey || '';
+        // Load settings
+        if (this.thrillPrizeTotal) this.thrillPrizeTotal.value = config.settings?.thrill?.prizeTotal ?? 5000;
+        if (this.thrillPlacesPaid) this.thrillPlacesPaid.value = config.settings?.thrill?.placesPaid ?? 3;
+        if (this.thrillEnabled) this.thrillEnabled.checked = config.settings?.thrill?.enabled ?? true;
+        if (this.goatedPrizeTotal) this.goatedPrizeTotal.value = config.settings?.goated?.prizeTotal ?? 1000;
+        if (this.goatedPlacesPaid) this.goatedPlacesPaid.value = config.settings?.goated?.placesPaid ?? 3;
+        if (this.goatedEnabled) this.goatedEnabled.checked = config.settings?.goated?.enabled ?? true;
     }
 
     saveApiConfiguration() {
@@ -167,6 +198,28 @@ class AdminSystem {
         }
 
         alert('API configuration saved and leaderboards updated!');
+    }
+
+    saveSettings() {
+        const config = this.configManager.getApiConfig();
+        config.settings = {
+            thrill: {
+                enabled: this.thrillEnabled?.checked ?? true,
+                prizeTotal: Number(this.thrillPrizeTotal?.value ?? 5000),
+                placesPaid: Number(this.thrillPlacesPaid?.value ?? 3)
+            },
+            goated: {
+                enabled: this.goatedEnabled?.checked ?? true,
+                prizeTotal: Number(this.goatedPrizeTotal?.value ?? 1000),
+                placesPaid: Number(this.goatedPlacesPaid?.value ?? 3)
+            }
+        };
+        this.configManager.saveApiConfig(config);
+        if (leaderboardManager) {
+            leaderboardManager.applySettings(config.settings);
+            leaderboardManager.updateLeaderboard('thrill');
+            leaderboardManager.updateLeaderboard('goated');
+        }
     }
 
     changePassword() {
@@ -426,10 +479,16 @@ class LeaderboardManager {
         this.updateInterval = 30000;
         this.isLoading = false;
         this.configManager = new ConfigManager();
+        this.settings = this.configManager.getApiConfig().settings;
     }
 
     updateApiConfig(config) {
         this.configManager.saveApiConfig(config);
+        if (config.settings) this.settings = config.settings;
+    }
+
+    applySettings(settings) {
+        this.settings = settings;
     }
 
     async fetchLeaderboardData(casino) {
@@ -527,16 +586,20 @@ class LeaderboardManager {
         if (this.isLoading) return;
         
         this.isLoading = true;
-        const container = document.getElementById(`${casino}-leaderboard`);
+    const container = document.getElementById(`${casino}-leaderboard`);
+    if (!container) { this.isLoading = false; return; }
         
         try {
             const data = await this.fetchLeaderboardData(casino);
-            // Render legacy table if container exists
+            // Render full table for the correct tab only; respect enable toggle
             if (container) {
-                this.renderLeaderboard(container, data);
+                const enabled = this.settings?.[casino]?.enabled !== false;
+                if (!enabled) {
+                    container.innerHTML = `<div class="leaderboard-loading">Leaderboard is currently disabled for ${casino}.</div>`;
+                } else {
+                    this.renderLeaderboard(container, data, casino);
+                }
             }
-            // Update snapshot table in new layout (only with real API data)
-            this.renderSnapshot(data);
         } catch (error) {
             console.error('Error updating leaderboard:', error);
             if (container) this.renderError(container);
@@ -578,11 +641,18 @@ class LeaderboardManager {
         });
     }
 
-    renderLeaderboard(container, data) {
+    renderLeaderboard(container, data, casino) {
+        const settings = this.settings?.[casino] || { prizeTotal: casino === 'thrill' ? 5000 : 1000, placesPaid: 3 };
+        const lastUpdated = data.lastUpdated || new Date().toLocaleTimeString();
+        // Compute prize breakdown equally among places paid
+        const prizePerPlace = settings.placesPaid > 0 ? Math.floor((settings.prizeTotal || 0) / settings.placesPaid) : 0;
+        const prizeForRank = (rank) => rank <= settings.placesPaid ? `$${prizePerPlace.toLocaleString()}` : '—';
+        const liveDot = '<span class="live-dot" aria-hidden="true"></span>';
         const html = `
             <div class="leaderboard-header">
+                <div class="live-indicator">${liveDot}<span class="live-text">Live</span></div>
                 <h3>Top Players</h3>
-                <p class="last-updated">Last updated: ${data.lastUpdated}</p>
+                <p class="last-updated">Last updated: ${lastUpdated}</p>
             </div>
             <table class="leaderboard-table">
                 <thead>
@@ -590,7 +660,7 @@ class LeaderboardManager {
                         <th>Rank</th>
                         <th>Player</th>
                         <th>Total Wager</th>
-                        <th>Profit</th>
+                        <th>Prize</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -599,9 +669,7 @@ class LeaderboardManager {
                             <td class="leaderboard-rank">#${player.rank}</td>
                             <td class="leaderboard-player">${player.username}</td>
                             <td class="leaderboard-wager">${player.wager}</td>
-                            <td class="leaderboard-profit ${player.profit.startsWith('+') ? 'positive' : 'negative'}">
-                                ${player.profit}
-                            </td>
+                            <td class="leaderboard-prize">${prizeForRank(player.rank)}</td>
                         </tr>
                     `).join('')}
                 </tbody>
@@ -673,18 +741,15 @@ class LeaderboardManager {
                     color: var(--accent-color);
                     font-weight: 600;
                 }
-                .leaderboard-profit.positive { 
-                    color: var(--accent-color); 
-                    font-weight: 600; 
-                }
-                .leaderboard-profit.negative { 
-                    color: #ef4444; 
-                    font-weight: 600; 
-                }
+                .leaderboard-prize { font-weight: 700; color: #ffd700; }
                 .leaderboard-header { 
-                    padding: 1rem 0; 
+                    padding: 0.5rem 0 1rem; 
                     border-bottom: 2px solid var(--primary-color); 
                     margin-bottom: 1rem; 
+                    display: grid;
+                    grid-template-columns: 1fr auto 1fr;
+                    align-items: center;
+                    gap: 8px;
                     text-align: center;
                 }
                 .leaderboard-header h3 {
@@ -696,6 +761,9 @@ class LeaderboardManager {
                     font-size: 0.875rem; 
                     margin: 0; 
                 }
+                .live-indicator { display: inline-flex; align-items: center; gap: 8px; justify-content: flex-start; }
+                .live-dot { width: 8px; height: 8px; background: #ff4444; border-radius: 50%; animation: blink 1s infinite; box-shadow: 0 0 8px rgba(255,68,68,0.7); }
+                @keyframes blink { 0%,50%{opacity:1} 51%,100%{opacity:.3} }
             `;
             document.head.appendChild(style);
         }
@@ -903,6 +971,18 @@ let chatSystem;
 
 function initializeLeaderboard() {
     leaderboardManager = new LeaderboardManager();
+    // Choose initial tab based on enabled settings
+    const settings = leaderboardManager.settings;
+    const preferThrill = settings?.thrill?.enabled !== false;
+    const initial = preferThrill ? 'thrill' : 'goated';
+    leaderboardManager.currentCasino = initial;
+    // Activate the correct tab visually
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    tabButtons.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.casino === initial);
+    });
+    const contents = document.querySelectorAll('.leaderboard-content');
+    contents.forEach(c => c.style.display = c.id.startsWith(initial) ? 'block' : 'none');
     leaderboardManager.startAutoUpdate();
 }
 

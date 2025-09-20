@@ -45,8 +45,8 @@
     <section id="bonuses" class="pp-section">
         <div class="pp-container">
             <div class="pp-card pp-card-elevated pp-bonuses">
-                <p class="pp-eyebrow">New to Porter Plays?</p>
-                <h2 class="pp-section-title">Wanna <span class="pp-gradient">Play?</span></h2>
+                <p class="pp-eyebrow">For new Porter Plays members</p>
+                <h2 class="pp-section-title">Ready to <span class="pp-gradient">Play?</span></h2>
                 <p class="pp-section-sub">Unlock special promotions you can’t access elsewhere. Join the supporter community and dominate with VIP perks and challenges.</p>
 
                 <div class="pp-bonus-grid">
@@ -124,6 +124,7 @@
                             <li>Verify your current VIP status with public stats</li>
                             <li>Submit proof via bet link when prompted</li>
                             <li>Enjoy your transferred status + eligible bonuses</li>
+                            <li>Claim your cash prize after hitting your target wager</li>
                         </ol>
                     </div>
                 </div>
@@ -143,15 +144,6 @@
                 <p class="pp-footnote">We are not a casino. 18+ age to play. VPN may be required on some platforms. Gamble responsibly.</p>
             </div>
             <div class="pp-footer-links">
-                <a href="https://shuffle.com/?r=playShuffle" target="_blank" rel="noopener" title="Shuffle">
-                    <img src="shufflelogo.png" alt="Shuffle" class="pp-footer-icon" />
-                </a>
-                <a href="https://thrill.com/?r=porterplays" target="_blank" rel="noopener" title="Thrill">
-                    <img src="Thrill Logo- White.png" alt="Thrill" class="pp-footer-icon" />
-                </a>
-                <a href="https://goated.com/r/PLAYGOATED" target="_blank" rel="noopener" title="Goated">
-                    <img src="goatedlogo.png" alt="Goated" class="pp-footer-icon" />
-                </a>
                 <a href="https://discord.gg/porterplays" target="_blank" rel="noopener" title="Discord">Discord</a>
             </div>
         </div>
@@ -217,6 +209,9 @@
                             <div class="form-group"><label for="thrillStartDate">Start Date:</label><input type="datetime-local" id="thrillStartDate" class="date-input" /></div>
                             <div class="form-group"><label for="thrillEndDate">End Date:</label><input type="datetime-local" id="thrillEndDate" class="date-input" /></div>
                         </div>
+                        <div class="form-group"><label for="thrillPrizeTotal">Prize Total ($):</label><input type="number" id="thrillPrizeTotal" placeholder="5000" min="0" step="100" /></div>
+                        <div class="form-group"><label for="thrillPlacesPaid">Places Paid:</label><input type="number" id="thrillPlacesPaid" placeholder="3" min="1" step="1" /></div>
+                        <div class="form-group"><label><input type="checkbox" id="thrillEnabled" checked /> Enable Thrill Leaderboard</label></div>
                         <button type="button" id="saveThrillDates" class="save-btn">Update Thrill Timeframe</button>
                     </div>
 
@@ -226,6 +221,9 @@
                             <div class="form-group"><label for="goatedStartDate">Start Date:</label><input type="datetime-local" id="goatedStartDate" class="date-input" /></div>
                             <div class="form-group"><label for="goatedEndDate">End Date:</label><input type="datetime-local" id="goatedEndDate" class="date-input" /></div>
                         </div>
+                        <div class="form-group"><label for="goatedPrizeTotal">Prize Total ($):</label><input type="number" id="goatedPrizeTotal" placeholder="1000" min="0" step="100" /></div>
+                        <div class="form-group"><label for="goatedPlacesPaid">Places Paid:</label><input type="number" id="goatedPlacesPaid" placeholder="3" min="1" step="1" /></div>
+                        <div class="form-group"><label><input type="checkbox" id="goatedEnabled" checked /> Enable Goated Leaderboard</label></div>
                         <button type="button" id="saveGoatedDates" class="save-btn">Update Goated Timeframe</button>
                     </div>
 

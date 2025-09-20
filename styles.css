@@ -111,7 +111,7 @@ body.pp-root {
 .pp-cta-right { text-align: right; margin-top: 16px; }
 
 /* Hero */
-.pp-hero { padding: 88px 0 64px; position: relative; }
+.pp-hero { padding: 80px 0 40px; position: relative; }
 .pp-kicker { letter-spacing: 2px; text-transform: uppercase; color: var(--pp-text-dim); margin-bottom: 8px; font-size: 14px; }
 .pp-hero-title { font-size: clamp(36px, 7vw, 72px); letter-spacing: 2px; font-weight: 800; margin: 0 0 12px; text-transform: uppercase; font-family: 'Oxanium', 'Barlow Condensed', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
 .pp-hero-title span { background: linear-gradient(90deg, var(--pp-accent-green), var(--pp-accent-purple)); -webkit-background-clip: text; background-clip: text; color: transparent; }
@@ -169,6 +169,17 @@ body.pp-root {
 
 /* Admin panel minor alignment in new layout context */
 .admin-modal, .admin-panel { font-family: inherit; }
+/* Admin panel sizing tweaks so date pickers fit */
+.admin-panel { font-size: 14px; }
+.admin-panel .form-group input,
+.admin-panel .date-input,
+.admin-panel select,
+.admin-panel textarea { font-size: 14px; width: 100%; max-width: 100%; }
+.admin-panel .leaderboard-config { padding: 1rem; }
+.admin-panel .date-controls { gap: 0.75rem; }
+@media (max-width: 768px) {
+    .admin-panel { font-size: 13px; }
+}
 
 /* Responsive */
 @media (max-width: 980px) {
@@ -178,7 +189,7 @@ body.pp-root {
 }
 
 @media (max-width: 640px) {
-    .pp-hero { padding: 64px 0 40px; }
+    .pp-hero { padding: 56px 0 32px; }
     .pp-hero-cta { flex-direction: column; align-items: stretch; }
     .pp-bonus-grid { grid-template-columns: 1fr; }
     .pp-footer-inner { flex-direction: column; align-items: flex-start; }
