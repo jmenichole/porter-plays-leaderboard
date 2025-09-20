@@ -208,6 +208,11 @@ class AdminSystem {
     showAdminPanel() {
         const panel = document.getElementById('adminPanel');
         panel.classList.remove('hidden');
+        // Hide chat bubble when admin panel is open
+        const chatBubble = document.getElementById('chatBubble');
+        if (chatBubble) {
+            chatBubble.classList.add('admin-open');
+        }
         // Initialize news management
         this.initializeNewsManagement();
     }
@@ -215,6 +220,11 @@ class AdminSystem {
     hideAdminPanel() {
         const panel = document.getElementById('adminPanel');
         panel.classList.add('hidden');
+        // Show chat bubble when admin panel is closed
+        const chatBubble = document.getElementById('chatBubble');
+        if (chatBubble) {
+            chatBubble.classList.remove('admin-open');
+        }
     }
 
     showHelpModal() {
@@ -1371,6 +1381,21 @@ function initializeAdminSystem() {
 
 function initializeChatSystem() {
     chatSystem = new ChatSystem();
+    
+    // Ensure chat bubble is visible with correct dimensions
+    const chatBubble = document.getElementById('chatBubble');
+    if (chatBubble) {
+        // Force correct styles to ensure visibility
+        chatBubble.style.width = '60px';
+        chatBubble.style.height = '60px';
+        chatBubble.style.display = 'flex';
+        chatBubble.style.position = 'fixed';
+        chatBubble.style.bottom = '2rem';
+        chatBubble.style.left = '2rem';
+        chatBubble.style.zIndex = '999';
+        chatBubble.style.alignItems = 'center';
+        chatBubble.style.justifyContent = 'center';
+    }
 }
 
 // Tab Switching
