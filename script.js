@@ -147,6 +147,24 @@ class AdminSystem {
             if (e.target === document.getElementById('helpModal')) {
                 this.hideHelpModal();
             }
+            if (e.target === document.getElementById('adminPanel')) {
+                this.hideAdminPanel();
+            }
+        });
+
+        // Close modals with escape key
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (!document.getElementById('adminModal').classList.contains('hidden')) {
+                    this.hideLoginModal();
+                }
+                if (!document.getElementById('helpModal').classList.contains('hidden')) {
+                    this.hideHelpModal();
+                }
+                if (!document.getElementById('adminPanel').classList.contains('hidden')) {
+                    this.hideAdminPanel();
+                }
+            }
         });
     }
 
