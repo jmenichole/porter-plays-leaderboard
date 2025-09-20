@@ -5,6 +5,21 @@
     box-sizing: border-box;
 }
 
+/* General Link Styles */
+a {
+    color: #5CFFC1; /* Teal color */
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    color: #7CFFD1; /* Lighter teal on hover */
+}
+
+a:visited {
+    color: #5CFFC1; /* Keep teal for visited links */
+}
+
 :root {
     /* Primary Brand Colors */
     --pp-bg: #1B1D29;
@@ -132,7 +147,7 @@ body.pp-root {
     gap: 20px;
 }
 .pp-nav a {
-    color: var(--pp-text);
+    color: #5CFFC1; /* Teal color */
     text-decoration: none;
     opacity: 0.85;
     font-size: 16px;
@@ -141,7 +156,7 @@ body.pp-root {
     transition: all 0.2s ease;
 }
 .pp-nav a:hover {
-    color: var(--pp-white);
+    color: #7CFFD1; /* Lighter teal on hover */
     opacity: 1;
     transform: translateY(-1px);
 }
@@ -286,6 +301,9 @@ body.pp-root {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-size: clamp(36px, 4vw, 42px);
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
 }
 
 .leaderboard-main-title .pp-gradient {
@@ -637,6 +655,26 @@ body.pp-root {
     }
 }
 
+/* Desktop Leaderboard Header Styles */
+.leaderboard-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding: 1rem 0;
+}
+
+.leaderboard-main-title {
+    font-size: clamp(36px, 4vw, 42px);
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
+}
+
+.leaderboard-subtitle {
+    font-size: 16px;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.5;
+}
+
 /* Responsive Enhanced Headers */
 @media (max-width: 768px) {
     .leaderboard-header {
@@ -647,6 +685,9 @@ body.pp-root {
     .leaderboard-main-title {
         font-size: clamp(28px, 8vw, 42px) !important;
         margin-bottom: 12px !important;
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: visible !important;
     }
 
     .leaderboard-subtitle {
@@ -672,6 +713,9 @@ body.pp-root {
 
     .leaderboard-main-title {
         font-size: clamp(24px, 10vw, 32px) !important;
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: visible !important;
     }
 
     .leaderboard-subtitle {
@@ -836,12 +880,12 @@ body.pp-root {
     margin-bottom: 24px;
 }
 .pp-footer a {
-    color: var(--pp-text);
+    color: #5CFFC1; /* Teal color */
     text-decoration: none;
     transition: color 0.2s ease;
 }
 .pp-footer a:hover {
-    color: var(--pp-accent-green);
+    color: #7CFFD1; /* Lighter teal on hover */
 }
 .pp-footnote {
     color: var(--pp-text-dim);
@@ -3042,7 +3086,6 @@ body.pp-root {
 
 /* Help Modal Styles */
 .help-modal {
-    display: none;
     position: fixed;
     z-index: 1001;
     left: 0;
@@ -3051,6 +3094,10 @@ body.pp-root {
     height: 100%;
     background-color: rgba(0, 0, 0, 0.8);
     backdrop-filter: blur(4px);
+}
+
+.help-modal.hidden {
+    display: none;
 }
 
 .help-modal-content {
@@ -3182,6 +3229,7 @@ body.pp-root {
     justify-content: center;
     gap: 1rem;
     margin-bottom: 2rem;
+    margin-top: 1rem;
 }
 
 .tab-btn {
@@ -3235,6 +3283,7 @@ body.pp-root {
     overflow: hidden;
     border: 1px solid var(--pp-border);
     position: relative;
+    margin-top: 1rem;
 }
 
 .leaderboard-container::before {
