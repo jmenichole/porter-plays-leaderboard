@@ -267,6 +267,21 @@ body.pp-root {
     margin-right: auto;
 }
 
+/* Gradient text helper for emphasis spans (e.g., in headings) */
+.pp-gradient {
+    background: linear-gradient(135deg, var(--pp-accent-green), var(--pp-accent-purple));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+}
+
+/* Keep the highlighted part of the leaderboard title on one line on larger screens */
+.leaderboard-main-title .pp-gradient {
+    white-space: nowrap;
+    display: inline-block;
+}
+
 /* Card Improvements */
 .pp-card {
     background: var(--pp-surface);
@@ -315,7 +330,7 @@ body.pp-root {
 .pp-bonus:hover {
     transform: translateY(-4px);
     box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-    border-color: rgba(255,255,255,0.12);
+    border-color: var(--pp-accent-green);
 }
 .pp-bonus:hover::before {
     opacity: 1;
@@ -817,6 +832,37 @@ body.pp-root {
     font-size: 13px;
     line-height: 1.5;
 }
+
+/* Footer quote styling */
+.pp-footer-left .pp-footnote:first-of-type {
+    font-style: italic;
+    color: var(--pp-text);
+    margin: 16px 0 8px;
+    font-size: 14px;
+    line-height: 1.6;
+    max-width: 600px;
+    border-left: 3px solid var(--pp-accent-green);
+    padding-left: 16px;
+    opacity: 0.9;
+}
+
+.pp-footer-left .pp-footnote:first-of-type::before {
+    content: '"';
+    font-size: 24px;
+    color: var(--pp-accent-green);
+    position: relative;
+    top: 2px;
+    margin-right: 4px;
+}
+
+.pp-footer-left .pp-footnote:first-of-type::after {
+    content: '"';
+    font-size: 24px;
+    color: var(--pp-accent-green);
+    position: relative;
+    top: 2px;
+    margin-left: 4px;
+}
 .pp-heart {
     color: #FF6B6B;
     display: inline-block;
@@ -1059,16 +1105,37 @@ body.pp-root {
 .admin-login-btn {
     background: var(--discord-purple);
     color: white;
-    border: none;
+    border: 1px solid var(--pp-border);
     padding: 0.5rem 1rem;
     border-radius: 6px;
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.admin-login-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--pp-accent-green), var(--pp-accent-purple));
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
 .admin-login-btn:hover {
     background: var(--primary-dark);
+    border-color: var(--pp-accent-green);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+.admin-login-btn:hover::before {
+    opacity: 1;
 }
 
 /* Hero Section */
@@ -3005,7 +3072,30 @@ body.pp-root {
     border-radius: 1rem;
     box-shadow: var(--shadow-lg);
     overflow: hidden;
-    border: 2px solid rgba(139, 92, 246, 0.1);
+    border: 1px solid var(--pp-border);
+    position: relative;
+}
+
+.leaderboard-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--pp-accent-green), var(--pp-accent-purple));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.leaderboard-container:hover::before {
+    opacity: 1;
+}
+
+.leaderboard-container:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+    border-color: var(--pp-accent-green);
 }
 
 .leaderboard-content {
