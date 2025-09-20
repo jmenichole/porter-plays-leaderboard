@@ -854,7 +854,7 @@ class ChatSystem {
                 • Porter's ${info.name} channel: ${info.porterChannel}
                 ${info.telegramChannels.map(ch => `• ${ch.name}: ${ch.url}`).join('\n                ')}
                 • Main hub: @porterplays
-                • Discord: discord.gg/porterplays
+                • Discord: https://discord.gg/porterplays
                 
                 Ready to join?`,
                 'bot'
@@ -872,7 +872,10 @@ class ChatSystem {
         const messagesContainer = document.getElementById('chatMessages');
         const messageDiv = document.createElement('div');
         messageDiv.className = `chat-message ${sender}-message`;
-        messageDiv.innerHTML = `<div class="message-text">${text.replace(/\n/g, '<br>')}</div>`;
+        // Convert newlines to <br> and linkify URLs for clickability
+        const withBreaks = text.replace(/\n/g, '<br>');
+        const linkified = withBreaks.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1<\/a>');
+        messageDiv.innerHTML = `<div class="message-text">${linkified}</div>`;
         messagesContainer.appendChild(messageDiv);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }

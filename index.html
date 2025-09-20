@@ -21,7 +21,7 @@
             </div>
             <nav class="pp-nav">
                 <a href="#bonuses">Bonuses</a>
-                <a href="#snapshot">Leaderboards</a>
+                <a href="#leaderboard">Leaderboards</a>
                 <a href="#vip">VIP Transfer</a>
                 <a href="https://discord.gg/porterplays" target="_blank" rel="noopener">Discord</a>
                 <button id="adminLoginBtn" class="admin-login-btn" type="button">Admin</button>
@@ -36,8 +36,7 @@
             <h1 class="pp-hero-title"><span>COMPETITIVE PLAY.</span></h1>
             <p class="pp-hero-sub">Official hub for Porter Plays leaderboards. Track performance, compete for exclusive prize pools, and secure your place at the top.</p>
             <div class="pp-hero-cta">
-                <a class="pp-btn pp-btn-primary" href="#snapshot">View Leaderboards</a>
-                <a class="pp-btn pp-btn-ghost" href="#bonuses">Claim Bonuses</a>
+                <a class="pp-btn pp-btn-primary" href="#leaderboard">View Leaderboards</a>
             </div>
         </div>
     </section>
@@ -47,12 +46,12 @@
         <div class="pp-container">
             <div class="pp-card pp-card-elevated pp-bonuses">
                 <p class="pp-eyebrow">New to Porter Plays?</p>
-                <h2 class="pp-section-title">Claim Your Exclusive <span class="pp-gradient">Elite Bonuses</span></h2>
+                <h2 class="pp-section-title">Wanna <span class="pp-gradient">Play?</span></h2>
                 <p class="pp-section-sub">Unlock special promotions you can’t access elsewhere. Join the supporter community and dominate with VIP perks and challenges.</p>
 
                 <div class="pp-bonus-grid">
                     <article class="pp-bonus">
-                        <img src="Thrill Logo- Dark Blue.svg" alt="Thrill" class="pp-bonus-logo" />
+                        <img src="Thrill Logo- Dark Blue.svg" alt="Thrill" class="pp-bonus-logo pp-logo-invert" />
                         <h3>Thrill</h3>
                         <p>High‑energy gameplay with competitive events and VIP boosts.</p>
                         <div class="pp-actions">
@@ -83,59 +82,37 @@
         </div>
     </section>
 
-    <!-- Leaderboard Snapshot -->
-    <section id="snapshot" class="pp-section">
+    <!-- Live Leaderboard (full) -->
+    <section id="leaderboard" class="pp-section">
         <div class="pp-container">
-            <h2 class="pp-section-title">Leaderboard <span class="pp-gradient">Snapshot</span></h2>
-            <p class="pp-section-sub">Here’s a look at current contenders. Live values appear when connected to your source. No fabricated numbers.</p>
+            <h2 class="pp-section-title">Live <span class="pp-gradient">Wager Leaderboard</span></h2>
+            <p class="pp-section-sub">Real-time rankings. No fabricated numbers. Data appears when connected to your source.</p>
 
-            <div class="pp-controls">
-                <button class="pp-chip is-active" type="button">Today</button>
-                <button class="pp-chip" type="button">This Week</button>
-                <button class="pp-chip" type="button">This Month</button>
-                <button class="pp-chip" type="button">All Time</button>
+            <div class="leaderboard-tabs">
+                <button class="tab-btn active" data-casino="thrill">Thrill</button>
+                <button class="tab-btn" data-casino="goated">Goated</button>
             </div>
 
-            <div class="pp-table">
-                <div class="pp-row pp-row-1">
-                    <div class="pp-rank">#1</div>
-                    <div class="pp-user">A****2</div>
-                    <div class="pp-wager" data-placeholder>Updating…</div>
-                    <div class="pp-prize" data-placeholder>—</div>
-                </div>
-                <div class="pp-row pp-row-2">
-                    <div class="pp-rank">#2</div>
-                    <div class="pp-user">D****T</div>
-                    <div class="pp-wager" data-placeholder>Updating…</div>
-                    <div class="pp-prize" data-placeholder>—</div>
-                </div>
-                <div class="pp-row pp-row-3">
-                    <div class="pp-rank">#3</div>
-                    <div class="pp-user">L****e</div>
-                    <div class="pp-wager" data-placeholder>Updating…</div>
-                    <div class="pp-prize" data-placeholder>—</div>
-                </div>
-            </div>
-
-            <div class="pp-cta-center">
-                <a class="pp-btn pp-btn-primary" href="#bonuses">View Full Leaderboards</a>
+            <div class="leaderboard-container">
+                <div class="leaderboard-content" id="thrill-leaderboard"></div>
+                <div class="leaderboard-content" id="goated-leaderboard" style="display:none;"></div>
             </div>
         </div>
     </section>
 
-    <!-- VIP Transfer (Goated highlight) -->
+    <!-- VIP Transfer (Thrill highlight) -->
     <section id="vip" class="pp-section">
         <div class="pp-container">
             <div class="pp-card pp-card-elevated pp-vip">
-                <h2 class="pp-section-title"><span class="pp-emoji">🏆</span> Goated VIP Transfer Program</h2>
-                <p class="pp-section-sub">Already VIP elsewhere? Transfer your status instantly—no grinding from zero.</p>
+                <h2 class="pp-section-title"><span class="pp-emoji">🏆</span> Thrill VIP Transfer Program</h2>
+                <p class="pp-section-sub">Already VIP elsewhere? Transfer your status to Thrill—no grinding from zero.</p>
 
                 <div class="pp-vip-grid">
                     <div class="pp-vip-col">
                         <h3 class="pp-col-title">What You Need</h3>
                         <ul class="pp-list">
                             <li>Higher VIP status on any competing platform</li>
-                            <li>Meet wagering targets in your first 30 days at Goated*</li>
+                            <li>Meet wagering targets in your first 30 days at Thrill*</li>
                             <li>Public account stats on your current platform</li>
                         </ul>
                         <div class="pp-note">*Terms apply. See program page for details.</div>
@@ -152,7 +129,7 @@
                 </div>
 
                 <div class="pp-cta-right">
-                    <a class="pp-btn pp-btn-primary" href="https://www.goated.com/vip-program" target="_blank" rel="noopener">Transfer VIP Status</a>
+                    <a class="pp-btn pp-btn-primary" href="https://thrill.com/?r=porterplays" target="_blank" rel="noopener">Transfer VIP Status</a>
                 </div>
             </div>
         </div>
@@ -163,14 +140,26 @@
         <div class="pp-container pp-footer-inner">
             <div class="pp-footer-left">
                 <div class="pp-brand"><span class="pp-logo">PP</span><span class="pp-title">Porter Plays</span></div>
-                <p class="pp-footnote">18+ only. Gambling can be addictive. Play responsibly.</p>
+                <p class="pp-footnote">We are not a casino. 18+ age to play. VPN may be required on some platforms. Gamble responsibly.</p>
             </div>
             <div class="pp-footer-links">
-                <a href="https://shuffle.com/?r=playShuffle" target="_blank" rel="noopener">Shuffle</a>
-                <a href="https://thrill.com/?r=porterplays" target="_blank" rel="noopener">Thrill</a>
-                <a href="https://goated.com/r/PLAYGOATED" target="_blank" rel="noopener">Goated</a>
-                <a href="https://discord.gg/porterplays" target="_blank" rel="noopener">Discord</a>
+                <a href="https://shuffle.com/?r=playShuffle" target="_blank" rel="noopener" title="Shuffle">
+                    <img src="shufflelogo.png" alt="Shuffle" class="pp-footer-icon" />
+                </a>
+                <a href="https://thrill.com/?r=porterplays" target="_blank" rel="noopener" title="Thrill">
+                    <img src="Thrill Logo- Dark Blue.svg" alt="Thrill" class="pp-footer-icon pp-logo-invert" />
+                </a>
+                <a href="https://goated.com/r/PLAYGOATED" target="_blank" rel="noopener" title="Goated">
+                    <img src="goatedlogo.png" alt="Goated" class="pp-footer-icon" />
+                </a>
+                <a href="https://discord.gg/porterplays" target="_blank" rel="noopener" title="Discord">Discord</a>
             </div>
+        </div>
+        <div class="pp-container">
+            <p class="pp-footnote">
+                Support: <a href="https://www.gambleaware.org/" target="_blank" rel="noopener">GambleAware.org</a>
+                • <a href="https://jmenichole.github.io/Portfolio/" target="_blank" rel="noopener">Made for degens by degens</a> <span class="heart">❤️</span>
+            </p>
         </div>
     </footer>
 
@@ -178,7 +167,7 @@
     <div id="adminModal" class="admin-modal">
         <div class="admin-modal-content">
             <span class="close-admin">&times;</span>
-            <h2>Admin Login</h2>
+            <h2>Admin Login: Leaderboard API Configuration</h2>
             <form id="adminLoginForm">
                 <input type="password" id="adminPassword" placeholder="Enter admin password" required />
                 <button type="submit">Login</button>
@@ -240,15 +229,8 @@
                         <button type="button" id="saveGoatedDates" class="save-btn">Update Goated Timeframe</button>
                     </div>
 
-                    <div class="leaderboard-config">
-                        <h5>Shuffle Leaderboard</h5>
-                        <div class="date-controls">
-                            <div class="form-group"><label for="shuffleStartDate">Start Date:</label><input type="datetime-local" id="shuffleStartDate" class="date-input" /></div>
-                            <div class="form-group"><label for="shuffleEndDate">End Date:</label><input type="datetime-local" id="shuffleEndDate" class="date-input" /></div>
-                        </div>
-                        <button type="button" id="saveShuffleDates" class="save-btn">Update Shuffle Timeframe</button>
-                    </div>
-                </div>
+                    
+               
                 <div class="bulk-actions">
                     <button type="button" id="saveAllDates" class="save-btn primary">Save All Timeframes</button>
                     <button type="button" id="resetToDefaults" class="save-btn secondary">Reset to Default Periods</button>
@@ -302,29 +284,21 @@
         <div class="chat-messages" id="chatMessages">
             <div class="chat-message bot-message">
                 <div class="message-text">
-                    Hi! I'm here to help you get started with Porter's exclusive casino codes. Which casino interests you most?
-                </div>
+                    Hi! I'm here to help you get started. Which casino are you most interested in?
             </div>
         </div>
         <div class="chat-options">
-            <button class="chat-option" data-casino="shuffle">🎰 Shuffle - $1K Match</button>
-            <button class="chat-option" data-casino="thrill">👑 Thrill - VIP Transfer</button>
-            <button class="chat-option" data-casino="goated">🔥 Goated - Elite Gaming</button>
+            <button class="chat-option" data-casino="shuffle">🎰 Shuffle.com</button>
+            <button class="chat-option" data-casino="thrill">👑 Thrill.com</button>
+            <button class="chat-option" data-casino="goated">🔥 Goated.com</button>
         </div>
         <div class="chat-input-area hidden">
-            <input type="text" id="chatInput" placeholder="Ask me anything...">
+            <input type="text" id="chatInput" placeholder="Ask me how to play...">
             <button id="sendChatBtn">Send</button>
         </div>
     </div>
 
-    <!-- Floating CTA -->
-    <div class="floating-cta" id="floatingCTA">
-        <div class="floating-cta-content">
-            <span class="cta-text">🎰 Explore VIP Casino Options</span>
-            <a href="#bonuses" class="cta-button">View Casinos</a>
-        </div>
-        <button class="cta-close" onclick="hideFloatingCTA()">×</button>
-    </div>
+   
 
     <script src="script.js"></script>
 </body>
