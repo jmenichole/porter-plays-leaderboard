@@ -631,6 +631,7 @@ Timestamp: ${new Date().toISOString()}`;
         const source = document.getElementById('newsSource').value;
         const handle = document.getElementById('newsHandle').value.trim();
         const url = document.getElementById('newsUrl').value.trim();
+        const embed = document.getElementById('newsEmbed').value.trim();
         const date = document.getElementById('newsDate').value;
 
         if (!content) {
@@ -655,6 +656,7 @@ Timestamp: ${new Date().toISOString()}`;
             source: source,
             handle: handle,
             url: url || null,
+            embed: embed || null,
             date: date,
             createdAt: new Date().toISOString()
         };
@@ -719,6 +721,7 @@ Timestamp: ${new Date().toISOString()}`;
         document.getElementById('newsSource').value = 'x';
         document.getElementById('newsHandle').value = '';
         document.getElementById('newsUrl').value = '';
+        document.getElementById('newsEmbed').value = '';
         document.getElementById('newsDate').value = '';
     }
 
@@ -1502,12 +1505,56 @@ function loadNewsForDisplay() {
             <div class="news-content">
                 ${item.title ? `<h4>${item.title}</h4>` : ''}
                 <p>${item.content.replace(/\n/g, '</p><p>')}</p>
+                ${item.embed ? `<div class="news-embed">${getEmbedContent(item.embed)}</div>` : ''}
                 ${item.url ? `<a href="${item.url}" target="_blank" rel="noopener" class="news-link">${item.source === 'x' ? 'View Post →' : 'Read More →'}</a>` : ''}
             </div>
         `;
 
         container.appendChild(article);
     });
+}
+
+// Function to handle different types of embed content
+function getEmbedContent(embedUrl) {
+    if (!embedUrl) return '';
+
+    // Handle YouTube embeds
+    if (embedUrl.includes('youtube.com') || embedUrl.includes('youtu.be')) {
+        const videoId = extractYouTubeId(embedUrl);
+        if (videoId) {
+            return `<iframe width="100%" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+        }
+    }
+
+    // Handle Twitter/X embeds
+    if (embedUrl.includes('twitter.com') || embedUrl.includes('x.com')) {
+        const tweetId = extractTweetId(embedUrl);
+        if (tweetId) {
+            return `<blockquote class="twitter-tweet"><a href="${embedUrl}"></a></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>`;
+        }
+    }
+
+    // Handle direct iframe embeds (like from other platforms)
+    if (embedUrl.includes('<iframe') || embedUrl.includes('<blockquote')) {
+        return embedUrl;
+    }
+
+    // For other URLs, create a simple embed container
+    return `<div class="embed-container"><a href="${embedUrl}" target="_blank" rel="noopener">🔗 ${embedUrl}</a></div>`;
+}
+
+// Helper function to extract YouTube video ID
+function extractYouTubeId(url) {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+}
+
+// Helper function to extract Twitter/X tweet ID
+function extractTweetId(url) {
+    const regExp = /\/status\/(\d+)/;
+    const match = url.match(regExp);
+    return match ? match[1] : null;
 }
 
 // Initialize news display when page loads

@@ -24,6 +24,9 @@
     --pp-border: rgba(255,255,255,0.08);
     --pp-glow: 0 0 0 3px rgba(89,86,255,0.25);
 
+    /* Gradients */
+    --purple-gradient: linear-gradient(135deg, #5956FF, #8B5CF6);
+
     /* Legacy Variables (for compatibility) */
     --primary-color: #5956FF;
     --secondary-color: #5CFFC1;
@@ -498,6 +501,114 @@ body.pp-root {
     color: var(--pp-accent-green-hover);
     background: rgba(92, 255, 193, 0.15);
     transform: translateX(4px);
+}
+
+/* Embed Content Styling */
+.news-embed {
+    margin: 20px 0;
+    border-radius: 12px;
+    overflow: hidden;
+    background: rgba(255,255,255,0.05);
+    padding: 8px;
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+.news-embed iframe {
+    border-radius: 8px;
+    width: 100%;
+    height: 280px;
+    border: none;
+    background: #000;
+}
+
+.embed-container {
+    background: rgba(255,255,255,0.05);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+.embed-container a {
+    color: var(--pp-accent-green);
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.embed-container a:hover {
+    color: var(--pp-accent-purple);
+    transform: translateY(-2px);
+}
+
+/* Twitter Updates Section */
+.twitter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 32px;
+    margin-top: 48px;
+}
+
+.twitter-card {
+    background: linear-gradient(135deg, var(--pp-bg-primary) 0%, rgba(255,255,255,0.02) 100%);
+    border: 1px solid var(--pp-border);
+    border-radius: 16px;
+    padding: 28px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    position: relative;
+    overflow: hidden;
+}
+
+.twitter-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--pp-accent-green), var(--pp-accent-purple));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.twitter-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    border-color: var(--pp-accent-green);
+}
+
+.twitter-card:hover::before {
+    opacity: 1;
+}
+
+.twitter-card blockquote {
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: transparent;
+}
+
+/* Mobile Responsive for Twitter Section */
+@media (max-width: 768px) {
+    .twitter-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+        margin-top: 32px;
+    }
+
+    .twitter-card {
+        padding: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .twitter-card {
+        padding: 16px;
+    }
 }
 
 /* Responsive Enhanced Headers */
@@ -2888,7 +2999,7 @@ body.pp-root {
 }
 
 .leaderboard-container {
-    max-width: 800px;
+    max-width: 1000px;
     margin: 0 auto;
     background: var(--bg-primary);
     border-radius: 1rem;
