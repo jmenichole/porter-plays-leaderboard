@@ -3365,6 +3365,14 @@ body.pp-root {
     margin-top: 1rem;
 }
 
+/* Enable horizontal scrolling on mobile for leaderboard tables */
+@media (max-width: 768px) {
+    .leaderboard-container {
+        overflow-x: auto;
+        overflow-y: hidden;
+    }
+}
+
 .leaderboard-container::before {
     content: '';
     position: absolute;
@@ -3389,6 +3397,86 @@ body.pp-root {
 
 .leaderboard-content {
     padding: 2rem;
+}
+
+/* Leaderboard Table Styles */
+.leaderboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.leaderboard-table th,
+.leaderboard-table td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.leaderboard-table th {
+    background: var(--bg-secondary);
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.leaderboard-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.leaderboard-rank {
+    font-weight: 700;
+    color: var(--primary-color);
+    width: 4rem;
+}
+
+.leaderboard-player {
+    font-weight: 600;
+    color: var(--text-primary);
+    min-width: 8rem;
+}
+
+.leaderboard-wager,
+.leaderboard-prize {
+    text-align: right;
+    font-weight: 600;
+    min-width: 6rem;
+}
+
+.leaderboard-wager {
+    color: var(--text-secondary);
+}
+
+.leaderboard-prize {
+    color: var(--accent-color);
+}
+
+/* Mobile responsiveness for leaderboard table */
+@media (max-width: 768px) {
+    .leaderboard-table {
+        min-width: 500px; /* Ensure minimum width to prevent cramping */
+    }
+    
+    .leaderboard-table th,
+    .leaderboard-table td {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+    }
+    
+    .leaderboard-rank {
+        min-width: 3rem;
+    }
+    
+    .leaderboard-player {
+        min-width: 7rem;
+    }
+    
+    .leaderboard-wager,
+    .leaderboard-prize {
+        min-width: 5rem;
+    }
 }
 
 .leaderboard-loading {
@@ -3427,6 +3515,11 @@ body.pp-root {
     box-shadow: var(--shadow-purple);
     z-index: 999;
     transition: all 0.3s ease;
+}
+
+/* Hide chat bubble when admin panel is open */
+.chat-bubble.admin-open {
+    display: none !important;
 }
 
 .chat-bubble:hover {
