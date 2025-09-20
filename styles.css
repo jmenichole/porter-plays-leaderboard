@@ -93,9 +93,9 @@ body.pp-root {
 
 /* Header */
 .pp-header { position: sticky; top: 0; z-index: 50; backdrop-filter: saturate(140%) blur(8px); background: rgba(27,29,41,0.6); border-bottom: 1px solid var(--pp-border); }
-.pp-header .pp-container { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+.pp-header .pp-container { display: flex; align-items: center; justify-content: space-between; height: 72px; }
 .pp-brand { display: flex; align-items: center; gap: 10px; font-weight: 700; }
-.pp-logo { width: 36px; height: 36px; border-radius: 10px; object-fit: contain; position: relative; box-shadow: 0 6px 18px rgba(89,86,255,0.35); overflow: hidden; }
+.pp-logo { width: 120px; height: 48px; object-fit: contain; position: relative; }
 .pp-letter { font-family: 'Oxanium', 'Barlow Condensed', sans-serif; font-weight: 900; letter-spacing: -0.02em; line-height: 1; display: inline-block; font-size: 16px; text-shadow: 0 2px 8px rgba(0,0,0,0.35); }
 .pp-letter.p1 { transform: translateX(-2px); }
 .pp-letter.p2 { transform: translateX(-3px) rotate(180deg); opacity: 0.9; }
