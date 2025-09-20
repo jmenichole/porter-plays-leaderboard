@@ -107,6 +107,15 @@ class AdminSystem {
         if (this.thrillPlacesPaid) this.thrillPlacesPaid.addEventListener('change', () => this.renderPrizeEditor('thrill'));
         if (this.goatedPlacesPaid) this.goatedPlacesPaid.addEventListener('change', () => this.renderPrizeEditor('goated'));
 
+        // Preset button listeners
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('preset-btn')) {
+                const casino = e.target.dataset.casino;
+                const preset = e.target.dataset.preset;
+                this.applyPreset(casino, preset);
+            }
+        });
+
         // Close modal when clicking outside
         window.addEventListener('click', (e) => {
             if (e.target === adminModal) {
@@ -264,6 +273,73 @@ class AdminSystem {
             })
             .filter(v => v > 0);
         return values;
+    }
+
+    applyPreset(casino, preset) {
+        const total = Number((casino === 'thrill' ? this.thrillPrizeTotal?.value : this.goatedPrizeTotal?.value) || 0);
+        const places = Number((casino === 'thrill' ? this.thrillPlacesPaid?.value : this.goatedPlacesPaid?.value) || 0);
+        if (!total || !places) return;
+
+        let distribution = [];
+        switch (preset) {
+            case 'even':
+                const even = Math.floor(total / places);
+                distribution = Array(places).fill(even);
+                break;
+            case 'winner':
+                distribution = [total, ...Array(places - 1).fill(0)];
+                break;
+            case '70-30':
+                if (places >= 2) {
+                    const first = Math.floor(total * 0.7);
+                    const second = total - first;
+                    distribution = [first, second, ...Array(places - 2).fill(0)];
+                }
+                break;
+            case '50-30-20':
+                if (places >= 3) {
+                    const first = Math.floor(total * 0.5);
+                    const second = Math.floor(total * 0.3);
+                    const third = total - first - second;
+                    distribution = [first, second, third, ...Array(places - 3).fill(0)];
+                }
+                break;
+            case '40-30-20-10':
+                if (places >= 4) {
+                    const first = Math.floor(total * 0.4);
+                    const second = Math.floor(total * 0.3);
+                    const third = Math.floor(total * 0.2);
+                    const fourth = total - first - second - third;
+                    distribution = [first, second, third, fourth, ...Array(places - 4).fill(0)];
+                }
+                break;
+            case '35-25-20-10-10':
+                if (places >= 5) {
+                    const first = Math.floor(total * 0.35);
+                    const second = Math.floor(total * 0.25);
+                    const third = Math.floor(total * 0.2);
+                    const fourth = Math.floor(total * 0.1);
+                    const fifth = total - first - second - third - fourth;
+                    distribution = [first, second, third, fourth, fifth, ...Array(places - 5).fill(0)];
+                }
+                break;
+            case 'clear':
+                distribution = Array(places).fill('');
+                break;
+            default:
+                return;
+        }
+
+        // Apply to inputs
+        const container = casino === 'thrill' ? this.thrillPrizeEditor : this.goatedPrizeEditor;
+        if (!container) return;
+        const inputs = container.querySelectorAll(`.prize-${casino}`);
+        inputs.forEach((input, idx) => {
+            input.value = distribution[idx] || '';
+        });
+
+        // Save settings
+        this.saveSettings();
     }
 
     changePassword() {

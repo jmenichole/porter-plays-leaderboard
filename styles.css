@@ -178,6 +178,12 @@ body.pp-root {
 .prize-editor .prize-input { display: flex; align-items: center; gap: 6px; }
 .prize-editor .prize-input input { width: 100%; padding: 0.5rem; border: 2px solid var(--border-color); border-radius: 0.5rem; background: var(--bg-darker); color: var(--text-primary); }
 .prize-editor .prize-input label { font-size: 0.85rem; color: var(--text-secondary); min-width: 2.5rem; }
+/* Preset buttons */
+.preset-buttons { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.preset-btn { padding: 0.4rem 0.6rem; font-size: 0.8rem; border: 1px solid var(--border-color); border-radius: 0.4rem; background: var(--bg-darker); color: var(--text-secondary); cursor: pointer; transition: all 0.2s; }
+.preset-btn:hover { background: var(--accent-primary); color: var(--text-primary); border-color: var(--accent-primary); }
+.preset-btn.clear-btn { background: var(--bg-error); color: var(--text-error); border-color: var(--border-error); }
+.preset-btn.clear-btn:hover { background: var(--bg-error-hover); }
 /* Admin panel sizing tweaks so date pickers fit */
 .admin-panel { font-size: 14px; }
 .admin-panel .form-group input,
