@@ -1,9 +1,8 @@
-
 # Porter Plays Leaderboard
 
 A modern, real-time wager leaderboard platform for competitive casino gaming. Track performance, compete for exclusive prize pools, and dominate the leaderboards across multiple casino platforms.
 
-## Features
+## 🎯 Features
 
 ### Live Leaderboards
 - **Real-time Updates**: Live wager tracking with 30-second refresh intervals
@@ -159,10 +158,24 @@ This project is proprietary software for Porter Plays. All rights reserved.
 - **Admin Panel**: Built-in support ticket system
 - **Documentation**: This README and inline code comments
 
+## 👨‍💻 Developer Credits
+
+### Core Development
+- **Lead Developer**: Jamie Nichols (@jmenichole)
+- **Project Owner**: Porter Plays Community
+
+### Special Thanks
+- **Design Inspiration**: Porter Plays community feedback
+- **Testing**: Beta testers and community members
+- **Support**: Discord community for ongoing feedback
+
+### Technologies & Tools
+- **Built with**: GitHub Copilot assistance
+- **Version Control**: Git & GitHub
+- **Deployment**: Static hosting
+
 ---
 
 **Made for degens by degens** ❤️
-**Lead Developer: Jamie Vargas**
-**Project Owner: Porter Robinson/Porter Plays Community**
 
 *Built with passion for the competitive gaming community* 
