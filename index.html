@@ -82,64 +82,13 @@
         </div>
     </section>
 
-    <!-- News & Updates -->
-    <section id="news" class="pp-section">
-        <div class="pp-container">
-            <h2 class="pp-section-title">Latest <span class="pp-gradient">News & Updates</span></h2>
-            <p class="pp-section-sub">Stay updated with the latest casino news, announcements, and industry developments.</p>
-
-            <div class="news-grid">
-                <article class="news-card">
-                    <div class="news-header">
-                        <div class="news-source">
-                            <span class="news-icon">𝕏</span>
-                            <span class="news-handle">@ShuffleUSA</span>
-                        </div>
-                        <time class="news-date">Sep 15, 2025</time>
-                    </div>
-                    <div class="news-content">
-                        <p>The wait's over… we're officially live! 🇺🇸</p>
-                        <p>Try your luck now at <a href="http://shuffle.us" target="_blank" rel="noopener">shuffle.us</a></p>
-                    </div>
-                </article>
-
-                <article class="news-card">
-                    <div class="news-header">
-                        <div class="news-source">
-                            <span class="news-icon">𝕏</span>
-                            <span class="news-handle">@Goated</span>
-                        </div>
-                        <time class="news-date">Sep 15, 2025</time>
-                    </div>
-                    <div class="news-content">
-                        <p>We're excited to officially announce the TGE of $GOATED! 🔥</p>
-                        <p>📅 Presale begins at 16:00 UTC on Sep 25th, 2025</p>
-                    </div>
-                </article>
-
-                <article class="news-card">
-                    <div class="news-header">
-                        <div class="news-source">
-                            <span class="news-icon">📰</span>
-                            <span class="news-handle">GamingToday.com</span>
-                        </div>
-                        <time class="news-date">Sep 4, 2025</time>
-                    </div>
-                    <div class="news-content">
-                        <h4>Pragmatic Play pulls out of US sweepstakes casinos amid lawsuits and regulatory shifts</h4>
-                        <p>Industry-leading game provider Pragmatic Play has announced it will cease operations with US-based sweepstakes casinos following multiple lawsuits and changing regulatory landscape.</p>
-                        <a href="https://gamingtoday.com" target="_blank" rel="noopener" class="news-link">Read full article →</a>
-                    </div>
-                </article>
-            </div>
-        </div>
-    </section>
-
     <!-- Live Leaderboard (full) -->
     <section id="leaderboard" class="pp-section">
         <div class="pp-container">
-            <h2 class="pp-section-title">Live <span class="pp-gradient">Wager Leaderboard</span></h2>
-            <p class="pp-section-sub">Real-time rankings. No fabricated numbers. Data appears when connected to your source.</p>
+            <div class="leaderboard-header">
+                <h2 class="pp-section-title leaderboard-main-title">Live <span class="pp-gradient">Wager Leaderboard</span></h2>
+                <p class="pp-section-sub leaderboard-subtitle">Real-time rankings. No fabricated numbers. Data appears when connected to your source.</p>
+            </div>
 
             <div class="leaderboard-tabs">
                 <button class="tab-btn active" data-casino="goated">Goated</button>
@@ -186,6 +135,18 @@
                 <div class="pp-cta-right">
                     <a class="pp-btn pp-btn-primary" href="https://thrill.com/?r=porterplays" target="_blank" rel="noopener">Transfer VIP Status</a>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- News & Updates -->
+    <section id="news" class="pp-section">
+        <div class="pp-container">
+            <h2 class="pp-section-title">Latest <span class="pp-gradient">News & Updates</span></h2>
+            <p class="pp-section-sub">Stay updated with the latest casino news, announcements, and industry developments.</p>
+
+            <div class="news-grid" id="newsGrid">
+                <!-- News items will be populated here by JavaScript -->
             </div>
         </div>
     </section>
@@ -344,6 +305,49 @@
                 <div class="bulk-actions">
                     <button type="button" id="saveAllDates" class="save-btn primary">Save All Timeframes</button>
                     <button type="button" id="resetToDefaults" class="save-btn secondary">Reset to Default Periods</button>
+                </div>
+            </div>
+
+            <div class="news-management">
+                <h4>News & Updates Management</h4>
+                <div class="news-form">
+                    <div class="form-group">
+                        <label for="newsTitle">News Title:</label>
+                        <input type="text" id="newsTitle" placeholder="Enter news title or leave blank for social posts" />
+                    </div>
+                    <div class="form-group">
+                        <label for="newsContent">Content:</label>
+                        <textarea id="newsContent" rows="4" placeholder="Enter the news content or social media post text"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="newsSource">Source:</label>
+                        <select id="newsSource">
+                            <option value="x">X (Twitter)</option>
+                            <option value="news">News Article</option>
+                            <option value="announcement">Announcement</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="newsHandle">Handle/Source Name:</label>
+                        <input type="text" id="newsHandle" placeholder="@username or source name" />
+                    </div>
+                    <div class="form-group">
+                        <label for="newsUrl">URL (Optional):</label>
+                        <input type="url" id="newsUrl" placeholder="https://example.com" />
+                    </div>
+                    <div class="form-group">
+                        <label for="newsDate">Date:</label>
+                        <input type="date" id="newsDate" />
+                    </div>
+                    <button type="button" id="addNewsItem" class="save-btn">Add News Item</button>
+                </div>
+
+                <div class="current-news">
+                    <h5>Current News Items</h5>
+                    <div id="newsItemsList" class="news-items-list">
+                        <!-- News items will be populated here -->
+                    </div>
                 </div>
             </div>
 

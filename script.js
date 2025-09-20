@@ -120,6 +120,10 @@ class AdminSystem {
             }
         });
 
+        // News management listeners
+        const addNewsBtn = document.getElementById('addNewsItem');
+        if (addNewsBtn) addNewsBtn.addEventListener('click', () => this.addNewsItem());
+
         // Close modal when clicking outside
         window.addEventListener('click', (e) => {
             if (e.target === adminModal) {
@@ -168,6 +172,8 @@ class AdminSystem {
     showAdminPanel() {
         const panel = document.getElementById('adminPanel');
         panel.classList.remove('hidden');
+        // Initialize news management
+        this.initializeNewsManagement();
     }
 
     hideAdminPanel() {
@@ -616,6 +622,112 @@ Timestamp: ${new Date().toISOString()}`;
         const hours = String(date.getHours()).padStart(2, '0');
         const minutes = String(date.getMinutes()).padStart(2, '0');
         return `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
+
+    // News Management Methods
+    addNewsItem() {
+        const title = document.getElementById('newsTitle').value.trim();
+        const content = document.getElementById('newsContent').value.trim();
+        const source = document.getElementById('newsSource').value;
+        const handle = document.getElementById('newsHandle').value.trim();
+        const url = document.getElementById('newsUrl').value.trim();
+        const date = document.getElementById('newsDate').value;
+
+        if (!content) {
+            alert('Please enter news content.');
+            return;
+        }
+
+        if (!handle) {
+            alert('Please enter a source/handle name.');
+            return;
+        }
+
+        if (!date) {
+            alert('Please select a date.');
+            return;
+        }
+
+        const newsItem = {
+            id: Date.now().toString(),
+            title: title || null,
+            content: content,
+            source: source,
+            handle: handle,
+            url: url || null,
+            date: date,
+            createdAt: new Date().toISOString()
+        };
+
+        this.saveNewsItem(newsItem);
+        this.clearNewsForm();
+        this.loadNewsItems();
+        alert('News item added successfully!');
+    }
+
+    saveNewsItem(newsItem) {
+        const newsItems = this.getNewsItems();
+        newsItems.unshift(newsItem); // Add to beginning of array
+        localStorage.setItem('newsItems', JSON.stringify(newsItems));
+    }
+
+    getNewsItems() {
+        return JSON.parse(localStorage.getItem('newsItems') || '[]');
+    }
+
+    loadNewsItems() {
+        const newsItems = this.getNewsItems();
+        const container = document.getElementById('newsItemsList');
+        if (!container) return;
+
+        container.innerHTML = '';
+
+        if (newsItems.length === 0) {
+            container.innerHTML = '<p style="color: var(--pp-text-dim); text-align: center; padding: 20px;">No news items yet. Add your first news item above.</p>';
+            return;
+        }
+
+        newsItems.forEach(item => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'news-item-admin';
+            itemDiv.innerHTML = `
+                <div class="news-item-content">
+                    <div class="news-item-title">${item.title || 'Social Post'}</div>
+                    <div class="news-item-meta">${item.handle} • ${new Date(item.date).toLocaleDateString()}</div>
+                </div>
+                <div class="news-item-actions">
+                    <button class="btn-small btn-danger" onclick="adminSystem.deleteNewsItem('${item.id}')">Delete</button>
+                </div>
+            `;
+            container.appendChild(itemDiv);
+        });
+    }
+
+    deleteNewsItem(id) {
+        if (!confirm('Are you sure you want to delete this news item?')) return;
+
+        const newsItems = this.getNewsItems();
+        const filteredItems = newsItems.filter(item => item.id !== id);
+        localStorage.setItem('newsItems', JSON.stringify(filteredItems));
+        this.loadNewsItems();
+        alert('News item deleted successfully!');
+    }
+
+    clearNewsForm() {
+        document.getElementById('newsTitle').value = '';
+        document.getElementById('newsContent').value = '';
+        document.getElementById('newsSource').value = 'x';
+        document.getElementById('newsHandle').value = '';
+        document.getElementById('newsUrl').value = '';
+        document.getElementById('newsDate').value = '';
+    }
+
+    // Initialize news management when admin panel loads
+    initializeNewsManagement() {
+        this.loadNewsItems();
+        // Set default date to today
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('newsDate').value = today;
     }
 }
 
@@ -1314,6 +1426,94 @@ function toggleFAQ(element) {
         faqItem.classList.add('active');
     }
 }
+
+// News Management for Public Display
+function loadNewsForDisplay() {
+    const newsItems = JSON.parse(localStorage.getItem('newsItems') || '[]');
+    const container = document.getElementById('newsGrid');
+
+    if (!container) return;
+
+    // If no custom news items, show default news
+    if (newsItems.length === 0) {
+        container.innerHTML = `
+            <article class="news-card">
+                <div class="news-header">
+                    <div class="news-source">
+                        <span class="news-icon">𝕏</span>
+                        <span class="news-handle">@ShuffleUSA</span>
+                    </div>
+                    <time class="news-date">Sep 15, 2025</time>
+                </div>
+                <div class="news-content">
+                    <p>The wait's over… we're officially live! 🇺🇸</p>
+                    <p>Try your luck now at <a href="http://shuffle.us" target="_blank" rel="noopener">shuffle.us</a></p>
+                </div>
+            </article>
+
+            <article class="news-card">
+                <div class="news-header">
+                    <div class="news-source">
+                        <span class="news-icon">𝕏</span>
+                        <span class="news-handle">@Goated</span>
+                    </div>
+                    <time class="news-date">Sep 15, 2025</time>
+                </div>
+                <div class="news-content">
+                    <p>We're excited to officially announce the TGE of $GOATED! 🔥</p>
+                    <p>📅 Presale begins at 16:00 UTC on Sep 25th, 2025</p>
+                </div>
+            </article>
+
+            <article class="news-card">
+                <div class="news-header">
+                    <div class="news-source">
+                        <span class="news-icon">📰</span>
+                        <span class="news-handle">GamingToday.com</span>
+                    </div>
+                    <time class="news-date">Sep 4, 2025</time>
+                </div>
+                <div class="news-content">
+                    <h4>Pragmatic Play pulls out of US sweepstakes casinos amid lawsuits and regulatory shifts</h4>
+                    <p>Industry-leading game provider Pragmatic Play has announced it will cease operations with US-based sweepstakes casinos following multiple lawsuits and changing regulatory landscape.</p>
+                    <a href="https://gamingtoday.com" target="_blank" rel="noopener" class="news-link">Read full article →</a>
+                </div>
+            </article>
+        `;
+        return;
+    }
+
+    // Display custom news items
+    container.innerHTML = '';
+    newsItems.slice(0, 6).forEach(item => { // Show up to 6 items
+        const article = document.createElement('article');
+        article.className = 'news-card';
+
+        const icon = item.source === 'x' ? '𝕏' : item.source === 'news' ? '📰' : '📢';
+
+        article.innerHTML = `
+            <div class="news-header">
+                <div class="news-source">
+                    <span class="news-icon">${icon}</span>
+                    <span class="news-handle">${item.handle}</span>
+                </div>
+                <time class="news-date">${new Date(item.date).toLocaleDateString()}</time>
+            </div>
+            <div class="news-content">
+                ${item.title ? `<h4>${item.title}</h4>` : ''}
+                <p>${item.content.replace(/\n/g, '</p><p>')}</p>
+                ${item.url ? `<a href="${item.url}" target="_blank" rel="noopener" class="news-link">${item.source === 'x' ? 'View Post →' : 'Read More →'}</a>` : ''}
+            </div>
+        `;
+
+        container.appendChild(article);
+    });
+}
+
+// Initialize news display when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    loadNewsForDisplay();
+});
 
 // Add click tracking to all affiliate links
 document.addEventListener('DOMContentLoaded', function() {
