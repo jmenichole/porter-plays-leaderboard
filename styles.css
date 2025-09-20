@@ -27,6 +27,11 @@
     /* Gradients */
     --purple-gradient: linear-gradient(135deg, #5956FF, #8B5CF6);
 
+    /* Discord/Brand Colors */
+    --discord-purple: #5865F2;
+    --discord-green: #57F287;
+    --primary-dark: #4A5568;
+
     /* Legacy Variables (for compatibility) */
     --primary-color: #5956FF;
     --secondary-color: #5CFFC1;
@@ -834,7 +839,7 @@ body.pp-root {
 }
 
 /* Footer quote styling */
-.pp-footer-left .pp-footnote:first-of-type {
+.pp-footer-left p.pp-footnote:first-child {
     font-style: italic;
     color: var(--pp-text);
     margin: 16px 0 8px;
@@ -846,7 +851,7 @@ body.pp-root {
     opacity: 0.9;
 }
 
-.pp-footer-left .pp-footnote:first-of-type::before {
+.pp-footer-left p.pp-footnote:first-child::before {
     content: '"';
     font-size: 24px;
     color: var(--pp-accent-green);
@@ -855,7 +860,7 @@ body.pp-root {
     margin-right: 4px;
 }
 
-.pp-footer-left .pp-footnote:first-of-type::after {
+.pp-footer-left p.pp-footnote:first-child::after {
     content: '"';
     font-size: 24px;
     color: var(--pp-accent-green);
