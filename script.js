@@ -20,18 +20,25 @@ class ConfigManager {
         const base = saved ? JSON.parse(saved) : {
             thrillApiUrl: '',
             goatedApiUrl: '',
+            shuffleApiUrl: '',
             apiKey: '',
             settings: {
-                thrill: { enabled: true, prizeTotal: 5000, placesPaid: 3, customPrizes: [] },
-                goated: { enabled: true, prizeTotal: 1000, placesPaid: 3, customPrizes: [] }
+                thrill: { enabled: true, prizeTotal: 5000, placesPaid: 10, customPrizes: [] },
+                goated: { enabled: true, prizeTotal: 1000, placesPaid: 10, customPrizes: [] },
+                shuffle: { enabled: true, prizeTotal: 2000, placesPaid: 10, customPrizes: [] }
             }
         };
         // Migrate old configs without settings
         if (!base.settings) {
             base.settings = {
-                thrill: { enabled: true, prizeTotal: 5000, placesPaid: 3, customPrizes: [] },
-                goated: { enabled: true, prizeTotal: 1000, placesPaid: 3, customPrizes: [] }
+                thrill: { enabled: true, prizeTotal: 5000, placesPaid: 10, customPrizes: [] },
+                goated: { enabled: true, prizeTotal: 1000, placesPaid: 10, customPrizes: [] },
+                shuffle: { enabled: true, prizeTotal: 2000, placesPaid: 10, customPrizes: [] }
             };
+        }
+        // Ensure shuffle is in settings if missing
+        if (!base.settings.shuffle) {
+            base.settings.shuffle = { enabled: true, prizeTotal: 2000, placesPaid: 10, customPrizes: [] };
         }
         return base;
     }
@@ -303,19 +310,19 @@ class AdminSystem {
             thrill: {
                 enabled: this.thrillEnabled?.checked ?? true,
                 prizeTotal: Number(this.thrillPrizeTotal?.value ?? 5000),
-                placesPaid: Number(this.thrillPlacesPaid?.value ?? 3),
+                placesPaid: Number(this.thrillPlacesPaid?.value ?? 10),
                 customPrizes: thrillCustom
             },
             goated: {
                 enabled: this.goatedEnabled?.checked ?? true,
                 prizeTotal: Number(this.goatedPrizeTotal?.value ?? 1000),
-                placesPaid: Number(this.goatedPlacesPaid?.value ?? 3),
+                placesPaid: Number(this.goatedPlacesPaid?.value ?? 10),
                 customPrizes: goatedCustom
             },
             shuffle: {
                 enabled: this.shuffleEnabled?.checked ?? true,
                 prizeTotal: Number(this.shufflePrizeTotal?.value ?? 2000),
-                placesPaid: Number(this.shufflePlacesPaid?.value ?? 3),
+                placesPaid: Number(this.shufflePlacesPaid?.value ?? 10),
                 customPrizes: shuffleCustom
             }
         };
@@ -336,15 +343,15 @@ class AdminSystem {
         let prizeTotal, placesPaid, enabled;
         if (casino === 'thrill') {
             prizeTotal = Number(this.thrillPrizeTotal?.value ?? 5000);
-            placesPaid = Number(this.thrillPlacesPaid?.value ?? 3);
+            placesPaid = Number(this.thrillPlacesPaid?.value ?? 10);
             enabled = this.thrillEnabled?.checked ?? true;
         } else if (casino === 'goated') {
             prizeTotal = Number(this.goatedPrizeTotal?.value ?? 1000);
-            placesPaid = Number(this.goatedPlacesPaid?.value ?? 3);
+            placesPaid = Number(this.goatedPlacesPaid?.value ?? 10);
             enabled = this.goatedEnabled?.checked ?? true;
         } else if (casino === 'shuffle') {
             prizeTotal = Number(this.shufflePrizeTotal?.value ?? 2000);
-            placesPaid = Number(this.shufflePlacesPaid?.value ?? 3);
+            placesPaid = Number(this.shufflePlacesPaid?.value ?? 10);
             enabled = this.shuffleEnabled?.checked ?? true;
         }
 
@@ -557,6 +564,23 @@ Timestamp: ${new Date().toISOString()}`;
     loadLeaderboardDates() {
         const savedDates = JSON.parse(localStorage.getItem('leaderboardDates') || '{}');
         
+        // If no saved dates exist, set weekly defaults for all leaderboards
+        if (Object.keys(savedDates).length === 0) {
+            const now = new Date();
+            const weeklyStart = this.getLastMonday(now);
+            const weeklyEnd = new Date(weeklyStart);
+            weeklyEnd.setDate(weeklyEnd.getDate() + 7);
+            
+            // Set weekly defaults for all leaderboards
+            document.getElementById('thrillStartDate').value = this.formatDateForInput(weeklyStart);
+            document.getElementById('thrillEndDate').value = this.formatDateForInput(weeklyEnd);
+            document.getElementById('goatedStartDate').value = this.formatDateForInput(weeklyStart);
+            document.getElementById('goatedEndDate').value = this.formatDateForInput(weeklyEnd);
+            document.getElementById('shuffleStartDate').value = this.formatDateForInput(weeklyStart);
+            document.getElementById('shuffleEndDate').value = this.formatDateForInput(weeklyEnd);
+            return;
+        }
+        
         // Load Thrill dates
         if (savedDates.thrill) {
             document.getElementById('thrillStartDate').value = savedDates.thrill.startDate || '';
@@ -691,32 +715,23 @@ Timestamp: ${new Date().toISOString()}`;
         // Clear saved dates
         localStorage.removeItem('leaderboardDates');
         
-        // Set default periods based on current date
+        // Set all leaderboards to weekly periods (Monday to Sunday) based on current date
         const now = new Date();
         
-        // Thrill - Biweekly (2 weeks from current Monday)
-        const thrillStart = this.getLastMonday(now);
-        const thrillEnd = new Date(thrillStart);
-        thrillEnd.setDate(thrillEnd.getDate() + 14);
-        
-        // Goated - Monthly (current month)
-        const goatedStart = new Date(now.getFullYear(), now.getMonth(), 1);
-        const goatedEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-        
-        // Shuffle - Weekly (current week from Monday)
-        const shuffleStart = this.getLastMonday(now);
-        const shuffleEnd = new Date(shuffleStart);
-        shuffleEnd.setDate(shuffleEnd.getDate() + 7);
+        // All leaderboards - Weekly (current week from Monday)
+        const weeklyStart = this.getLastMonday(now);
+        const weeklyEnd = new Date(weeklyStart);
+        weeklyEnd.setDate(weeklyEnd.getDate() + 7);
 
-        // Update form fields
-        document.getElementById('thrillStartDate').value = this.formatDateForInput(thrillStart);
-        document.getElementById('thrillEndDate').value = this.formatDateForInput(thrillEnd);
-        document.getElementById('goatedStartDate').value = this.formatDateForInput(goatedStart);
-        document.getElementById('goatedEndDate').value = this.formatDateForInput(goatedEnd);
-        document.getElementById('shuffleStartDate').value = this.formatDateForInput(shuffleStart);
-        document.getElementById('shuffleEndDate').value = this.formatDateForInput(shuffleEnd);
+        // Update form fields - all use weekly periods now
+        document.getElementById('thrillStartDate').value = this.formatDateForInput(weeklyStart);
+        document.getElementById('thrillEndDate').value = this.formatDateForInput(weeklyEnd);
+        document.getElementById('goatedStartDate').value = this.formatDateForInput(weeklyStart);
+        document.getElementById('goatedEndDate').value = this.formatDateForInput(weeklyEnd);
+        document.getElementById('shuffleStartDate').value = this.formatDateForInput(weeklyStart);
+        document.getElementById('shuffleEndDate').value = this.formatDateForInput(weeklyEnd);
 
-        alert('All leaderboards reset to default periods. Click "Save All Timeframes" to apply these changes.');
+        alert('All leaderboards reset to weekly periods. Click "Save All Timeframes" to apply these changes.');
     }
 
     updateLeaderboardDisplay(casino, startDate, endDate) {
