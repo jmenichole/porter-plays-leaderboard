@@ -59,9 +59,9 @@ a:visited {
 
     /* Casino-specific Colors */
     /* Shuffle Casino */
-    --shuffle-primary: #FF6B35;
-    --shuffle-secondary: #F7931E;
-    --shuffle-dark: #D55C2E;
+    --shuffle-primary: #7717FF;
+    --shuffle-secondary: #431E7F;
+    --shuffle-dark: #431E7F;
     --shuffle-white: #FFFFFF;
     
     /* Goated Casino */

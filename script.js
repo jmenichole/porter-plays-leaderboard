@@ -999,7 +999,7 @@ class LeaderboardManager {
             <div class="leaderboard-header">
                 <div class="live-indicator">
                     ${liveDot}<span class="live-text">Live</span>
-                    <span class="countdown-timer">${countdownTimer}</span>
+                    <span class="countdown-timer">Resets in ${countdownTimer}</span>
                 </div>
                 <h3>Top Players</h3>
                 <p class="last-updated">Last updated: ${lastUpdated}</p>
