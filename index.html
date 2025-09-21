@@ -185,25 +185,25 @@
             <div class="api-config">
                 <h4>API Configuration</h4>
                 <div class="leaderboard-timing-info">
-                    <div class="timing-item"><span class="casino-name">Thrill:</span><span class="timing">Biweekly Leaderboard</span></div>
-                    <div class="timing-item"><span class="casino-name">Goated:</span><span class="timing">Monthly Leaderboard</span></div>
+                    <div class="timing-item"><span class="casino-name">Thrill:</span><span class="timing">Weekly Leaderboard</span></div>
+                    <div class="timing-item"><span class="casino-name">Goated:</span><span class="timing">Weekly Leaderboard</span></div>
                     <div class="timing-item"><span class="casino-name">Shuffle:</span><span class="timing">Weekly Leaderboard</span></div>
                 </div>
                 <div class="api-form">
                     <div class="form-group">
-                        <label for="thrillApiUrl">Thrill API URL (Biweekly):</label>
+                        <label for="thrillApiUrl">Thrill API URL (Weekly):</label>
                         <input type="url" id="thrillApiUrl" placeholder="https://api.thrill.com/leaderboard" />
-                        <small>Leaderboard updates every 2 weeks (URL only required if no API key)</small>
+                        <small>Leaderboard defaults to weekly periods (URL only required if no API key)</small>
                     </div>
                     <div class="form-group">
-                        <label for="goatedApiUrl">Goated API URL (Monthly):</label>
+                        <label for="goatedApiUrl">Goated API URL (Weekly):</label>
                         <input type="url" id="goatedApiUrl" placeholder="https://api.goated.com/leaderboard" />
-                        <small>Leaderboard updates monthly (URL only required if no API key)</small>
+                        <small>Leaderboard defaults to weekly periods (URL only required if no API key)</small>
                     </div>
                     <div class="form-group">
                         <label for="shuffleApiUrl">Shuffle API URL (Weekly):</label>
                         <input type="url" id="shuffleApiUrl" placeholder="https://api.shuffle.com/leaderboard" />
-                        <small>Leaderboard updates weekly (URL only required if no API key)</small>
+                        <small>Leaderboard defaults to weekly periods (URL only required if no API key)</small>
                     </div>
                     <div class="form-group">
                         <label for="apiKey">API Key (Optional):</label>
@@ -224,7 +224,7 @@
                             <div class="form-group"><label for="thrillEndDate">End Date:</label><input type="datetime-local" id="thrillEndDate" class="date-input" /></div>
                         </div>
                         <div class="form-group"><label for="thrillPrizeTotal">Prize Total ($):</label><input type="number" id="thrillPrizeTotal" placeholder="5000" min="0" step="100" /></div>
-                        <div class="form-group"><label for="thrillPlacesPaid">Places Paid:</label><input type="number" id="thrillPlacesPaid" placeholder="3" min="1" step="1" /></div>
+                        <div class="form-group"><label for="thrillPlacesPaid">Places Paid:</label><input type="number" id="thrillPlacesPaid" placeholder="10" min="1" step="1" /></div>
                         <div class="form-group">
                             <label>Per-Place Prizes:</label>
                             <div id="thrillPrizeEditor" class="prize-editor"></div>
@@ -251,7 +251,7 @@
                             <div class="form-group"><label for="goatedEndDate">End Date:</label><input type="datetime-local" id="goatedEndDate" class="date-input" /></div>
                         </div>
                         <div class="form-group"><label for="goatedPrizeTotal">Prize Total ($):</label><input type="number" id="goatedPrizeTotal" placeholder="1000" min="0" step="100" /></div>
-                        <div class="form-group"><label for="goatedPlacesPaid">Places Paid:</label><input type="number" id="goatedPlacesPaid" placeholder="3" min="1" step="1" /></div>
+                        <div class="form-group"><label for="goatedPlacesPaid">Places Paid:</label><input type="number" id="goatedPlacesPaid" placeholder="10" min="1" step="1" /></div>
                         <div class="form-group">
                             <label>Per-Place Prizes:</label>
                             <div id="goatedPrizeEditor" class="prize-editor"></div>
@@ -278,7 +278,7 @@
                             <div class="form-group"><label for="shuffleEndDate">End Date:</label><input type="datetime-local" id="shuffleEndDate" class="date-input" /></div>
                         </div>
                         <div class="form-group"><label for="shufflePrizeTotal">Prize Total ($):</label><input type="number" id="shufflePrizeTotal" placeholder="2000" min="0" step="100" /></div>
-                        <div class="form-group"><label for="shufflePlacesPaid">Places Paid:</label><input type="number" id="shufflePlacesPaid" placeholder="3" min="1" step="1" /></div>
+                        <div class="form-group"><label for="shufflePlacesPaid">Places Paid:</label><input type="number" id="shufflePlacesPaid" placeholder="10" min="1" step="1" /></div>
                         <div class="form-group">
                             <label>Per-Place Prizes:</label>
                             <div id="shufflePrizeEditor" class="prize-editor"></div>
