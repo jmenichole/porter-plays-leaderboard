@@ -220,7 +220,7 @@ class AdminSystem {
         if (chatBubble) {
             chatBubble.classList.add('admin-open');
         }
-
+    }
 
     hideAdminPanel() {
         const panel = document.getElementById('adminPanel');
