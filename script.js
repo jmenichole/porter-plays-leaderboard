@@ -20,25 +20,18 @@ class ConfigManager {
         const base = saved ? JSON.parse(saved) : {
             thrillApiUrl: '',
             goatedApiUrl: '',
-            shuffleApiUrl: '',
             apiKey: '',
             settings: {
                 thrill: { enabled: true, prizeTotal: 5000, placesPaid: 10, customPrizes: [] },
-                goated: { enabled: true, prizeTotal: 1000, placesPaid: 10, customPrizes: [] },
-                shuffle: { enabled: true, prizeTotal: 2000, placesPaid: 10, customPrizes: [] }
+                goated: { enabled: true, prizeTotal: 1000, placesPaid: 10, customPrizes: [] }
             }
         };
         // Migrate old configs without settings
         if (!base.settings) {
             base.settings = {
                 thrill: { enabled: true, prizeTotal: 5000, placesPaid: 10, customPrizes: [] },
-                goated: { enabled: true, prizeTotal: 1000, placesPaid: 10, customPrizes: [] },
-                shuffle: { enabled: true, prizeTotal: 2000, placesPaid: 10, customPrizes: [] }
+                goated: { enabled: true, prizeTotal: 1000, placesPaid: 10, customPrizes: [] }
             };
-        }
-        // Ensure shuffle is in settings if missing
-        if (!base.settings.shuffle) {
-            base.settings.shuffle = { enabled: true, prizeTotal: 2000, placesPaid: 10, customPrizes: [] };
         }
         return base;
     }
@@ -78,7 +71,6 @@ class AdminSystem {
         // New leaderboard management event listeners
         const saveThrillDatesBtn = document.getElementById('saveThrillDates');
         const saveGoatedDatesBtn = document.getElementById('saveGoatedDates');
-        const saveShuffleDatesBtn = document.getElementById('saveShuffleDates');
         const saveAllDatesBtn = document.getElementById('saveAllDates');
         const resetToDefaultsBtn = document.getElementById('resetToDefaults');
     // Settings inputs
@@ -90,10 +82,6 @@ class AdminSystem {
     this.goatedPlacesPaid = document.getElementById('goatedPlacesPaid');
     this.goatedEnabled = document.getElementById('goatedEnabled');
     this.goatedPrizeEditor = document.getElementById('goatedPrizeEditor');
-    this.shufflePrizeTotal = document.getElementById('shufflePrizeTotal');
-    this.shufflePlacesPaid = document.getElementById('shufflePlacesPaid');
-    this.shuffleEnabled = document.getElementById('shuffleEnabled');
-    this.shufflePrizeEditor = document.getElementById('shufflePrizeEditor');
 
         adminLoginBtn.addEventListener('click', () => this.showLoginModal());
         closeAdmin.addEventListener('click', () => this.hideLoginModal());
@@ -106,17 +94,14 @@ class AdminSystem {
         // Leaderboard management listeners
         if (saveThrillDatesBtn) saveThrillDatesBtn.addEventListener('click', () => this.saveLeaderboardDates('thrill'));
         if (saveGoatedDatesBtn) saveGoatedDatesBtn.addEventListener('click', () => this.saveLeaderboardDates('goated'));
-        if (saveShuffleDatesBtn) saveShuffleDatesBtn.addEventListener('click', () => this.saveLeaderboardDates('shuffle'));
         if (saveAllDatesBtn) saveAllDatesBtn.addEventListener('click', () => this.saveAllLeaderboardDates());
         if (resetToDefaultsBtn) resetToDefaultsBtn.addEventListener('click', () => this.resetToDefaultPeriods());
 
         // Individual settings save listeners
         const saveThrillSettingsBtn = document.getElementById('saveThrillSettings');
         const saveGoatedSettingsBtn = document.getElementById('saveGoatedSettings');
-        const saveShuffleSettingsBtn = document.getElementById('saveShuffleSettings');
         if (saveThrillSettingsBtn) saveThrillSettingsBtn.addEventListener('click', () => this.saveLeaderboardSettings('thrill'));
         if (saveGoatedSettingsBtn) saveGoatedSettingsBtn.addEventListener('click', () => this.saveLeaderboardSettings('goated'));
-        if (saveShuffleSettingsBtn) saveShuffleSettingsBtn.addEventListener('click', () => this.saveLeaderboardSettings('shuffle'));
         // Save settings on change
         [this.thrillPrizeTotal, this.thrillPlacesPaid, this.thrillEnabled, this.goatedPrizeTotal, this.goatedPlacesPaid, this.goatedEnabled].forEach(el => {
             if (!el) return;
@@ -125,7 +110,6 @@ class AdminSystem {
         // Rebuild editors when placesPaid changes
         if (this.thrillPlacesPaid) this.thrillPlacesPaid.addEventListener('change', () => this.renderPrizeEditor('thrill'));
         if (this.goatedPlacesPaid) this.goatedPlacesPaid.addEventListener('change', () => this.renderPrizeEditor('goated'));
-        if (this.shufflePlacesPaid) this.shufflePlacesPaid.addEventListener('change', () => this.renderPrizeEditor('shuffle'));
 
         // Preset button listeners
         document.addEventListener('click', (e) => {
@@ -270,20 +254,15 @@ class AdminSystem {
         if (this.goatedPrizeTotal) this.goatedPrizeTotal.value = config.settings?.goated?.prizeTotal ?? 1000;
         if (this.goatedPlacesPaid) this.goatedPlacesPaid.value = config.settings?.goated?.placesPaid ?? 3;
         if (this.goatedEnabled) this.goatedEnabled.checked = config.settings?.goated?.enabled ?? true;
-        if (this.shufflePrizeTotal) this.shufflePrizeTotal.value = config.settings?.shuffle?.prizeTotal ?? 2000;
-        if (this.shufflePlacesPaid) this.shufflePlacesPaid.value = config.settings?.shuffle?.placesPaid ?? 3;
-        if (this.shuffleEnabled) this.shuffleEnabled.checked = config.settings?.shuffle?.enabled ?? true;
         // Render editors with any existing custom prizes
         this.renderPrizeEditor('thrill');
         this.renderPrizeEditor('goated');
-        this.renderPrizeEditor('shuffle');
     }
 
     saveApiConfiguration() {
         const config = {
             thrillApiUrl: document.getElementById('thrillApiUrl').value,
             goatedApiUrl: document.getElementById('goatedApiUrl').value,
-            shuffleApiUrl: document.getElementById('shuffleApiUrl').value,
             apiKey: document.getElementById('apiKey').value
         };
 
@@ -295,7 +274,6 @@ class AdminSystem {
             // Refresh leaderboards with new config
             leaderboardManager.updateLeaderboard('thrill');
             leaderboardManager.updateLeaderboard('goated');
-            leaderboardManager.updateLeaderboard('shuffle');
         }
 
         alert('API configuration saved and leaderboards updated!');
@@ -305,7 +283,6 @@ class AdminSystem {
         const config = this.configManager.getApiConfig();
         const thrillCustom = this.collectCustomPrizes('thrill');
         const goatedCustom = this.collectCustomPrizes('goated');
-        const shuffleCustom = this.collectCustomPrizes('shuffle');
         config.settings = {
             thrill: {
                 enabled: this.thrillEnabled?.checked ?? true,
@@ -318,12 +295,6 @@ class AdminSystem {
                 prizeTotal: Number(this.goatedPrizeTotal?.value ?? 1000),
                 placesPaid: Number(this.goatedPlacesPaid?.value ?? 10),
                 customPrizes: goatedCustom
-            },
-            shuffle: {
-                enabled: this.shuffleEnabled?.checked ?? true,
-                prizeTotal: Number(this.shufflePrizeTotal?.value ?? 2000),
-                placesPaid: Number(this.shufflePlacesPaid?.value ?? 10),
-                customPrizes: shuffleCustom
             }
         };
         this.configManager.saveApiConfig(config);
@@ -331,7 +302,6 @@ class AdminSystem {
             leaderboardManager.applySettings(config.settings);
             leaderboardManager.updateLeaderboard('thrill');
             leaderboardManager.updateLeaderboard('goated');
-            leaderboardManager.updateLeaderboard('shuffle');
         }
     }
 
@@ -349,10 +319,6 @@ class AdminSystem {
             prizeTotal = Number(this.goatedPrizeTotal?.value ?? 1000);
             placesPaid = Number(this.goatedPlacesPaid?.value ?? 10);
             enabled = this.goatedEnabled?.checked ?? true;
-        } else if (casino === 'shuffle') {
-            prizeTotal = Number(this.shufflePrizeTotal?.value ?? 2000);
-            placesPaid = Number(this.shufflePlacesPaid?.value ?? 10);
-            enabled = this.shuffleEnabled?.checked ?? true;
         }
 
         // Update only this casino's settings
@@ -384,9 +350,6 @@ class AdminSystem {
         } else if (casino === 'goated') {
             places = Number(this.goatedPlacesPaid?.value || 0);
             container = this.goatedPrizeEditor;
-        } else if (casino === 'shuffle') {
-            places = Number(this.shufflePlacesPaid?.value || 0);
-            container = this.shufflePrizeEditor;
         }
         
         if (!container || !places) return;
@@ -408,8 +371,6 @@ class AdminSystem {
             container = this.thrillPrizeEditor;
         } else if (casino === 'goated') {
             container = this.goatedPrizeEditor;
-        } else if (casino === 'shuffle') {
-            container = this.shufflePrizeEditor;
         }
         
         if (!container) return [];
@@ -433,9 +394,6 @@ class AdminSystem {
         } else if (casino === 'goated') {
             total = Number(this.goatedPrizeTotal?.value || 0);
             places = Number(this.goatedPlacesPaid?.value || 0);
-        } else if (casino === 'shuffle') {
-            total = Number(this.shufflePrizeTotal?.value || 0);
-            places = Number(this.shufflePlacesPaid?.value || 0);
         }
         
         if (!total || !places) return;
@@ -504,8 +462,6 @@ class AdminSystem {
             container = this.thrillPrizeEditor;
         } else if (casino === 'goated') {
             container = this.goatedPrizeEditor;
-        } else if (casino === 'shuffle') {
-            container = this.shufflePrizeEditor;
         }
         
         if (!container) return;
@@ -602,8 +558,6 @@ Timestamp: ${new Date().toISOString()}`;
             document.getElementById('thrillEndDate').value = this.formatDateForInput(weeklyEnd);
             document.getElementById('goatedStartDate').value = this.formatDateForInput(weeklyStart);
             document.getElementById('goatedEndDate').value = this.formatDateForInput(weeklyEnd);
-            document.getElementById('shuffleStartDate').value = this.formatDateForInput(weeklyStart);
-            document.getElementById('shuffleEndDate').value = this.formatDateForInput(weeklyEnd);
             return;
         }
         
@@ -617,12 +571,6 @@ Timestamp: ${new Date().toISOString()}`;
         if (savedDates.goated) {
             document.getElementById('goatedStartDate').value = savedDates.goated.startDate || '';
             document.getElementById('goatedEndDate').value = savedDates.goated.endDate || '';
-        }
-        
-        // Load Shuffle dates
-        if (savedDates.shuffle) {
-            document.getElementById('shuffleStartDate').value = savedDates.shuffle.startDate || '';
-            document.getElementById('shuffleEndDate').value = savedDates.shuffle.endDate || '';
         }
     }
 
@@ -676,7 +624,7 @@ Timestamp: ${new Date().toISOString()}`;
             return;
         }
 
-        const casinos = ['thrill', 'goated', 'shuffle'];
+        const casinos = ['thrill', 'goated'];
         let allValid = true;
         let invalidCasinos = [];
 
@@ -722,7 +670,6 @@ Timestamp: ${new Date().toISOString()}`;
         if (leaderboardManager) {
             leaderboardManager.updateLeaderboard('thrill');
             leaderboardManager.updateLeaderboard('goated');
-            leaderboardManager.updateLeaderboard('shuffle');
         }
         
         alert('All leaderboard timeframes updated successfully!');
@@ -754,8 +701,6 @@ Timestamp: ${new Date().toISOString()}`;
         document.getElementById('thrillEndDate').value = this.formatDateForInput(weeklyEnd);
         document.getElementById('goatedStartDate').value = this.formatDateForInput(weeklyStart);
         document.getElementById('goatedEndDate').value = this.formatDateForInput(weeklyEnd);
-        document.getElementById('shuffleStartDate').value = this.formatDateForInput(weeklyStart);
-        document.getElementById('shuffleEndDate').value = this.formatDateForInput(weeklyEnd);
 
         alert('All leaderboards reset to weekly periods. Click "Save All Timeframes" to apply these changes.');
     }
@@ -825,77 +770,6 @@ class LeaderboardManager {
         this.isLoading = false;
         this.configManager = new ConfigManager();
         this.settings = this.configManager.getApiConfig().settings;
-        this.weeklyFiltering = false; // Only enable for specific casinos like Shuffle
-        this.currentWeekBounds = this.getCurrentWeekBounds();
-        this.weeklyResetCheck();
-    }
-
-    getCurrentWeekBounds() {
-        const now = new Date();
-        const weekStart = this.getLastSunday(now);
-        const weekEnd = new Date(weekStart);
-        weekEnd.setDate(weekEnd.getDate() + 6); // Saturday
-        weekEnd.setUTCHours(23, 59, 59, 999);
-        return { start: weekStart, end: weekEnd };
-    }
-
-    getLastSunday(date) {
-        const d = new Date(date);
-        const day = d.getDay();
-        // If it's Sunday (0), return same day, otherwise go back to previous Sunday
-        const diff = day === 0 ? 0 : -day;
-        d.setDate(d.getDate() + diff);
-        d.setUTCHours(0, 0, 0, 0); // Use UTC for consistent weekly resets at midnight
-        return d;
-    }
-
-    formatWeekRange(start, end) {
-        const options = { month: 'short', day: 'numeric' };
-        const startStr = start.toLocaleDateString('en-US', options);
-        const endStr = end.toLocaleDateString('en-US', options);
-        const year = end.getFullYear();
-        return `Week of ${startStr}-${endStr}, ${year}`;
-    }
-
-    weeklyResetCheck() {
-        // Check every hour if we need to reset for new week
-        setInterval(() => {
-            const newWeekBounds = this.getCurrentWeekBounds();
-            if (newWeekBounds.start.getTime() !== this.currentWeekBounds.start.getTime()) {
-                console.log('New week detected, clearing leaderboard data...');
-                this.currentWeekBounds = newWeekBounds;
-                this.clearWeeklyData();
-                this.updateLeaderboard(); // Refresh current leaderboard
-            }
-        }, 3600000); // Check every hour
-    }
-
-    clearWeeklyData() {
-        // Clear any cached weekly data when new week starts
-        localStorage.removeItem('weeklyLeaderboardCache');
-        console.log('Weekly leaderboard data cleared for new week');
-    }
-
-    filterDataByWeek(data) {
-        if (!this.weeklyFiltering || !data || !Array.isArray(data.players)) {
-            return data;
-        }
-
-        // For real API data, filter by date if entries have timestamps
-        const filteredPlayers = data.players.filter(player => {
-            if (player.timestamp) {
-                const playerDate = new Date(player.timestamp);
-                return playerDate >= this.currentWeekBounds.start && playerDate <= this.currentWeekBounds.end;
-            }
-            // If no timestamp, include all players (for mock data or APIs without timestamps)
-            return true;
-        });
-
-        return {
-            ...data,
-            players: filteredPlayers,
-            weeklyPeriod: this.formatWeekRange(this.currentWeekBounds.start, this.currentWeekBounds.end)
-        };
     }
 
     updateApiConfig(config) {
@@ -911,13 +785,12 @@ class LeaderboardManager {
         const config = this.configManager.getApiConfig();
         const apiEndpoints = {
             thrill: config.thrillApiUrl || 'https://api.thrill.com/leaderboard',
-            goated: config.goatedApiUrl || 'https://api.goated.com/leaderboard',
-            shuffle: config.shuffleApiUrl || 'https://api.shuffle.com/leaderboard'
+            goated: config.goatedApiUrl || 'https://api.goated.com/leaderboard'
         };
 
         try {
             // Try to fetch from actual API if configured
-            if (config.thrillApiUrl || config.goatedApiUrl || config.shuffleApiUrl) {
+            if (config.thrillApiUrl || config.goatedApiUrl) {
                 const headers = {};
                 // Only add API key if provided
                 if (config.apiKey && config.apiKey.trim()) {
@@ -939,11 +812,6 @@ class LeaderboardManager {
                         }));
                     }
                     
-                    // Apply weekly filtering for Shuffle casino specifically
-                    if (casino === 'shuffle') {
-                        data = this.filterDataByWeek(data);
-                    }
-                    
                     return { ...data, isMock: false };
                 }
             }
@@ -951,20 +819,10 @@ class LeaderboardManager {
             // Fall back to mock data
             let mockData = await this.getMockLeaderboardData(casino);
             
-            // Apply weekly filtering to mock data for Shuffle
-            if (casino === 'shuffle') {
-                mockData = this.filterDataByWeek(mockData);
-            }
-            
             return mockData;
         } catch (error) {
             console.error(`Error fetching ${casino} leaderboard:`, error);
             let mockData = await this.getMockLeaderboardData(casino);
-            
-            // Apply weekly filtering even to fallback data
-            if (casino === 'shuffle') {
-                mockData = this.filterDataByWeek(mockData);
-            }
             
             return mockData;
         }
@@ -1000,22 +858,6 @@ class LeaderboardManager {
                     { rank: 8, username: 'B***ully', wager: '$58,900', profit: '+$4,700' },
                     { rank: 9, username: 'W***izard', wager: '$49,600', profit: '+$3,800' },
                     { rank: 10, username: 'S***ensei', wager: '$42,100', profit: '+$3,200' }
-                ],
-                lastUpdated: new Date().toLocaleTimeString(),
-                isMock: true
-            },
-            shuffle: {
-                players: [
-                    { rank: 1, username: 'S***fflePro', wager: '$89,500', profit: '+$8,950' },
-                    { rank: 2, username: 'W***klyWin', wager: '$78,200', profit: '+$7,820' },
-                    { rank: 3, username: 'C***toKing', wager: '$67,800', profit: '+$6,780' },
-                    { rank: 4, username: 'B***tMaster', wager: '$58,900', profit: '+$5,890' },
-                    { rank: 5, username: 'G***mePro', wager: '$51,200', profit: '+$5,120' },
-                    { rank: 6, username: 'L***kyStrk', wager: '$44,600', profit: '+$4,460' },
-                    { rank: 7, username: 'P***yerOne', wager: '$38,900', profit: '+$3,890' },
-                    { rank: 8, username: 'T***pGamer', wager: '$33,400', profit: '+$3,340' },
-                    { rank: 9, username: 'W***nner123', wager: '$28,700', profit: '+$2,870' },
-                    { rank: 10, username: 'C***mpion99', wager: '$24,100', profit: '+$2,410' }
                 ],
                 lastUpdated: new Date().toLocaleTimeString(),
                 isMock: true
@@ -1110,20 +952,10 @@ class LeaderboardManager {
         };
         const liveDot = '<span class="live-dot" aria-hidden="true"></span>';
         
-        // Show weekly period for Shuffle only
-        const showWeeklyPeriod = casino === 'shuffle';
-        const weeklyPeriodHtml = showWeeklyPeriod && data.weeklyPeriod ? `
-            <div class="weekly-period">
-                <span class="period-label">📅</span>
-                <span class="period-text">${data.weeklyPeriod}</span>
-            </div>
-        ` : '';
-        
         const html = `
             <div class="leaderboard-header">
                 <div class="live-indicator">${liveDot}<span class="live-text">Live</span></div>
                 <h3>Top Players</h3>
-                ${weeklyPeriodHtml}
                 <p class="last-updated">Last updated: ${lastUpdated}</p>
             </div>
             <table class="leaderboard-table">
@@ -1354,18 +1186,6 @@ class ChatSystem {
     handleCasinoSelection(casino) {
         const messagesContainer = document.getElementById('chatMessages');
         const casinoInfo = {
-            shuffle: {
-                name: 'Shuffle',
-                code: 'PLAYSHUFFLE',
-                bonus: 'VIP benefits',
-                features: 'exclusive slot tournaments',
-                url: 'https://shuffle.com/?r=playShuffle',
-                telegramChannels: [
-                    { name: 'Shuffle Boost', url: 'https://t.me/shuffleboost' },
-                    { name: 'Shuffle VIP', url: 'https://t.me/shufflevip' }
-                ],
-                porterChannel: 'https://t.me/playshuffle'
-            },
             thrill: {
                 name: 'Thrill',
                 code: 'PORTERVIP',
@@ -1584,8 +1404,7 @@ function initializeAnimations() {
 function trackAffiliateClick(url) {
     let casino = 'unknown';
     
-    if (url.includes('shuffle.com')) casino = 'shuffle';
-    else if (url.includes('thrill.com')) casino = 'thrill';
+    if (url.includes('thrill.com')) casino = 'thrill';
     else if (url.includes('goated.com')) casino = 'goated';
     
     console.log(`Affiliate link clicked: ${casino}`);
@@ -1672,7 +1491,7 @@ function toggleFAQ(element) {
 
 // Add click tracking to all affiliate links
 document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('a[href*="shuffle.com"], a[href*="thrill.com"], a[href*="goated.com"]').forEach(link => {
+    document.querySelectorAll('a[href*="thrill.com"], a[href*="goated.com"]').forEach(link => {
         link.addEventListener('click', function() {
             trackAffiliateClick(this.href);
         });
