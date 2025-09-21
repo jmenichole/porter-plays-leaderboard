@@ -898,8 +898,8 @@ class LeaderboardManager {
                         }));
                     }
                     
-                    // Apply weekly filtering for Shuffle casino (or any casino if weekly filtering is enabled)
-                    if (casino === 'shuffle' || this.weeklyFiltering) {
+                    // Apply weekly filtering for Shuffle casino specifically
+                    if (casino === 'shuffle') {
                         data = this.filterDataByWeek(data);
                     }
                     
@@ -911,7 +911,7 @@ class LeaderboardManager {
             let mockData = await this.getMockLeaderboardData(casino);
             
             // Apply weekly filtering to mock data for Shuffle
-            if (casino === 'shuffle' || this.weeklyFiltering) {
+            if (casino === 'shuffle') {
                 mockData = this.filterDataByWeek(mockData);
             }
             
@@ -921,7 +921,7 @@ class LeaderboardManager {
             let mockData = await this.getMockLeaderboardData(casino);
             
             // Apply weekly filtering even to fallback data
-            if (casino === 'shuffle' || this.weeklyFiltering) {
+            if (casino === 'shuffle') {
                 mockData = this.filterDataByWeek(mockData);
             }
             
@@ -1069,8 +1069,8 @@ class LeaderboardManager {
         };
         const liveDot = '<span class="live-dot" aria-hidden="true"></span>';
         
-        // Show weekly period for Shuffle or when weekly filtering is enabled
-        const showWeeklyPeriod = casino === 'shuffle' || this.weeklyFiltering;
+        // Show weekly period for Shuffle only
+        const showWeeklyPeriod = casino === 'shuffle';
         const weeklyPeriodHtml = showWeeklyPeriod && data.weeklyPeriod ? `
             <div class="weekly-period">
                 <span class="period-label">📅</span>
