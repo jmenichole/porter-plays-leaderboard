@@ -220,7 +220,7 @@ class AdminSystem {
         if (chatBubble) {
             chatBubble.classList.add('admin-open');
         }
-
+    }
 
     hideAdminPanel() {
         const panel = document.getElementById('adminPanel');
@@ -737,6 +737,33 @@ Timestamp: ${new Date().toISOString()}`;
         return d;
     }
 
+    getLastSunday(date) {
+        const d = new Date(date);
+        const day = d.getDay();
+        // If it's Sunday (0), return same day, otherwise go back to previous Sunday
+        const diff = day === 0 ? 0 : -day;
+        d.setDate(d.getDate() + diff);
+        d.setUTCHours(0, 0, 0, 0); // Use UTC for consistent weekly resets at midnight
+        return d;
+    }
+
+    getCurrentWeekBounds() {
+        const now = new Date();
+        const weekStart = this.getLastSunday(now);
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekEnd.getDate() + 6); // Saturday
+        weekEnd.setUTCHours(23, 59, 59, 999);
+        return { start: weekStart, end: weekEnd };
+    }
+
+    formatWeekRange(start, end) {
+        const options = { month: 'short', day: 'numeric' };
+        const startStr = start.toLocaleDateString('en-US', options);
+        const endStr = end.toLocaleDateString('en-US', options);
+        const year = end.getFullYear();
+        return `Week of ${startStr}-${endStr}, ${year}`;
+    }
+
     formatDateForInput(date) {
         // Format date for datetime-local input
         const year = date.getFullYear();
@@ -757,6 +784,77 @@ class LeaderboardManager {
         this.isLoading = false;
         this.configManager = new ConfigManager();
         this.settings = this.configManager.getApiConfig().settings;
+        this.weeklyFiltering = false; // Only enable for specific casinos like Shuffle
+        this.currentWeekBounds = this.getCurrentWeekBounds();
+        this.weeklyResetCheck();
+    }
+
+    getCurrentWeekBounds() {
+        const now = new Date();
+        const weekStart = this.getLastSunday(now);
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekEnd.getDate() + 6); // Saturday
+        weekEnd.setUTCHours(23, 59, 59, 999);
+        return { start: weekStart, end: weekEnd };
+    }
+
+    getLastSunday(date) {
+        const d = new Date(date);
+        const day = d.getDay();
+        // If it's Sunday (0), return same day, otherwise go back to previous Sunday
+        const diff = day === 0 ? 0 : -day;
+        d.setDate(d.getDate() + diff);
+        d.setUTCHours(0, 0, 0, 0); // Use UTC for consistent weekly resets at midnight
+        return d;
+    }
+
+    formatWeekRange(start, end) {
+        const options = { month: 'short', day: 'numeric' };
+        const startStr = start.toLocaleDateString('en-US', options);
+        const endStr = end.toLocaleDateString('en-US', options);
+        const year = end.getFullYear();
+        return `Week of ${startStr}-${endStr}, ${year}`;
+    }
+
+    weeklyResetCheck() {
+        // Check every hour if we need to reset for new week
+        setInterval(() => {
+            const newWeekBounds = this.getCurrentWeekBounds();
+            if (newWeekBounds.start.getTime() !== this.currentWeekBounds.start.getTime()) {
+                console.log('New week detected, clearing leaderboard data...');
+                this.currentWeekBounds = newWeekBounds;
+                this.clearWeeklyData();
+                this.updateLeaderboard(); // Refresh current leaderboard
+            }
+        }, 3600000); // Check every hour
+    }
+
+    clearWeeklyData() {
+        // Clear any cached weekly data when new week starts
+        localStorage.removeItem('weeklyLeaderboardCache');
+        console.log('Weekly leaderboard data cleared for new week');
+    }
+
+    filterDataByWeek(data) {
+        if (!this.weeklyFiltering || !data || !Array.isArray(data.players)) {
+            return data;
+        }
+
+        // For real API data, filter by date if entries have timestamps
+        const filteredPlayers = data.players.filter(player => {
+            if (player.timestamp) {
+                const playerDate = new Date(player.timestamp);
+                return playerDate >= this.currentWeekBounds.start && playerDate <= this.currentWeekBounds.end;
+            }
+            // If no timestamp, include all players (for mock data or APIs without timestamps)
+            return true;
+        });
+
+        return {
+            ...data,
+            players: filteredPlayers,
+            weeklyPeriod: this.formatWeekRange(this.currentWeekBounds.start, this.currentWeekBounds.end)
+        };
     }
 
     updateApiConfig(config) {
@@ -778,7 +876,7 @@ class LeaderboardManager {
 
         try {
             // Try to fetch from actual API if configured
-            if (config.thrillApiUrl || config.goatedApiUrl) {
+            if (config.thrillApiUrl || config.goatedApiUrl || config.shuffleApiUrl) {
                 const headers = {};
                 // Only add API key if provided
                 if (config.apiKey && config.apiKey.trim()) {
@@ -791,7 +889,7 @@ class LeaderboardManager {
                 });
                 
                 if (response.ok) {
-                    const data = await response.json();
+                    let data = await response.json();
                     // Anonymize usernames from API data
                     if (data.players) {
                         data.players = data.players.map(player => ({
@@ -799,15 +897,35 @@ class LeaderboardManager {
                             username: this.anonymizeUsername(player.username)
                         }));
                     }
+                    
+                    // Apply weekly filtering for Shuffle casino specifically
+                    if (casino === 'shuffle') {
+                        data = this.filterDataByWeek(data);
+                    }
+                    
                     return { ...data, isMock: false };
                 }
             }
             
             // Fall back to mock data
-            return this.getMockLeaderboardData(casino);
+            let mockData = await this.getMockLeaderboardData(casino);
+            
+            // Apply weekly filtering to mock data for Shuffle
+            if (casino === 'shuffle') {
+                mockData = this.filterDataByWeek(mockData);
+            }
+            
+            return mockData;
         } catch (error) {
             console.error(`Error fetching ${casino} leaderboard:`, error);
-            return this.getMockLeaderboardData(casino);
+            let mockData = await this.getMockLeaderboardData(casino);
+            
+            // Apply weekly filtering even to fallback data
+            if (casino === 'shuffle') {
+                mockData = this.filterDataByWeek(mockData);
+            }
+            
+            return mockData;
         }
     }
 
@@ -841,6 +959,22 @@ class LeaderboardManager {
                     { rank: 8, username: 'B***ully', wager: '$58,900', profit: '+$4,700' },
                     { rank: 9, username: 'W***izard', wager: '$49,600', profit: '+$3,800' },
                     { rank: 10, username: 'S***ensei', wager: '$42,100', profit: '+$3,200' }
+                ],
+                lastUpdated: new Date().toLocaleTimeString(),
+                isMock: true
+            },
+            shuffle: {
+                players: [
+                    { rank: 1, username: 'S***fflePro', wager: '$89,500', profit: '+$8,950' },
+                    { rank: 2, username: 'W***klyWin', wager: '$78,200', profit: '+$7,820' },
+                    { rank: 3, username: 'C***toKing', wager: '$67,800', profit: '+$6,780' },
+                    { rank: 4, username: 'B***tMaster', wager: '$58,900', profit: '+$5,890' },
+                    { rank: 5, username: 'G***mePro', wager: '$51,200', profit: '+$5,120' },
+                    { rank: 6, username: 'L***kyStrk', wager: '$44,600', profit: '+$4,460' },
+                    { rank: 7, username: 'P***yerOne', wager: '$38,900', profit: '+$3,890' },
+                    { rank: 8, username: 'T***pGamer', wager: '$33,400', profit: '+$3,340' },
+                    { rank: 9, username: 'W***nner123', wager: '$28,700', profit: '+$2,870' },
+                    { rank: 10, username: 'C***mpion99', wager: '$24,100', profit: '+$2,410' }
                 ],
                 lastUpdated: new Date().toLocaleTimeString(),
                 isMock: true
@@ -934,10 +1068,21 @@ class LeaderboardManager {
             return '—';
         };
         const liveDot = '<span class="live-dot" aria-hidden="true"></span>';
+        
+        // Show weekly period for Shuffle only
+        const showWeeklyPeriod = casino === 'shuffle';
+        const weeklyPeriodHtml = showWeeklyPeriod && data.weeklyPeriod ? `
+            <div class="weekly-period">
+                <span class="period-label">📅</span>
+                <span class="period-text">${data.weeklyPeriod}</span>
+            </div>
+        ` : '';
+        
         const html = `
             <div class="leaderboard-header">
                 <div class="live-indicator">${liveDot}<span class="live-text">Live</span></div>
                 <h3>Top Players</h3>
+                ${weeklyPeriodHtml}
                 <p class="last-updated">Last updated: ${lastUpdated}</p>
             </div>
             <table class="leaderboard-table">
@@ -1049,6 +1194,24 @@ class LeaderboardManager {
                 }
                 .live-indicator { display: inline-flex; align-items: center; gap: 8px; justify-content: flex-start; }
                 .live-dot { width: 8px; height: 8px; background: #ff4444; border-radius: 50%; animation: blink 1s infinite; box-shadow: 0 0 8px rgba(255,68,68,0.7); }
+                .weekly-period {
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    background: var(--bg-darker);
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    font-size: 0.875rem;
+                    color: var(--accent-color);
+                    font-weight: 600;
+                    margin: 4px 0;
+                }
+                .period-label {
+                    font-size: 0.8rem;
+                }
+                .period-text {
+                    font-weight: 500;
+                }
                 @keyframes blink { 0%,50%{opacity:1} 51%,100%{opacity:.3} }
             `;
             document.head.appendChild(style);
