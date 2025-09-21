@@ -56,6 +56,23 @@ a:visited {
     --bg-secondary: #232631;
     --bg-dark: #1B1D29;
     --border-color: #40444B;
+
+    /* Casino-specific Colors */
+    /* Shuffle Casino */
+    --shuffle-primary: #FF6B35;
+    --shuffle-secondary: #F7931E;
+    --shuffle-dark: #D55C2E;
+    --shuffle-white: #FFFFFF;
+    
+    /* Goated Casino */
+    --goated-primary: #D7FF00;
+    --goated-secondary: #B8E000;
+    --goated-dark: #1A1A1A;
+    
+    /* Thrill Casino */
+    --thrill-lime: #5CFFC1;
+    --thrill-purple: #5956FF;
+    --thrill-bg: #1B1D29;
 }
 
 /* Base */

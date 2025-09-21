@@ -1283,6 +1283,17 @@ class ChatSystem {
                     { name: 'Goated Drops', url: 'https://t.me/goateddrops' }
                 ],
                 porterChannel: 'https://t.me/playatgoated'
+            },
+            shuffle: {
+                name: 'Shuffle',
+                code: 'playShuffle',
+                bonus: 'welcome bonus package',
+                features: 'modern casino experience & original games',
+                url: 'https://shuffle.com/?r=playShuffle',
+                telegramChannels: [
+                    { name: 'Shuffle Official', url: 'https://t.me/shufflecom' }
+                ],
+                porterChannel: 'https://t.me/playshuffle'
             }
         };
 
