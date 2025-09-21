@@ -999,7 +999,7 @@ class LeaderboardManager {
             <div class="leaderboard-header">
                 <div class="live-indicator">
                     ${liveDot}<span class="live-text">Live</span>
-                    <span class="countdown-timer">${countdownTimer}</span>
+                    <span class="countdown-timer">Resets in ${countdownTimer}</span>
                 </div>
                 <h3>Top Players</h3>
                 <p class="last-updated">Last updated: ${lastUpdated}</p>
@@ -1283,6 +1283,17 @@ class ChatSystem {
                     { name: 'Goated Drops', url: 'https://t.me/goateddrops' }
                 ],
                 porterChannel: 'https://t.me/playatgoated'
+            },
+            shuffle: {
+                name: 'Shuffle',
+                code: 'playShuffle',
+                bonus: 'welcome bonus package',
+                features: 'modern casino experience & original games',
+                url: 'https://shuffle.com/?r=playShuffle',
+                telegramChannels: [
+                    { name: 'Shuffle Official', url: 'https://t.me/shufflecom' }
+                ],
+                porterChannel: 'https://t.me/playshuffle'
             }
         };
 
