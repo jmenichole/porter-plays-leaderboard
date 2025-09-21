@@ -781,6 +781,35 @@ class LeaderboardManager {
         this.settings = settings;
     }
 
+    getCountdownTimer() {
+        // Calculate time until next Sunday (weekly reset)
+        const now = new Date();
+        const nextSunday = new Date(now);
+        const daysUntilSunday = (7 - now.getDay()) % 7;
+        
+        if (daysUntilSunday === 0 && now.getHours() < 24) {
+            // If it's Sunday but before end of day, reset is today
+            nextSunday.setHours(23, 59, 59, 999);
+        } else {
+            // Otherwise, reset is next Sunday
+            nextSunday.setDate(now.getDate() + (daysUntilSunday || 7));
+            nextSunday.setHours(23, 59, 59, 999);
+        }
+
+        const timeLeft = nextSunday.getTime() - now.getTime();
+        const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+
+        if (days > 0) {
+            return `${days}d ${hours}h`;
+        } else if (hours > 0) {
+            return `${hours}h ${minutes}m`;
+        } else {
+            return `${minutes}m`;
+        }
+    }
+
     async fetchLeaderboardData(casino) {
         const config = this.configManager.getApiConfig();
         const apiEndpoints = {
@@ -951,13 +980,50 @@ class LeaderboardManager {
             return '—';
         };
         const liveDot = '<span class="live-dot" aria-hidden="true"></span>';
+        const countdownTimer = this.getCountdownTimer();
+        
+        // Separate top 3 players for podium display
+        const topThree = data.players.slice(0, 3);
+        const remainingPlayers = data.players.slice(3);
         
         const html = `
             <div class="leaderboard-header">
-                <div class="live-indicator">${liveDot}<span class="live-text">Live</span></div>
+                <div class="live-indicator">
+                    ${liveDot}<span class="live-text">Live</span>
+                    <span class="countdown-timer">${countdownTimer}</span>
+                </div>
                 <h3>Top Players</h3>
                 <p class="last-updated">Last updated: ${lastUpdated}</p>
             </div>
+            ${topThree.length >= 3 ? `
+            <div class="podium-container">
+                <div class="podium-player podium-second">
+                    <div class="podium-rank">2</div>
+                    <div class="podium-info">
+                        <div class="podium-username">${topThree[1].username}</div>
+                        <div class="podium-wager">${topThree[1].wager}</div>
+                        <div class="podium-prize">${prizeForRank(2)}</div>
+                    </div>
+                </div>
+                <div class="podium-player podium-first">
+                    <div class="podium-rank">1</div>
+                    <div class="podium-info">
+                        <div class="podium-username">${topThree[0].username}</div>
+                        <div class="podium-wager">${topThree[0].wager}</div>
+                        <div class="podium-prize">${prizeForRank(1)}</div>
+                    </div>
+                </div>
+                <div class="podium-player podium-third">
+                    <div class="podium-rank">3</div>
+                    <div class="podium-info">
+                        <div class="podium-username">${topThree[2].username}</div>
+                        <div class="podium-wager">${topThree[2].wager}</div>
+                        <div class="podium-prize">${prizeForRank(3)}</div>
+                    </div>
+                </div>
+            </div>
+            ` : ''}
+            ${remainingPlayers.length > 0 ? `
             <table class="leaderboard-table">
                 <thead>
                     <tr>
@@ -968,7 +1034,7 @@ class LeaderboardManager {
                     </tr>
                 </thead>
                 <tbody>
-                    ${data.players.map(player => `
+                    ${remainingPlayers.map(player => `
                         <tr class="fade-in">
                             <td class="leaderboard-rank">#${player.rank}</td>
                             <td class="leaderboard-player">${player.username}</td>
@@ -978,6 +1044,7 @@ class LeaderboardManager {
                     `).join('')}
                 </tbody>
             </table>
+            ` : ''}
         `;
         
         container.innerHTML = html;
