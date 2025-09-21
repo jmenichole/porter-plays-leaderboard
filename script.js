@@ -23,14 +23,23 @@ class ConfigManager {
             apiKey: '',
             settings: {
                 thrill: { enabled: true, prizeTotal: 5000, placesPaid: 10, customPrizes: [] },
-                goated: { enabled: true, prizeTotal: 1000, placesPaid: 10, customPrizes: [] }
+                goated: { enabled: true, prizeTotal: 1000, placesPaid: 10, customPrizes: [500, 200, 100, 70, 50, 30, 20, 5, 10, 5] }
             }
         };
         // Migrate old configs without settings
         if (!base.settings) {
             base.settings = {
                 thrill: { enabled: true, prizeTotal: 5000, placesPaid: 10, customPrizes: [] },
-                goated: { enabled: true, prizeTotal: 1000, placesPaid: 10, customPrizes: [] }
+                goated: { enabled: true, prizeTotal: 1000, placesPaid: 10, customPrizes: [500, 200, 100, 70, 50, 30, 20, 5, 10, 5] }
+            };
+        }
+        // Ensure Goated has default prize distribution if missing
+        if (!base.settings.goated || !base.settings.goated.customPrizes || base.settings.goated.customPrizes.length === 0) {
+            base.settings.goated = { 
+                enabled: true, 
+                prizeTotal: 1000, 
+                placesPaid: 10, 
+                customPrizes: [500, 200, 100, 70, 50, 30, 20, 5, 10, 5] 
             };
         }
         return base;
