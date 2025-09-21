@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Porter Plays - Live Casino Leaderboard</title>
-    <meta name="description" content="Join Porter's exclusive casino community with VIP benefits, deposit matches, and exclusive challenges on Shuffle, Thrill, and Goated.">
+    <meta name="description" content="Join Porter's exclusive casino community with VIP benefits, deposit matches, and exclusive challenges on Thrill and Goated.">
     <!-- Fonts: Oxanium (display) + Barlow Condensed (UI/labels) + Inter (body) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -69,14 +69,7 @@
                         </div>
                     </article>
 
-                    <article class="pp-bonus">
-                        <img src="shufflelogo.png" alt="Shuffle" class="pp-bonus-logo" />
-                        <h3>Shuffle</h3>
-                        <p>The future of crypto betting. $SHFL is here. Next-gen VIP casino with 6000+ games, instant deposits, sportsbook, and exclusive SHFL lottery.</p>
-                        <div class="pp-actions">
-                            <a class="pp-btn pp-btn-primary" href="https://shuffle.com/?r=playShuffle" target="_blank" rel="noopener">Play Now</a>
-                        </div>
-                    </article>
+
                 </div>
             </div>
         </div>
@@ -93,13 +86,11 @@
             <div class="leaderboard-tabs">
                 <button class="tab-btn active" data-casino="goated">Goated</button>
                 <button class="tab-btn" data-casino="thrill">Thrill</button>
-                <button class="tab-btn" data-casino="shuffle">Shuffle</button>
             </div>
 
             <div class="leaderboard-container">
                 <div class="leaderboard-content" id="goated-leaderboard"></div>
                 <div class="leaderboard-content" id="thrill-leaderboard" style="display:none;"></div>
-                <div class="leaderboard-content" id="shuffle-leaderboard" style="display:none;"></div>
             </div>
         </div>
     </section>
@@ -187,7 +178,6 @@
                 <div class="leaderboard-timing-info">
                     <div class="timing-item"><span class="casino-name">Thrill:</span><span class="timing">Weekly Leaderboard</span></div>
                     <div class="timing-item"><span class="casino-name">Goated:</span><span class="timing">Weekly Leaderboard</span></div>
-                    <div class="timing-item"><span class="casino-name">Shuffle:</span><span class="timing">Weekly Leaderboard</span></div>
                 </div>
                 <div class="api-form">
                     <div class="form-group">
@@ -198,11 +188,6 @@
                     <div class="form-group">
                         <label for="goatedApiUrl">Goated API URL (Weekly):</label>
                         <input type="url" id="goatedApiUrl" placeholder="https://api.goated.com/leaderboard" />
-                        <small>Leaderboard defaults to weekly periods (URL only required if no API key)</small>
-                    </div>
-                    <div class="form-group">
-                        <label for="shuffleApiUrl">Shuffle API URL (Weekly):</label>
-                        <input type="url" id="shuffleApiUrl" placeholder="https://api.shuffle.com/leaderboard" />
                         <small>Leaderboard defaults to weekly periods (URL only required if no API key)</small>
                     </div>
                     <div class="form-group">
@@ -262,6 +247,7 @@
                                 <button type="button" class="preset-btn" data-casino="goated" data-preset="50-30-20">50/30/20</button>
                                 <button type="button" class="preset-btn" data-casino="goated" data-preset="40-30-20-10">40/30/20/10</button>
                                 <button type="button" class="preset-btn" data-casino="goated" data-preset="35-25-20-10-10">35/25/20/10/10</button>
+                                <button type="button" class="preset-btn" data-casino="goated" data-preset="goated">Goated</button>
                                 <button type="button" class="preset-btn clear-btn" data-casino="goated" data-preset="clear">Clear</button>
                             </div>
                             <small>Leave blank to auto-split evenly from Prize Total.</small>
@@ -271,33 +257,6 @@
                         <button type="button" id="saveGoatedDates" class="save-btn">Update Goated Timeframe</button>
                     </div>
 
-                    <div class="leaderboard-config">
-                        <h5>Shuffle Leaderboard</h5>
-                        <div class="date-controls">
-                            <div class="form-group"><label for="shuffleStartDate">Start Date:</label><input type="datetime-local" id="shuffleStartDate" class="date-input" /></div>
-                            <div class="form-group"><label for="shuffleEndDate">End Date:</label><input type="datetime-local" id="shuffleEndDate" class="date-input" /></div>
-                        </div>
-                        <div class="form-group"><label for="shufflePrizeTotal">Prize Total ($):</label><input type="number" id="shufflePrizeTotal" placeholder="2000" min="0" step="100" /></div>
-                        <div class="form-group"><label for="shufflePlacesPaid">Places Paid:</label><input type="number" id="shufflePlacesPaid" placeholder="10" min="1" step="1" /></div>
-                        <div class="form-group">
-                            <label>Per-Place Prizes:</label>
-                            <div id="shufflePrizeEditor" class="prize-editor"></div>
-                            <div class="preset-buttons">
-                                <button type="button" class="preset-btn" data-casino="shuffle" data-preset="even">Even</button>
-                                <button type="button" class="preset-btn" data-casino="shuffle" data-preset="winner">Winner Takes All</button>
-                                <button type="button" class="preset-btn" data-casino="shuffle" data-preset="70-30">70/30</button>
-                                <button type="button" class="preset-btn" data-casino="shuffle" data-preset="50-30-20">50/30/20</button>
-                                <button type="button" class="preset-btn" data-casino="shuffle" data-preset="40-30-20-10">40/30/20/10</button>
-                                <button type="button" class="preset-btn" data-casino="shuffle" data-preset="35-25-20-10-10">35/25/20/10/10</button>
-                                <button type="button" class="preset-btn clear-btn" data-casino="shuffle" data-preset="clear">Clear</button>
-                            </div>
-                            <small>Leave blank to auto-split evenly from Prize Total.</small>
-                        </div>
-                        <div class="form-group"><label><input type="checkbox" id="shuffleEnabled" checked /> Enable Shuffle Leaderboard</label></div>
-                        <button type="button" id="saveShuffleSettings" class="save-btn">Save Shuffle Settings</button>
-                        <button type="button" id="saveShuffleDates" class="save-btn">Update Shuffle Timeframe</button>
-                    </div>
-               
                 <div class="bulk-actions">
                     <button type="button" id="saveAllDates" class="save-btn primary">Save All Timeframes</button>
                     <button type="button" id="resetToDefaults" class="save-btn secondary">Reset to Default Periods</button>
@@ -350,7 +309,7 @@
                     <p><strong>What it does:</strong> Connects the leaderboard to external casino APIs to fetch player data.</p>
                     <p><strong>How to use:</strong></p>
                     <ul>
-                        <li>Enter the API URLs for each casino (Thrill, Goated, Shuffle)</li>
+                        <li>Enter the API URLs for each casino (Thrill, Goated)</li>
                         <li>Add an API key if the endpoints require authentication</li>
                         <li>Click "Save & Update Leaderboards" to test the connection and refresh data</li>
                         <li>URLs are optional if you have a working API key</li>
@@ -429,7 +388,6 @@
             </div>
         </div>
         <div class="chat-options">
-            <button class="chat-option" data-casino="shuffle">🎰 Shuffle.com</button>
             <button class="chat-option" data-casino="thrill">👑 Thrill.com</button>
             <button class="chat-option" data-casino="goated">🔥 Goated.com</button>
         </div>
