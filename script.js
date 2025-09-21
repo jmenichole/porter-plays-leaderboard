@@ -167,12 +167,23 @@ class AdminSystem {
     showLoginModal() {
         const modal = document.getElementById('adminModal');
         modal.style.display = 'block';
+        // Hide chat bubble when admin login modal is open
+        const chatBubble = document.getElementById('chatBubble');
+        if (chatBubble) {
+            chatBubble.classList.add('admin-open');
+        }
     }
 
     hideLoginModal() {
         const modal = document.getElementById('adminModal');
         modal.style.display = 'none';
         document.getElementById('adminPassword').value = '';
+        // Show chat bubble when admin login modal is closed (if admin panel is not open)
+        const adminPanel = document.getElementById('adminPanel');
+        const chatBubble = document.getElementById('chatBubble');
+        if (chatBubble && adminPanel && adminPanel.classList.contains('hidden')) {
+            chatBubble.classList.remove('admin-open');
+        }
     }
 
     handleLogin(e) {
@@ -209,7 +220,7 @@ class AdminSystem {
         if (chatBubble) {
             chatBubble.classList.add('admin-open');
         }
-    }
+
 
     hideAdminPanel() {
         const panel = document.getElementById('adminPanel');
@@ -1388,6 +1399,12 @@ function trackAffiliateClick(url) {
 // Floating CTA functionality
 function initializeFloatingCTA() {
     const floatingCTA = document.getElementById('floatingCTA');
+    
+    // Exit early if floating CTA element doesn't exist (it was removed)
+    if (!floatingCTA) {
+        return;
+    }
+    
     let isVisible = false;
     let isHidden = localStorage.getItem('floatingCTAHidden') === 'true';
 
