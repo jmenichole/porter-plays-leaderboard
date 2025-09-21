@@ -128,6 +128,9 @@ class AdminSystem {
         // Rebuild editors when placesPaid changes
         if (this.thrillPlacesPaid) this.thrillPlacesPaid.addEventListener('change', () => this.renderPrizeEditor('thrill'));
         if (this.goatedPlacesPaid) this.goatedPlacesPaid.addEventListener('change', () => this.renderPrizeEditor('goated'));
+        // Add listeners for Prize Total changes to update prize editor
+        if (this.thrillPrizeTotal) this.thrillPrizeTotal.addEventListener('change', () => this.updateEvenDistributionIfNeeded('thrill'));
+        if (this.goatedPrizeTotal) this.goatedPrizeTotal.addEventListener('change', () => this.updateEvenDistributionIfNeeded('goated'));
 
         // Preset button listeners
         document.addEventListener('click', (e) => {
@@ -399,9 +402,21 @@ class AdminSystem {
                 if (raw === '') return 0; // treat blank as no custom value
                 const n = Number(raw);
                 return isNaN(n) ? 0 : n;
-            })
-            .filter(v => v > 0);
-        return values;
+            });
+        
+        // Only return custom prizes if at least one is > 0, otherwise return empty array
+        return values.some(v => v > 0) ? values : [];
+    }
+
+    updateEvenDistributionIfNeeded(casino) {
+        // Get current custom prizes
+        const customPrizes = this.collectCustomPrizes(casino);
+        
+        // Only auto-update if there are no custom prizes set
+        if (customPrizes.length === 0 || !customPrizes.some(p => p > 0)) {
+            // Auto-apply even distribution when Prize Total changes and no custom prizes exist
+            this.applyPreset(casino, 'even');
+        }
     }
 
     applyPreset(casino, preset) {
@@ -988,11 +1003,11 @@ class LeaderboardManager {
         const lastUpdated = data.lastUpdated || new Date().toLocaleTimeString();
         // Compute prize: prefer customPrizes if provided and valid; otherwise split evenly
         const custom = Array.isArray(settings.customPrizes) ? settings.customPrizes : [];
-        const hasCustom = custom.length > 0;
+        const hasValidCustom = custom.some(prize => prize > 0);
         const evenPrize = settings.placesPaid > 0 ? Math.floor((settings.prizeTotal || 0) / settings.placesPaid) : 0;
         const prizeForRank = (rank) => {
             if (rank <= settings.placesPaid) {
-                const amount = hasCustom && custom[rank - 1] ? custom[rank - 1] : evenPrize;
+                const amount = hasValidCustom && custom[rank - 1] ? custom[rank - 1] : evenPrize;
                 return amount > 0 ? `$${Number(amount).toLocaleString()}` : '—';
             }
             return '—';
