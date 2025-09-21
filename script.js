@@ -426,8 +426,18 @@ class AdminSystem {
     }
 
     applyPreset(casino, preset) {
-        const total = Number((casino === 'thrill' ? this.thrillPrizeTotal?.value : this.goatedPrizeTotal?.value) || 0);
-        const places = Number((casino === 'thrill' ? this.thrillPlacesPaid?.value : this.goatedPlacesPaid?.value) || 0);
+        let total, places;
+        if (casino === 'thrill') {
+            total = Number(this.thrillPrizeTotal?.value || 0);
+            places = Number(this.thrillPlacesPaid?.value || 0);
+        } else if (casino === 'goated') {
+            total = Number(this.goatedPrizeTotal?.value || 0);
+            places = Number(this.goatedPlacesPaid?.value || 0);
+        } else if (casino === 'shuffle') {
+            total = Number(this.shufflePrizeTotal?.value || 0);
+            places = Number(this.shufflePlacesPaid?.value || 0);
+        }
+        
         if (!total || !places) return;
 
         let distribution = [];
@@ -473,6 +483,14 @@ class AdminSystem {
                     distribution = [first, second, third, fourth, fifth, ...Array(places - 5).fill(0)];
                 }
                 break;
+            case 'goated':
+                // Goated preset: 500, 200, 100, 70, 50, 30, 20, 5, 10, 5
+                const goatedPrizes = [500, 200, 100, 70, 50, 30, 20, 5, 10, 5];
+                distribution = Array(places).fill(0);
+                for (let i = 0; i < Math.min(places, goatedPrizes.length); i++) {
+                    distribution[i] = goatedPrizes[i];
+                }
+                break;
             case 'clear':
                 distribution = Array(places).fill('');
                 break;
@@ -481,7 +499,15 @@ class AdminSystem {
         }
 
         // Apply to inputs
-        const container = casino === 'thrill' ? this.thrillPrizeEditor : this.goatedPrizeEditor;
+        let container;
+        if (casino === 'thrill') {
+            container = this.thrillPrizeEditor;
+        } else if (casino === 'goated') {
+            container = this.goatedPrizeEditor;
+        } else if (casino === 'shuffle') {
+            container = this.shufflePrizeEditor;
+        }
+        
         if (!container) return;
         const inputs = container.querySelectorAll(`.prize-${casino}`);
         inputs.forEach((input, idx) => {
