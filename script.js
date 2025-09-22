@@ -844,24 +844,27 @@ class LeaderboardManager {
     }
 
     getCurrentLeaderboardPeriodStart() {
-        // Calculate the start of the current leaderboard period (last Sunday at midnight)
+        // Calculate the start of the current leaderboard period (Monday morning after last Sunday reset)
         const now = new Date();
-        const currentSunday = new Date(now);
+        const currentPeriodStart = new Date(now);
         const daysSinceSunday = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
         
         if (daysSinceSunday === 0) {
-            // It's Sunday, check if we're before midnight
-            if (now.getHours() < 24) {
-                // We're still in the current period, start was last Sunday
-                currentSunday.setDate(now.getDate() - 7);
+            // It's Sunday - check if we're before the reset time (end of day)
+            if (now.getHours() < 23 || (now.getHours() === 23 && now.getMinutes() < 59)) {
+                // Still in current period, so start was last Monday
+                currentPeriodStart.setDate(now.getDate() - 6); // Go back 6 days to Monday
+            } else {
+                // Reset has happened, new period starts now (but we calculate as Monday)
+                currentPeriodStart.setDate(now.getDate() + 1); // Tomorrow (Monday)
             }
         } else {
-            // Go back to the most recent Sunday
-            currentSunday.setDate(now.getDate() - daysSinceSunday);
+            // Go back to the Monday of this week
+            currentPeriodStart.setDate(now.getDate() - daysSinceSunday + 1);
         }
         
-        currentSunday.setHours(0, 0, 0, 0); // Set to midnight
-        return currentSunday;
+        currentPeriodStart.setHours(0, 0, 0, 0); // Set to Monday midnight
+        return currentPeriodStart;
     }
 
     async fetchLeaderboardData(casino) {
