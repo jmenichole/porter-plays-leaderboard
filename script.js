@@ -877,6 +877,11 @@ class LeaderboardManager {
                 goated: 'https://api.goated.com/leaderboard'
             };
             
+            // Check if user has configured custom API URLs
+            const hasCustomApiUrl = casino === 'thrill' 
+                ? (config.thrillApiUrl && config.thrillApiUrl.trim() !== '')
+                : (config.goatedApiUrl && config.goatedApiUrl.trim() !== '');
+            
             const apiUrl = casino === 'thrill' 
                 ? (config.thrillApiUrl || defaultApiUrls.thrill)
                 : (config.goatedApiUrl || defaultApiUrls.goated);
@@ -941,12 +946,35 @@ class LeaderboardManager {
             console.log(`Using mock data for ${casino} leaderboard`);
             let mockData = await this.getMockLeaderboardData(casino);
             
+            // If user has configured a custom API URL but it failed, don't show as mock/demo
+            console.log(`hasCustomApiUrl for ${casino}:`, hasCustomApiUrl);
+            if (hasCustomApiUrl) {
+                console.log(`Setting isMock to false for ${casino} because custom API URL is configured`);
+                mockData.isMock = false;
+                mockData.isCustomApiFallback = true;
+            }
+            
+            console.log(`Returning mockData for ${casino}:`, { isMock: mockData.isMock, isCustomApiFallback: mockData.isCustomApiFallback });
             return mockData;
         } catch (error) {
             console.error(`Error fetching ${casino} leaderboard:`, error);
             console.log(`Falling back to mock data for ${casino}`);
             let mockData = await this.getMockLeaderboardData(casino);
             
+            // Check if user has configured custom API URLs
+            const hasCustomApiUrl = casino === 'thrill' 
+                ? (config.thrillApiUrl && config.thrillApiUrl.trim() !== '')
+                : (config.goatedApiUrl && config.goatedApiUrl.trim() !== '');
+            
+            // If user has configured a custom API URL but it failed, don't show as mock/demo
+            console.log(`hasCustomApiUrl for ${casino} (catch block):`, hasCustomApiUrl);
+            if (hasCustomApiUrl) {
+                console.log(`Setting isMock to false for ${casino} because custom API URL is configured (catch block)`);
+                mockData.isMock = false;
+                mockData.isCustomApiFallback = true;
+            }
+            
+            console.log(`Returning mockData for ${casino} (catch block):`, { isMock: mockData.isMock, isCustomApiFallback: mockData.isCustomApiFallback });
             return mockData;
         }
     }
