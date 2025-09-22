@@ -869,27 +869,59 @@ class LeaderboardManager {
 
     async fetchLeaderboardData(casino) {
         const config = this.configManager.getApiConfig();
-        const apiEndpoints = {
-            thrill: config.thrillApiUrl || 'https://api.thrill.com/leaderboard',
-            goated: config.goatedApiUrl || 'https://api.goated.com/leaderboard'
-        };
-
+        
         try {
-            // Try to fetch from actual API if configured
-            if (config.thrillApiUrl || config.goatedApiUrl) {
+            // Use configured API URLs or default to the official casino APIs
+            const defaultApiUrls = {
+                thrill: 'https://api.thrill.com/leaderboard',
+                goated: 'https://api.goated.com/leaderboard'
+            };
+            
+            const apiUrl = casino === 'thrill' 
+                ? (config.thrillApiUrl || defaultApiUrls.thrill)
+                : (config.goatedApiUrl || defaultApiUrls.goated);
+
+            // Always try to fetch from API (either configured or default)
+            if (apiUrl) {
+                // Get current 7-day period boundaries
+                const periodStart = this.getCurrentLeaderboardPeriodStart();
+                const periodEnd = new Date(periodStart.getTime() + (7 * 24 * 60 * 60 * 1000)); // 7 days later
+                
+                // Build API URL with period parameters
+                const baseUrl = apiUrl;
+                const url = new URL(baseUrl);
+                
+                // Add period parameters to ensure we get the current 7-day period data
+                url.searchParams.set('period_start', periodStart.toISOString());
+                url.searchParams.set('period_end', periodEnd.toISOString());
+                url.searchParams.set('period_type', 'weekly');
+                
                 const headers = {};
                 // Only add API key if provided
                 if (config.apiKey && config.apiKey.trim()) {
                     headers['Authorization'] = `Bearer ${config.apiKey}`;
                 }
 
-                const response = await fetch(apiEndpoints[casino], { 
+                console.log(`Fetching ${casino} leaderboard data for period: ${periodStart.toDateString()} to ${periodEnd.toDateString()}`);
+                
+                const response = await fetch(url.toString(), { 
                     headers,
                     method: 'GET'
                 });
                 
                 if (response.ok) {
                     let data = await response.json();
+                    
+                    // Validate that we received current period data
+                    if (data.period_start) {
+                        const apiPeriodStart = new Date(data.period_start);
+                        const timeDiff = Math.abs(apiPeriodStart.getTime() - periodStart.getTime());
+                        // Allow up to 1 hour difference for timezone/server time variations
+                        if (timeDiff > (60 * 60 * 1000)) {
+                            console.warn(`API returned data for different period: expected ${periodStart.toISOString()}, got ${data.period_start}`);
+                        }
+                    }
+                    
                     // Anonymize usernames from API data
                     if (data.players) {
                         data.players = data.players.map(player => ({
@@ -898,16 +930,21 @@ class LeaderboardManager {
                         }));
                     }
                     
-                    return { ...data, isMock: false };
+                    console.log(`Successfully fetched real ${casino} leaderboard data with ${data.players?.length || 0} players`);
+                    return { ...data, isMock: false, lastUpdated: new Date().toLocaleTimeString() };
+                } else {
+                    console.warn(`API request failed with status ${response.status}: ${response.statusText}`);
                 }
             }
             
             // Fall back to mock data
+            console.log(`Using mock data for ${casino} leaderboard`);
             let mockData = await this.getMockLeaderboardData(casino);
             
             return mockData;
         } catch (error) {
             console.error(`Error fetching ${casino} leaderboard:`, error);
+            console.log(`Falling back to mock data for ${casino}`);
             let mockData = await this.getMockLeaderboardData(casino);
             
             return mockData;
@@ -924,6 +961,9 @@ class LeaderboardManager {
         const weekDuration = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
         const periodProgress = Math.min(timeSincePeriodStart / weekDuration, 1);
         
+        // Calculate which day of the period we're in (0-6)
+        const daysSincePeriodStart = Math.floor(timeSincePeriodStart / (24 * 60 * 60 * 1000));
+        
         // Generate seed based on period start time for consistent random values within the period
         const periodSeed = Math.floor(periodStart.getTime() / weekDuration);
         
@@ -933,11 +973,37 @@ class LeaderboardManager {
             return x - Math.floor(x);
         };
         
-        // Generate base wager amounts that grow throughout the period
+        // Enhanced daily variation function
+        const getDailyVariationFactor = (dayIndex, playerIndex) => {
+            // Create daily seed that changes each day but remains consistent within the day
+            const dailySeed = periodSeed + dayIndex * 1000 + Math.floor(now.getHours() / 6) * 100; // Changes every 6 hours
+            const dailyRandom = seededRandom(dailySeed, playerIndex);
+            // Daily variation between 0.85 and 1.15 (±15%)
+            return 0.85 + (dailyRandom * 0.3);
+        };
+        
+        // Generate base wager amounts that grow throughout the period with daily variation
         const generateWagerAmount = (baseAmount, index, progress) => {
             const randomFactor = 0.7 + (seededRandom(periodSeed, index) * 0.6); // 0.7-1.3 multiplier
-            const progressMultiplier = 0.1 + (progress * 0.9); // Start at 10% of full amount, grow to 100%
-            const finalAmount = Math.floor(baseAmount * randomFactor * progressMultiplier);
+            
+            // Enhanced progress calculation with more realistic growth curve
+            // Start at 20%, grow more aggressively in middle days, slow down towards the end
+            let progressMultiplier;
+            if (progress < 0.3) {
+                // First 30% of period: Start slow but with some base activity
+                progressMultiplier = 0.2 + (progress / 0.3) * 0.3; // 20% to 50%
+            } else if (progress < 0.8) {
+                // Middle 50% of period: Aggressive growth 
+                progressMultiplier = 0.5 + ((progress - 0.3) / 0.5) * 0.4; // 50% to 90%
+            } else {
+                // Final 20% of period: Slower growth to 100%
+                progressMultiplier = 0.9 + ((progress - 0.8) / 0.2) * 0.1; // 90% to 100%
+            }
+            
+            // Add daily variation
+            const dailyVariation = getDailyVariationFactor(daysSincePeriodStart, index);
+            
+            const finalAmount = Math.floor(baseAmount * randomFactor * progressMultiplier * dailyVariation);
             return finalAmount;
         };
 
@@ -1077,6 +1143,9 @@ class LeaderboardManager {
                 <div class="live-indicator">
                     ${liveDot}<span class="live-text">Live</span>
                     <span class="countdown-timer">Resets in ${countdownTimer}</span>
+                    ${data.isMock 
+                        ? '<span class="data-source mock-data" title="Demo data - Configure API URLs in admin panel for real data">📊 Demo</span>'
+                        : '<span class="data-source real-data" title="Live data from API">🔥 Live</span>'}
                 </div>
                 <h3>Top Players</h3>
                 <p class="last-updated">Last updated: ${lastUpdated}</p>
