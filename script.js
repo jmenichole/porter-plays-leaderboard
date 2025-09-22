@@ -871,14 +871,24 @@ class LeaderboardManager {
         const config = this.configManager.getApiConfig();
         
         try {
-            // Try to fetch from actual API if configured
-            if ((casino === 'thrill' && config.thrillApiUrl) || (casino === 'goated' && config.goatedApiUrl)) {
+            // Use configured API URLs or default to the official casino APIs
+            const defaultApiUrls = {
+                thrill: 'https://api.thrill.com/leaderboard',
+                goated: 'https://api.goated.com/leaderboard'
+            };
+            
+            const apiUrl = casino === 'thrill' 
+                ? (config.thrillApiUrl || defaultApiUrls.thrill)
+                : (config.goatedApiUrl || defaultApiUrls.goated);
+
+            // Always try to fetch from API (either configured or default)
+            if (apiUrl) {
                 // Get current 7-day period boundaries
                 const periodStart = this.getCurrentLeaderboardPeriodStart();
                 const periodEnd = new Date(periodStart.getTime() + (7 * 24 * 60 * 60 * 1000)); // 7 days later
                 
                 // Build API URL with period parameters
-                const baseUrl = casino === 'thrill' ? config.thrillApiUrl : config.goatedApiUrl;
+                const baseUrl = apiUrl;
                 const url = new URL(baseUrl);
                 
                 // Add period parameters to ensure we get the current 7-day period data
