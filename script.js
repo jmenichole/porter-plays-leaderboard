@@ -843,6 +843,30 @@ class LeaderboardManager {
         }
     }
 
+    getCurrentLeaderboardPeriodStart() {
+        // Calculate the start of the current leaderboard period (Monday morning after last Sunday reset)
+        const now = new Date();
+        const currentPeriodStart = new Date(now);
+        const daysSinceSunday = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
+        
+        if (daysSinceSunday === 0) {
+            // It's Sunday - check if we're before the reset time (end of day)
+            if (now.getHours() < 23 || (now.getHours() === 23 && now.getMinutes() < 59)) {
+                // Still in current period, so start was last Monday
+                currentPeriodStart.setDate(now.getDate() - 6); // Go back 6 days to Monday
+            } else {
+                // Reset has happened, new period starts now (but we calculate as Monday)
+                currentPeriodStart.setDate(now.getDate() + 1); // Tomorrow (Monday)
+            }
+        } else {
+            // Go back to the Monday of this week
+            currentPeriodStart.setDate(now.getDate() - daysSinceSunday + 1);
+        }
+        
+        currentPeriodStart.setHours(0, 0, 0, 0); // Set to Monday midnight
+        return currentPeriodStart;
+    }
+
     async fetchLeaderboardData(casino) {
         const config = this.configManager.getApiConfig();
         const apiEndpoints = {
@@ -891,35 +915,64 @@ class LeaderboardManager {
     }
 
     getMockLeaderboardData(casino) {
+        // Calculate time-based wager amounts that reset each leaderboard period
+        const now = new Date();
+        const periodStart = this.getCurrentLeaderboardPeriodStart();
+        const timeSincePeriodStart = now.getTime() - periodStart.getTime();
+        
+        // Calculate progress through the period (0-1, where 1 is end of week)
+        const weekDuration = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
+        const periodProgress = Math.min(timeSincePeriodStart / weekDuration, 1);
+        
+        // Generate seed based on period start time for consistent random values within the period
+        const periodSeed = Math.floor(periodStart.getTime() / weekDuration);
+        
+        // Function to generate consistent "random" values based on seed and index
+        const seededRandom = (seed, index) => {
+            const x = Math.sin(seed * 9999 + index * 7777) * 10000;
+            return x - Math.floor(x);
+        };
+        
+        // Generate base wager amounts that grow throughout the period
+        const generateWagerAmount = (baseAmount, index, progress) => {
+            const randomFactor = 0.7 + (seededRandom(periodSeed, index) * 0.6); // 0.7-1.3 multiplier
+            const progressMultiplier = 0.1 + (progress * 0.9); // Start at 10% of full amount, grow to 100%
+            const finalAmount = Math.floor(baseAmount * randomFactor * progressMultiplier);
+            return finalAmount;
+        };
+
+        const thrillBaseAmounts = [125000, 98750, 87300, 76500, 65200, 54800, 43600, 38900, 32100, 28500];
+        const goatedBaseAmounts = [156000, 134200, 118800, 102500, 89300, 76700, 65400, 58900, 49600, 42100];
+        
         const mockData = {
             thrill: {
                 players: [
-                    { rank: 1, username: 'P***r2024', wager: '$125,000', profit: '+$12,500' },
-                    { rank: 2, username: 'V***amer', wager: '$98,750', profit: '+$8,900' },
-                    { rank: 3, username: 'H***oller', wager: '$87,300', profit: '+$7,200' },
-                    { rank: 4, username: 'C***oKing', wager: '$76,500', profit: '+$5,800' },
-                    { rank: 5, username: 'S***aster', wager: '$65,200', profit: '+$4,100' },
-                    { rank: 6, username: 'B***east', wager: '$54,800', profit: '+$3,200' },
-                    { rank: 7, username: 'C***haser', wager: '$43,600', profit: '+$2,800' },
-                    { rank: 8, username: 'R***Dice', wager: '$38,900', profit: '+$2,400' },
-                    { rank: 9, username: 'L***reak', wager: '$32,100', profit: '+$1,900' },
-                    { rank: 10, username: 'W***Wars', wager: '$28,500', profit: '+$1,500' }
+                    { rank: 1, username: 'P***r2024', wager: `$${generateWagerAmount(thrillBaseAmounts[0], 1, periodProgress).toLocaleString()}`, profit: '+$12,500' },
+                    { rank: 2, username: 'V***amer', wager: `$${generateWagerAmount(thrillBaseAmounts[1], 2, periodProgress).toLocaleString()}`, profit: '+$8,900' },
+                    { rank: 3, username: 'H***oller', wager: `$${generateWagerAmount(thrillBaseAmounts[2], 3, periodProgress).toLocaleString()}`, profit: '+$7,200' },
+                    { rank: 4, username: 'C***oKing', wager: `$${generateWagerAmount(thrillBaseAmounts[3], 4, periodProgress).toLocaleString()}`, profit: '+$5,800' },
+                    { rank: 5, username: 'S***aster', wager: `$${generateWagerAmount(thrillBaseAmounts[4], 5, periodProgress).toLocaleString()}`, profit: '+$4,100' },
+                    { rank: 6, username: 'B***east', wager: `$${generateWagerAmount(thrillBaseAmounts[5], 6, periodProgress).toLocaleString()}`, profit: '+$3,200' },
+                    { rank: 7, username: 'C***haser', wager: `$${generateWagerAmount(thrillBaseAmounts[6], 7, periodProgress).toLocaleString()}`, profit: '+$2,800' },
+                    { rank: 8, username: 'R***Dice', wager: `$${generateWagerAmount(thrillBaseAmounts[7], 8, periodProgress).toLocaleString()}`, profit: '+$2,400' },
+                    { rank: 9, username: 'L***reak', wager: `$${generateWagerAmount(thrillBaseAmounts[8], 9, periodProgress).toLocaleString()}`, profit: '+$1,900' },
+                    { rank: 10, username: 'W***Wars', wager: `$${generateWagerAmount(thrillBaseAmounts[9], 10, periodProgress).toLocaleString()}`, profit: '+$1,500' }
                 ],
                 lastUpdated: new Date().toLocaleTimeString(),
                 isMock: true
             },
             goated: {
                 players: [
-                    { rank: 1, username: 'G***dGamer', wager: '$156,000', profit: '+$15,600' },
-                    { rank: 2, username: 'P***rVIP', wager: '$134,200', profit: '+$13,400' },
-                    { rank: 3, username: 'E***Player', wager: '$118,800', profit: '+$11,200' },
-                    { rank: 4, username: 'M***Better', wager: '$102,500', profit: '+$9,800' },
-                    { rank: 5, username: 'P***ambler', wager: '$89,300', profit: '+$7,900' },
-                    { rank: 6, username: 'H***takes', wager: '$76,700', profit: '+$6,500' },
-                    { rank: 7, username: 'C***rusher', wager: '$65,400', profit: '+$5,200' },
-                    { rank: 8, username: 'B***ully', wager: '$58,900', profit: '+$4,700' },
-                    { rank: 9, username: 'W***izard', wager: '$49,600', profit: '+$3,800' },
-                    { rank: 10, username: 'S***ensei', wager: '$42,100', profit: '+$3,200' }
+                    { rank: 1, username: 'G***dGamer', wager: `$${generateWagerAmount(goatedBaseAmounts[0], 1, periodProgress).toLocaleString()}`, profit: '+$15,600' },
+                    { rank: 2, username: 'P***rVIP', wager: `$${generateWagerAmount(goatedBaseAmounts[1], 2, periodProgress).toLocaleString()}`, profit: '+$13,400' },
+                    { rank: 3, username: 'E***Player', wager: `$${generateWagerAmount(goatedBaseAmounts[2], 3, periodProgress).toLocaleString()}`, profit: '+$11,200' },
+                    { rank: 4, username: 'M***Better', wager: `$${generateWagerAmount(goatedBaseAmounts[3], 4, periodProgress).toLocaleString()}`, profit: '+$9,800' },
+                    { rank: 5, username: 'P***ambler', wager: `$${generateWagerAmount(goatedBaseAmounts[4], 5, periodProgress).toLocaleString()}`, profit: '+$7,900' },
+                    { rank: 6, username: 'H***takes', wager: `$${generateWagerAmount(goatedBaseAmounts[5], 6, periodProgress).toLocaleString()}`, profit: '+$6,500' },
+                    { rank: 7, username: 'C***rusher', wager: `$${generateWagerAmount(goatedBaseAmounts[6], 7, periodProgress).toLocaleString()}`, profit: '+$5,200' },
+                    { rank: 8, username: 'B***ully', wager: `$${generateWagerAmount(goatedBaseAmounts[7], 8, periodProgress).toLocaleString()}`, profit: '+$4,700' },
+                    { rank: 9, username: 'W***izard', wager: `$${generateWagerAmount(goatedBaseAmounts[8], 9, periodProgress).toLocaleString()}`, profit: '+$3,800' },
+                    { rank: 10, username: 'S***ensei', wager: `$${generateWagerAmount(goatedBaseAmounts[9], 10, periodProgress).toLocaleString()}`, profit: '+$3,200' }
                 ],
                 lastUpdated: new Date().toLocaleTimeString(),
                 isMock: true
