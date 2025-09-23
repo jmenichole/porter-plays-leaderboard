@@ -1259,10 +1259,72 @@ class LeaderboardManager {
         }
     }
 
+    getApiUrl(casino) {
+        const config = this.configManager.getApiConfig();
+        const defaultApiUrls = {
+            thrill: 'https://api.thrill.com/leaderboard',
+            goated: 'https://api.goated.com/leaderboard'
+        };
+        
+        return casino === 'thrill' 
+            ? (config.thrillApiUrl || defaultApiUrls.thrill)
+            : (config.goatedApiUrl || defaultApiUrls.goated);
+    }
+
+    analyzeError(error, apiUrl) {
+        const analysis = {
+            endpoint: apiUrl || 'Unknown',
+            type: 'Unknown',
+            message: error?.message || 'No error message available',
+            showDiagnostics: true,
+            suggestion: null
+        };
+
+        if (error?.message) {
+            if (error.message.includes('Failed to fetch')) {
+                analysis.type = 'Network/CORS Error';
+                if (error.message.includes('ERR_BLOCKED_BY_CLIENT')) {
+                    analysis.suggestion = 'API endpoint may be blocked by browser/firewall. Check network settings or try from a different environment.';
+                } else {
+                    analysis.suggestion = 'Network connectivity issue or CORS policy blocking the request. Verify API endpoint is accessible and CORS is configured.';
+                }
+            } else if (error.message.includes('timeout')) {
+                analysis.type = 'Timeout Error';
+                analysis.suggestion = 'API response took too long. Check API performance or increase timeout settings.';
+            } else if (error.message.includes('404')) {
+                analysis.type = 'API Endpoint Not Found';
+                analysis.suggestion = 'API endpoint URL may be incorrect. Verify the API URL configuration.';
+            } else if (error.message.includes('500')) {
+                analysis.type = 'Internal Server Error';
+                analysis.suggestion = 'API server is experiencing issues. Contact API provider.';
+            } else if (error.message.includes('403') || error.message.includes('401')) {
+                analysis.type = 'Authentication/Authorization Error';
+                analysis.suggestion = 'API key may be invalid or missing. Check API key configuration.';
+            } else {
+                analysis.type = 'Generic Error';
+            }
+        }
+
+        // Enhanced logging for developers
+        console.group(`🔍 API Error Analysis - ${new Date().toISOString()}`);
+        console.log('Endpoint:', analysis.endpoint);
+        console.log('Error Type:', analysis.type);
+        console.log('Raw Error:', error);
+        console.log('Suggestion:', analysis.suggestion);
+        console.groupEnd();
+
+        return analysis;
+    }
+
     renderError(container, error, casino) {
         let errorMessage = '';
         let contactInfo = '';
+        let diagnosticInfo = '';
         let retryButton = `<button onclick="leaderboardManager.updateLeaderboard('${casino}')" class="btn-primary">Retry</button>`;
+        
+        // Enhanced error diagnostics
+        const apiUrl = this.getApiUrl(casino);
+        const errorDetails = this.analyzeError(error, apiUrl);
         
         if (error && error.message) {
             if (error.message.includes('API_KEY_ERROR')) {
@@ -1290,6 +1352,22 @@ class LeaderboardManager {
             contactInfo = 'Please contact the developer for assistance.';
         }
 
+        // Add diagnostic information for developers
+        if (errorDetails.showDiagnostics) {
+            diagnosticInfo = `
+                <details class="error-diagnostics">
+                    <summary>🔍 Technical Details (for developers)</summary>
+                    <div class="diagnostic-info">
+                        <p><strong>API Endpoint:</strong> ${errorDetails.endpoint}</p>
+                        <p><strong>Error Type:</strong> ${errorDetails.type}</p>
+                        <p><strong>Error Message:</strong> ${errorDetails.message}</p>
+                        <p><strong>Timestamp:</strong> ${new Date().toISOString()}</p>
+                        ${errorDetails.suggestion ? `<p><strong>Suggestion:</strong> ${errorDetails.suggestion}</p>` : ''}
+                    </div>
+                </details>
+            `;
+        }
+
         container.innerHTML = `
             <div class="leaderboard-error">
                 <h3>${errorMessage}</h3>
@@ -1297,6 +1375,7 @@ class LeaderboardManager {
                 <div class="error-actions">
                     ${retryButton}
                 </div>
+                ${diagnosticInfo}
                 <small>Last attempt: ${new Date().toLocaleTimeString()}</small>
             </div>
         `;
