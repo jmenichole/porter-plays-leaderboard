@@ -799,10 +799,13 @@ Timestamp: ${new Date().toISOString()}`;
 class LeaderboardManager {
     constructor() {
         this.currentCasino = 'goated';
-        this.updateInterval = 30000;
+        this.updateInterval = 3600000; // 1 hour (3600000 ms) for more reliable updates
         this.isLoading = false;
         this.configManager = new ConfigManager();
         this.settings = this.configManager.getApiConfig().settings;
+        this.lastSuccessfulUpdate = null;
+        this.errorCount = 0;
+        this.maxErrors = 3; // After 3 consecutive errors, increase interval
     }
 
     updateApiConfig(config) {
@@ -870,47 +873,64 @@ class LeaderboardManager {
     async fetchLeaderboardData(casino) {
         const config = this.configManager.getApiConfig();
         
-        try {
-            // Use configured API URLs or default to the official casino APIs
-            const defaultApiUrls = {
-                thrill: 'https://api.thrill.com/leaderboard',
-                goated: 'https://api.goated.com/leaderboard'
-            };
+        // Check if user has configured custom API URLs
+        const hasCustomApiUrl = casino === 'thrill' 
+            ? (config.thrillApiUrl && config.thrillApiUrl.trim() !== '')
+            : (config.goatedApiUrl && config.goatedApiUrl.trim() !== '');
             
-            const apiUrl = casino === 'thrill' 
-                ? (config.thrillApiUrl || defaultApiUrls.thrill)
-                : (config.goatedApiUrl || defaultApiUrls.goated);
+        const defaultApiUrls = {
+            thrill: 'https://api.thrill.com/leaderboard',
+            goated: 'https://api.goated.com/leaderboard'
+        };
+        
+        const apiUrl = casino === 'thrill' 
+            ? (config.thrillApiUrl || defaultApiUrls.thrill)
+            : (config.goatedApiUrl || defaultApiUrls.goated);
 
-            // Always try to fetch from API (either configured or default)
-            if (apiUrl) {
-                // Get current 7-day period boundaries
-                const periodStart = this.getCurrentLeaderboardPeriodStart();
-                const periodEnd = new Date(periodStart.getTime() + (7 * 24 * 60 * 60 * 1000)); // 7 days later
-                
-                // Build API URL with period parameters
-                const baseUrl = apiUrl;
-                const url = new URL(baseUrl);
-                
-                // Add period parameters to ensure we get the current 7-day period data
-                url.searchParams.set('period_start', periodStart.toISOString());
-                url.searchParams.set('period_end', periodEnd.toISOString());
-                url.searchParams.set('period_type', 'weekly');
-                
-                const headers = {};
-                // Only add API key if provided
-                if (config.apiKey && config.apiKey.trim()) {
-                    headers['Authorization'] = `Bearer ${config.apiKey}`;
-                }
+        // If no API URL is available, throw error immediately
+        if (!apiUrl) {
+            throw new Error(`No API URL configured for ${casino} leaderboard`);
+        }
 
-                console.log(`Fetching ${casino} leaderboard data for period: ${periodStart.toDateString()} to ${periodEnd.toDateString()}`);
+        // Get current 7-day period boundaries
+        const periodStart = this.getCurrentLeaderboardPeriodStart();
+        const periodEnd = new Date(periodStart.getTime() + (7 * 24 * 60 * 60 * 1000));
+        
+        // Build API URL with period parameters
+        const url = new URL(apiUrl);
+        url.searchParams.set('period_start', periodStart.toISOString());
+        url.searchParams.set('period_end', periodEnd.toISOString());
+        url.searchParams.set('period_type', 'weekly');
+        
+        const headers = {};
+        // Only add API key if provided
+        if (config.apiKey && config.apiKey.trim()) {
+            headers['Authorization'] = `Bearer ${config.apiKey}`;
+        }
+
+        console.log(`Fetching ${casino} leaderboard data for period: ${periodStart.toDateString()} to ${periodEnd.toDateString()}`);
+        
+        // Attempt API call with retries
+        const maxRetries = 3;
+        const retryDelay = 2000; // 2 seconds
+        
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                console.log(`API attempt ${attempt}/${maxRetries} for ${casino}`);
                 
                 const response = await fetch(url.toString(), { 
                     headers,
-                    method: 'GET'
+                    method: 'GET',
+                    timeout: 10000 // 10 second timeout
                 });
                 
                 if (response.ok) {
                     let data = await response.json();
+                    
+                    // Validate that we received valid data structure
+                    if (!data.players || !Array.isArray(data.players)) {
+                        throw new Error('Invalid data structure received from API');
+                    }
                     
                     // Validate that we received current period data
                     if (data.period_start) {
@@ -923,31 +943,40 @@ class LeaderboardManager {
                     }
                     
                     // Anonymize usernames from API data
-                    if (data.players) {
-                        data.players = data.players.map(player => ({
-                            ...player,
-                            username: this.anonymizeUsername(player.username)
-                        }));
-                    }
+                    data.players = data.players.map(player => ({
+                        ...player,
+                        username: this.anonymizeUsername(player.username)
+                    }));
                     
-                    console.log(`Successfully fetched real ${casino} leaderboard data with ${data.players?.length || 0} players`);
+                    console.log(`Successfully fetched real ${casino} leaderboard data with ${data.players.length} players`);
                     return { ...data, isMock: false, lastUpdated: new Date().toLocaleTimeString() };
+                } else if (response.status === 401 || response.status === 403) {
+                    // Authentication/Authorization error - likely API key issue
+                    throw new Error(`API_KEY_ERROR:${response.status}:${response.statusText}`);
+                } else if (response.status >= 500) {
+                    // Server error - API provider issue
+                    throw new Error(`SERVER_ERROR:${response.status}:${response.statusText}`);
                 } else {
-                    console.warn(`API request failed with status ${response.status}: ${response.statusText}`);
+                    // Client error - likely configuration issue
+                    throw new Error(`CONFIG_ERROR:${response.status}:${response.statusText}`);
                 }
+            } catch (error) {
+                console.error(`API attempt ${attempt} failed for ${casino}:`, error);
+                
+                // If it's a specific error type, don't retry
+                if (error.message.includes('API_KEY_ERROR') || error.message.includes('CONFIG_ERROR')) {
+                    throw error;
+                }
+                
+                // If this was the last attempt, throw the error
+                if (attempt === maxRetries) {
+                    throw error;
+                }
+                
+                // Wait before retry
+                console.log(`Waiting ${retryDelay}ms before retry...`);
+                await new Promise(resolve => setTimeout(resolve, retryDelay));
             }
-            
-            // Fall back to mock data
-            console.log(`Using mock data for ${casino} leaderboard`);
-            let mockData = await this.getMockLeaderboardData(casino);
-            
-            return mockData;
-        } catch (error) {
-            console.error(`Error fetching ${casino} leaderboard:`, error);
-            console.log(`Falling back to mock data for ${casino}`);
-            let mockData = await this.getMockLeaderboardData(casino);
-            
-            return mockData;
         }
     }
 
@@ -1062,23 +1091,28 @@ class LeaderboardManager {
         if (this.isLoading) return;
         
         this.isLoading = true;
-    const container = document.getElementById(`${casino}-leaderboard`);
-    if (!container) { this.isLoading = false; return; }
+        const container = document.getElementById(`${casino}-leaderboard`);
+        if (!container) { 
+            this.isLoading = false; 
+            return; 
+        }
         
         try {
+            // Show loading state
+            container.innerHTML = `<div class="leaderboard-loading">Loading ${casino} leaderboard data...</div>`;
+            
             const data = await this.fetchLeaderboardData(casino);
-            // Render full table for the correct tab only; respect enable toggle
-            if (container) {
-                const enabled = this.settings?.[casino]?.enabled !== false;
-                if (!enabled) {
-                    container.innerHTML = `<div class="leaderboard-loading">Leaderboard is currently disabled for ${casino}.</div>`;
-                } else {
-                    this.renderLeaderboard(container, data, casino);
-                }
+            
+            // Check if leaderboard is enabled
+            const enabled = this.settings?.[casino]?.enabled !== false;
+            if (!enabled) {
+                container.innerHTML = `<div class="leaderboard-loading">Leaderboard is currently disabled for ${casino}.</div>`;
+            } else {
+                this.renderLeaderboard(container, data, casino);
             }
         } catch (error) {
-            console.error('Error updating leaderboard:', error);
-            if (container) this.renderError(container);
+            console.error(`Error updating ${casino} leaderboard:`, error);
+            this.renderError(container, error, casino);
         } finally {
             this.isLoading = false;
         }
@@ -1225,13 +1259,45 @@ class LeaderboardManager {
         }
     }
 
-    renderError(container) {
+    renderError(container, error, casino) {
+        let errorMessage = '';
+        let contactInfo = '';
+        let retryButton = `<button onclick="leaderboardManager.updateLeaderboard('${casino}')" class="btn-primary">Retry</button>`;
+        
+        if (error && error.message) {
+            if (error.message.includes('API_KEY_ERROR')) {
+                errorMessage = '🔑 Authentication Error: Invalid or missing API key.';
+                contactInfo = 'Please contact your administrator to update the API key in the admin panel.';
+            } else if (error.message.includes('SERVER_ERROR')) {
+                errorMessage = '🔧 Server Error: The API provider is experiencing issues.';
+                contactInfo = 'Please contact the API provider or try again later. This is not a configuration issue.';
+            } else if (error.message.includes('CONFIG_ERROR')) {
+                errorMessage = '⚙️ Configuration Error: Invalid API endpoint or parameters.';
+                contactInfo = 'Please contact the developer to review the API configuration settings.';
+            } else if (error.message.includes('No API URL configured')) {
+                errorMessage = '🚫 No API Configured: No leaderboard data source has been set up.';
+                contactInfo = 'Please configure an API URL in the admin panel to display leaderboard data.';
+                retryButton = ''; // No retry button for configuration issues
+            } else if (error.message.includes('Invalid data structure')) {
+                errorMessage = '📊 Data Format Error: API returned invalid data structure.';
+                contactInfo = 'Please contact the developer - the API response format may have changed.';
+            } else {
+                errorMessage = '❌ Connection Error: Unable to reach the leaderboard API.';
+                contactInfo = 'Please check your internet connection or contact the developer if the issue persists.';
+            }
+        } else {
+            errorMessage = '❌ Unknown Error: An unexpected error occurred.';
+            contactInfo = 'Please contact the developer for assistance.';
+        }
+
         container.innerHTML = `
             <div class="leaderboard-error">
-                <p>Unable to load leaderboard data. Please try again later.</p>
-                <button onclick="leaderboardManager.updateLeaderboard('${this.currentCasino}')" class="btn-primary">
-                    Retry
-                </button>
+                <h3>${errorMessage}</h3>
+                <p>${contactInfo}</p>
+                <div class="error-actions">
+                    ${retryButton}
+                </div>
+                <small>Last attempt: ${new Date().toLocaleTimeString()}</small>
             </div>
         `;
     }
@@ -1352,10 +1418,48 @@ class LeaderboardManager {
     }
 
     startAutoUpdate() {
-        this.updateLeaderboard();
-        setInterval(() => {
-            this.updateLeaderboard();
+        // Initial update
+        this.performScheduledUpdate();
+        
+        // Set up interval with adaptive error handling
+        this.updateIntervalId = setInterval(() => {
+            this.performScheduledUpdate();
         }, this.updateInterval);
+        
+        console.log(`Auto-update started with ${this.updateInterval / 60000} minute intervals`);
+    }
+    
+    async performScheduledUpdate() {
+        try {
+            // Update both leaderboards
+            await Promise.all([
+                this.updateLeaderboard('goated'),
+                this.updateLeaderboard('thrill')
+            ]);
+            
+            // Reset error count on successful update
+            this.errorCount = 0;
+            this.lastSuccessfulUpdate = new Date();
+            console.log('Scheduled update completed successfully');
+            
+        } catch (error) {
+            console.error('Scheduled update failed:', error);
+            this.errorCount++;
+            
+            // After multiple consecutive errors, reduce update frequency
+            if (this.errorCount >= this.maxErrors && this.updateInterval < 7200000) { // Don't exceed 2 hours
+                this.updateInterval *= 2; // Double the interval
+                console.log(`Increasing update interval to ${this.updateInterval / 60000} minutes due to consecutive errors`);
+                
+                // Restart interval with new timing
+                if (this.updateIntervalId) {
+                    clearInterval(this.updateIntervalId);
+                    this.updateIntervalId = setInterval(() => {
+                        this.performScheduledUpdate();
+                    }, this.updateInterval);
+                }
+            }
+        }
     }
 }
 
