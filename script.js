@@ -980,20 +980,6 @@ class LeaderboardManager {
         }
     }
 
-    shouldFallbackToMockData(error) {
-        // Don't fallback on configuration errors - these need to be fixed by the user
-        if (error && error.message) {
-            if (error.message.includes('API_KEY_ERROR') || 
-                error.message.includes('CONFIG_ERROR') || 
-                error.message.includes('No API URL configured')) {
-                return false;
-            }
-        }
-        
-        // Fallback on network/connection errors, server errors, and general fetch failures
-        return true;
-    }
-
     getMockLeaderboardData(casino) {
         // Calculate time-based wager amounts that reset each leaderboard period
         const now = new Date();
@@ -1126,29 +1112,7 @@ class LeaderboardManager {
             }
         } catch (error) {
             console.error(`Error updating ${casino} leaderboard:`, error);
-            
-            // For connection errors, fallback to mock data instead of showing error
-            if (this.shouldFallbackToMockData(error)) {
-                try {
-                    console.log(`Falling back to mock data for ${casino} due to connection error`);
-                    const mockData = await this.getMockLeaderboardData(casino);
-                    // Mark this as fallback data to show appropriate message
-                    mockData.isFallback = true;
-                    
-                    // Check if leaderboard is enabled
-                    const enabled = this.settings?.[casino]?.enabled !== false;
-                    if (!enabled) {
-                        container.innerHTML = `<div class="leaderboard-loading">Leaderboard is currently disabled for ${casino}.</div>`;
-                    } else {
-                        this.renderLeaderboard(container, mockData, casino);
-                    }
-                } catch (mockError) {
-                    console.error(`Failed to generate mock data for ${casino}:`, mockError);
-                    this.renderError(container, error, casino);
-                }
-            } else {
-                this.renderError(container, error, casino);
-            }
+            this.renderError(container, error, casino);
         } finally {
             this.isLoading = false;
         }
@@ -1214,9 +1178,7 @@ class LeaderboardManager {
                     ${liveDot}<span class="live-text">Live</span>
                     <span class="countdown-timer">Resets in ${countdownTimer}</span>
                     ${data.isMock 
-                        ? (data.isFallback 
-                            ? '<span class="data-source fallback-data" title="Demo data shown due to API connection error">⚠️ Demo (API Offline)</span>'
-                            : '<span class="data-source mock-data" title="Demo data - Configure API URLs in admin panel for real data">📊 Demo</span>')
+                        ? '<span class="data-source mock-data" title="Demo data - Configure API URLs in admin panel for real data">📊 Demo</span>'
                         : '<span class="data-source real-data" title="Live data from API">🔥 Live</span>'}
                 </div>
                 <h3>Top Players</h3>
