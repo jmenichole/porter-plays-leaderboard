@@ -1229,7 +1229,16 @@ class LeaderboardManager {
             }
         } catch (error) {
             console.error(`Error updating ${casino} leaderboard:`, error);
-            this.renderError(container, error, casino);
+            console.log(`Falling back to demo data for ${casino} leaderboard`);
+            
+            // Fall back to mock data for GitHub Pages deployment
+            try {
+                const mockData = await this.getMockLeaderboardData(casino);
+                this.renderLeaderboard(container, mockData, casino);
+            } catch (mockError) {
+                console.error(`Error generating mock data for ${casino}:`, mockError);
+                this.renderError(container, error, casino);
+            }
         } finally {
             this.isLoading = false;
         }
