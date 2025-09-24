@@ -342,6 +342,152 @@ body.pp-root {
         0 0 40px rgba(89,86,255,0.08);
 }
 
+/* Mid-Week Update Announcement */
+.pp-midweek-update {
+    padding: 40px 0;
+    background: linear-gradient(135deg, rgba(89, 86, 255, 0.05) 0%, rgba(92, 255, 193, 0.05) 100%);
+}
+
+.pp-midweek-card {
+    padding: 32px;
+    text-align: center;
+    background: linear-gradient(135deg, var(--pp-surface) 0%, var(--pp-surface-2) 100%);
+    border: 2px solid rgba(92, 255, 193, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.pp-midweek-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--pp-accent-purple), var(--pp-accent-green), var(--pp-accent-purple));
+    animation: pulse-border 2s ease-in-out infinite alternate;
+}
+
+@keyframes pulse-border {
+    0% { opacity: 0.6; }
+    100% { opacity: 1; }
+}
+
+.pp-midweek-header {
+    margin-bottom: 24px;
+}
+
+.pp-midweek-title {
+    font-family: 'Oxanium', sans-serif;
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--pp-white);
+    margin-bottom: 8px;
+    line-height: 1.2;
+}
+
+.pp-midweek-timing {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.1rem;
+    color: var(--pp-accent-green);
+    font-weight: 600;
+    opacity: 0.9;
+}
+
+.pp-midweek-content {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.pp-midweek-message {
+    font-size: 1.2rem;
+    color: var(--pp-text);
+    margin-bottom: 24px;
+    line-height: 1.6;
+    font-weight: 500;
+}
+
+.pp-midweek-requirements {
+    margin: 24px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+}
+
+.pp-midweek-req {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1rem;
+    color: var(--pp-text);
+}
+
+.pp-midweek-req .pp-emoji {
+    font-size: 1.2rem;
+}
+
+.pp-midweek-req strong {
+    color: var(--pp-accent-green);
+    font-weight: 700;
+}
+
+.pp-link {
+    color: var(--pp-accent-green);
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.pp-link:hover {
+    color: var(--pp-white);
+    text-shadow: 0 0 8px var(--pp-accent-green);
+}
+
+.pp-midweek-cta {
+    margin-top: 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.pp-midweek-code {
+    font-size: 0.95rem;
+    color: var(--pp-text-dim);
+}
+
+.pp-midweek-code strong {
+    color: var(--pp-accent-green);
+    font-family: 'Barlow Condensed', monospace;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+/* Responsive adjustments for midweek update */
+@media (max-width: 768px) {
+    .pp-midweek-title {
+        font-size: 1.8rem;
+    }
+    
+    .pp-midweek-timing {
+        font-size: 1rem;
+    }
+    
+    .pp-midweek-message {
+        font-size: 1.1rem;
+    }
+    
+    .pp-midweek-card {
+        padding: 24px;
+    }
+    
+    .pp-midweek-requirements {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+
 /* Bonuses Section Improvements */
 .pp-bonuses {
     padding: 40px;
