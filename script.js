@@ -896,19 +896,36 @@ class LeaderboardManager {
         const periodStart = this.getCurrentLeaderboardPeriodStart();
         const periodEnd = new Date(periodStart.getTime() + (7 * 24 * 60 * 60 * 1000));
         
-        // Build API URL with period parameters
-        const url = new URL(apiUrl);
+        // Validate and build API URL with period parameters
+        let url;
+        try {
+            url = new URL(apiUrl);
+        } catch (urlError) {
+            throw new Error(`Invalid API URL format: ${apiUrl}. Please check the API URL configuration.`);
+        }
+        
+        // Add query parameters for the leaderboard request
         url.searchParams.set('period_start', periodStart.toISOString());
         url.searchParams.set('period_end', periodEnd.toISOString());
         url.searchParams.set('period_type', 'weekly');
         
-        const headers = {};
+        // Add additional parameters that some APIs might expect
+        url.searchParams.set('format', 'json');
+        url.searchParams.set('limit', '50'); // Reasonable limit for leaderboard entries
+        
+        const headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'User-Agent': 'Porter-Plays-Leaderboard/1.0'
+        };
+        
         // Only add API key if provided
         if (config.apiKey && config.apiKey.trim()) {
             headers['Authorization'] = `Bearer ${config.apiKey}`;
         }
 
         console.log(`Fetching ${casino} leaderboard data for period: ${periodStart.toDateString()} to ${periodEnd.toDateString()}`);
+        console.log(`API URL: ${url.toString()}`);
         
         // Attempt API call with retries
         const maxRetries = 3;
@@ -918,18 +935,61 @@ class LeaderboardManager {
             try {
                 console.log(`API attempt ${attempt}/${maxRetries} for ${casino}`);
                 
+                // Create AbortController for proper timeout handling
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000);
+                
                 const response = await fetch(url.toString(), { 
-                    headers,
                     method: 'GET',
-                    timeout: 10000 // 10 second timeout
+                    headers,
+                    mode: 'cors',
+                    credentials: 'omit',
+                    cache: 'no-cache',
+                    signal: controller.signal
                 });
                 
+                clearTimeout(timeoutId);
+                
                 if (response.ok) {
-                    let data = await response.json();
+                    // Check if response is actually JSON
+                    const contentType = response.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) {
+                        console.warn(`API returned non-JSON response. Content-Type: ${contentType}`);
+                        throw new Error(`API returned invalid content type: ${contentType || 'unknown'}. Expected JSON.`);
+                    }
                     
-                    // Validate that we received valid data structure
-                    if (!data.players || !Array.isArray(data.players)) {
-                        throw new Error('Invalid data structure received from API');
+                    let data;
+                    try {
+                        data = await response.json();
+                    } catch (jsonError) {
+                        throw new Error(`Failed to parse API response as JSON: ${jsonError.message}`);
+                    }
+                    
+                    // Enhanced data structure validation
+                    if (!data || typeof data !== 'object') {
+                        throw new Error('Invalid data structure: API response is not an object');
+                    }
+                    
+                    if (!data.players) {
+                        // Check for common alternative field names
+                        if (data.leaderboard) {
+                            data.players = data.leaderboard;
+                        } else if (data.results) {
+                            data.players = data.results;
+                        } else if (data.data) {
+                            data.players = data.data;
+                        } else {
+                            throw new Error('Invalid data structure: missing players/leaderboard data field');
+                        }
+                    }
+                    
+                    if (!Array.isArray(data.players)) {
+                        throw new Error(`Invalid data structure: players field is not an array (got ${typeof data.players})`);
+                    }
+                    
+                    if (data.players.length === 0) {
+                        console.warn('API returned empty leaderboard data');
+                        // Allow empty data - might be valid for new periods
                     }
                     
                     // Validate that we received current period data
@@ -950,18 +1010,75 @@ class LeaderboardManager {
                     
                     console.log(`Successfully fetched real ${casino} leaderboard data with ${data.players.length} players`);
                     return { ...data, isMock: false, lastUpdated: new Date().toLocaleTimeString() };
-                } else if (response.status === 401 || response.status === 403) {
-                    // Authentication/Authorization error - likely API key issue
-                    throw new Error(`API_KEY_ERROR:${response.status}:${response.statusText}`);
-                } else if (response.status >= 500) {
-                    // Server error - API provider issue
-                    throw new Error(`SERVER_ERROR:${response.status}:${response.statusText}`);
                 } else {
-                    // Client error - likely configuration issue
-                    throw new Error(`CONFIG_ERROR:${response.status}:${response.statusText}`);
+                    // Handle various HTTP status codes with specific error messages
+                    let errorMessage;
+                    switch (response.status) {
+                        case 400:
+                            errorMessage = `Bad Request (400): Invalid request parameters. Check API URL parameters.`;
+                            throw new Error(`CONFIG_ERROR:${response.status}:${errorMessage}`);
+                        case 401:
+                            errorMessage = `Unauthorized (401): Invalid or missing API key.`;
+                            throw new Error(`API_KEY_ERROR:${response.status}:${errorMessage}`);
+                        case 403:
+                            errorMessage = `Forbidden (403): Access denied. Check API key permissions.`;
+                            throw new Error(`API_KEY_ERROR:${response.status}:${errorMessage}`);
+                        case 404:
+                            errorMessage = `Not Found (404): API endpoint does not exist.`;
+                            throw new Error(`CONFIG_ERROR:${response.status}:${errorMessage}`);
+                        case 429:
+                            errorMessage = `Too Many Requests (429): Rate limit exceeded. Wait and retry.`;
+                            throw new Error(`RATE_LIMIT_ERROR:${response.status}:${errorMessage}`);
+                        case 500:
+                            errorMessage = `Internal Server Error (500): API server error.`;
+                            throw new Error(`SERVER_ERROR:${response.status}:${errorMessage}`);
+                        case 502:
+                            errorMessage = `Bad Gateway (502): API server unavailable.`;
+                            throw new Error(`SERVER_ERROR:${response.status}:${errorMessage}`);
+                        case 503:
+                            errorMessage = `Service Unavailable (503): API temporarily down.`;
+                            throw new Error(`SERVER_ERROR:${response.status}:${errorMessage}`);
+                        case 504:
+                            errorMessage = `Gateway Timeout (504): API server timeout.`;
+                            throw new Error(`SERVER_ERROR:${response.status}:${errorMessage}`);
+                        default:
+                            if (response.status >= 500) {
+                                errorMessage = `Server Error (${response.status}): ${response.statusText}`;
+                                throw new Error(`SERVER_ERROR:${response.status}:${errorMessage}`);
+                            } else {
+                                errorMessage = `Client Error (${response.status}): ${response.statusText}`;
+                                throw new Error(`CONFIG_ERROR:${response.status}:${errorMessage}`);
+                            }
+                    }
                 }
             } catch (error) {
                 console.error(`API attempt ${attempt} failed for ${casino}:`, error);
+                
+                // Enhanced error classification
+                let errorType = 'UNKNOWN_ERROR';
+                if (error.name === 'AbortError') {
+                    errorType = 'TIMEOUT_ERROR';
+                    error.message = 'Request timed out after 10 seconds';
+                } else if (error.message.includes('Failed to fetch')) {
+                    if (error.message.includes('ERR_BLOCKED_BY_CLIENT')) {
+                        errorType = 'BLOCKED_ERROR';
+                        error.message = 'Request blocked by browser/firewall (ERR_BLOCKED_BY_CLIENT)';
+                    } else if (error.message.includes('ERR_NAME_NOT_RESOLVED')) {
+                        errorType = 'DNS_ERROR';
+                        error.message = 'DNS resolution failed - domain not found';
+                    } else if (error.message.includes('ERR_CONNECTION_REFUSED')) {
+                        errorType = 'CONNECTION_REFUSED';
+                        error.message = 'Connection refused by server';
+                    } else {
+                        errorType = 'NETWORK_ERROR';
+                        error.message = 'Network connectivity issue or CORS policy blocking request';
+                    }
+                } else if (error.message.includes('NetworkError')) {
+                    errorType = 'NETWORK_ERROR';
+                }
+                
+                // Add error type to error object for better diagnostics
+                error.type = errorType;
                 
                 // If it's a specific error type, don't retry
                 if (error.message.includes('API_KEY_ERROR') || error.message.includes('CONFIG_ERROR')) {
@@ -1259,10 +1376,98 @@ class LeaderboardManager {
         }
     }
 
+    getApiUrl(casino) {
+        const config = this.configManager.getApiConfig();
+        const defaultApiUrls = {
+            thrill: 'https://api.thrill.com/leaderboard',
+            goated: 'https://api.goated.com/leaderboard'
+        };
+        
+        return casino === 'thrill' 
+            ? (config.thrillApiUrl || defaultApiUrls.thrill)
+            : (config.goatedApiUrl || defaultApiUrls.goated);
+    }
+
+    analyzeError(error, apiUrl) {
+        const analysis = {
+            endpoint: apiUrl || 'Unknown',
+            type: error?.type || 'Unknown',
+            message: error?.message || 'No error message available',
+            showDiagnostics: true,
+            suggestion: null
+        };
+
+        if (error?.message || error?.type) {
+            // Use enhanced error type classification
+            switch (error.type) {
+                case 'TIMEOUT_ERROR':
+                    analysis.type = 'Request Timeout';
+                    analysis.suggestion = 'Request timed out after 10 seconds. API may be slow or unreachable. Check API performance or network connectivity.';
+                    break;
+                case 'BLOCKED_ERROR':
+                    analysis.type = 'Request Blocked';
+                    analysis.suggestion = 'Request blocked by browser/firewall (ERR_BLOCKED_BY_CLIENT). Check network settings, firewall rules, or try from a different environment.';
+                    break;
+                case 'DNS_ERROR':
+                    analysis.type = 'DNS Resolution Error';
+                    analysis.suggestion = 'Domain name could not be resolved. Check if the API domain exists and is accessible from your network.';
+                    break;
+                case 'CONNECTION_REFUSED':
+                    analysis.type = 'Connection Refused';
+                    analysis.suggestion = 'Server refused the connection. API may be down, check server status or contact API provider.';
+                    break;
+                case 'NETWORK_ERROR':
+                    analysis.type = 'Network/CORS Error';
+                    analysis.suggestion = 'Network connectivity issue or CORS policy blocking the request. Verify API endpoint is accessible and CORS is configured.';
+                    break;
+                default:
+                    // Fallback to message-based analysis
+                    if (error.message.includes('Failed to fetch')) {
+                        analysis.type = 'Network/CORS Error';
+                        if (error.message.includes('ERR_BLOCKED_BY_CLIENT')) {
+                            analysis.suggestion = 'API endpoint may be blocked by browser/firewall. Check network settings or try from a different environment.';
+                        } else {
+                            analysis.suggestion = 'Network connectivity issue or CORS policy blocking the request. Verify API endpoint is accessible and CORS is configured.';
+                        }
+                    } else if (error.message.includes('timeout')) {
+                        analysis.type = 'Timeout Error';
+                        analysis.suggestion = 'API response took too long. Check API performance or increase timeout settings.';
+                    } else if (error.message.includes('404')) {
+                        analysis.type = 'API Endpoint Not Found';
+                        analysis.suggestion = 'API endpoint URL may be incorrect. Verify the API URL configuration.';
+                    } else if (error.message.includes('500')) {
+                        analysis.type = 'Internal Server Error';
+                        analysis.suggestion = 'API server is experiencing issues. Contact API provider.';
+                    } else if (error.message.includes('403') || error.message.includes('401')) {
+                        analysis.type = 'Authentication/Authorization Error';
+                        analysis.suggestion = 'API key may be invalid or missing. Check API key configuration.';
+                    } else {
+                        analysis.type = 'Generic Error';
+                    }
+                    break;
+            }
+        }
+
+        // Enhanced logging for developers
+        console.group(`🔍 API Error Analysis - ${new Date().toISOString()}`);
+        console.log('Endpoint:', analysis.endpoint);
+        console.log('Error Type:', analysis.type);
+        console.log('Raw Error:', error);
+        console.log('Suggestion:', analysis.suggestion);
+        console.groupEnd();
+
+        return analysis;
+    }
+
     renderError(container, error, casino) {
         let errorMessage = '';
         let contactInfo = '';
+        let diagnosticInfo = '';
         let retryButton = `<button onclick="leaderboardManager.updateLeaderboard('${casino}')" class="btn-primary">Retry</button>`;
+        
+        // Enhanced error diagnostics
+        const apiUrl = this.getApiUrl(casino);
+        const errorDetails = this.analyzeError(error, apiUrl);
         
         if (error && error.message) {
             if (error.message.includes('API_KEY_ERROR')) {
@@ -1290,6 +1495,22 @@ class LeaderboardManager {
             contactInfo = 'Please contact the developer for assistance.';
         }
 
+        // Add diagnostic information for developers
+        if (errorDetails.showDiagnostics) {
+            diagnosticInfo = `
+                <details class="error-diagnostics">
+                    <summary>🔍 Technical Details (for developers)</summary>
+                    <div class="diagnostic-info">
+                        <p><strong>API Endpoint:</strong> ${errorDetails.endpoint}</p>
+                        <p><strong>Error Type:</strong> ${errorDetails.type}</p>
+                        <p><strong>Error Message:</strong> ${errorDetails.message}</p>
+                        <p><strong>Timestamp:</strong> ${new Date().toISOString()}</p>
+                        ${errorDetails.suggestion ? `<p><strong>Suggestion:</strong> ${errorDetails.suggestion}</p>` : ''}
+                    </div>
+                </details>
+            `;
+        }
+
         container.innerHTML = `
             <div class="leaderboard-error">
                 <h3>${errorMessage}</h3>
@@ -1297,6 +1518,7 @@ class LeaderboardManager {
                 <div class="error-actions">
                     ${retryButton}
                 </div>
+                ${diagnosticInfo}
                 <small>Last attempt: ${new Date().toLocaleTimeString()}</small>
             </div>
         `;
