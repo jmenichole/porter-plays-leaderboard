@@ -23,14 +23,14 @@ class ConfigManager {
             apiKey: '',
             settings: {
                 thrill: { enabled: true, prizeTotal: 5000, placesPaid: 10, customPrizes: [2000, 1000, 750, 500, 300, 200, 150, 75, 50, 25] },
-                goated: { enabled: true, prizeTotal: 1000, placesPaid: 10, customPrizes: [500, 200, 100, 70, 50, 30, 20, 5, 10, 5] }
+                goated: { enabled: true, prizeTotal: 1000, placesPaid: 10, customPrizes: [500, 200, 100, 70, 50, 30, 20, 15, 10, 5] }
             }
         };
         // Migrate old configs without settings
         if (!base.settings) {
             base.settings = {
                 thrill: { enabled: true, prizeTotal: 5000, placesPaid: 10, customPrizes: [2000, 1000, 750, 500, 300, 200, 150, 75, 50, 25] },
-                goated: { enabled: true, prizeTotal: 1000, placesPaid: 10, customPrizes: [500, 200, 100, 70, 50, 30, 20, 5, 10, 5] }
+                goated: { enabled: true, prizeTotal: 1000, placesPaid: 10, customPrizes: [500, 200, 100, 70, 50, 30, 20, 15, 10, 5] }
             };
         }
         // Ensure Goated has default prize distribution if missing
@@ -39,7 +39,7 @@ class ConfigManager {
                 enabled: true, 
                 prizeTotal: 1000, 
                 placesPaid: 10, 
-                customPrizes: [500, 200, 100, 70, 50, 30, 20, 5, 10, 5] 
+                customPrizes: [500, 200, 100, 70, 50, 30, 20, 15, 10, 5] 
             };
         }
         // Ensure Thrill has default prize distribution if missing
