@@ -19,7 +19,6 @@ class ConfigManager {
         const saved = localStorage.getItem('porterPlaysApiConfig');
         const base = saved ? JSON.parse(saved) : {
             thrillApiUrl: '',
-            goatedApiUrl: '',
             apiKey: '',
             settings: {
                 thrill: { enabled: true, prizeTotal: 5000, placesPaid: 10, customPrizes: [2000, 1000, 750, 500, 300, 200, 150, 75, 50, 25] },
@@ -266,7 +265,6 @@ class AdminSystem {
     loadApiConfiguration() {
         const config = this.configManager.getApiConfig();
         document.getElementById('thrillApiUrl').value = config.thrillApiUrl || '';
-        document.getElementById('goatedApiUrl').value = config.goatedApiUrl || '';
         document.getElementById('apiKey').value = config.apiKey || '';
         // Load settings
         if (this.thrillPrizeTotal) this.thrillPrizeTotal.value = config.settings?.thrill?.prizeTotal ?? 5000;
@@ -283,7 +281,6 @@ class AdminSystem {
     saveApiConfiguration() {
         const config = {
             thrillApiUrl: document.getElementById('thrillApiUrl').value,
-            goatedApiUrl: document.getElementById('goatedApiUrl').value,
             apiKey: document.getElementById('apiKey').value
         };
 
@@ -876,16 +873,16 @@ class LeaderboardManager {
         // Check if user has configured custom API URLs
         const hasCustomApiUrl = casino === 'thrill' 
             ? (config.thrillApiUrl && config.thrillApiUrl.trim() !== '')
-            : (config.goatedApiUrl && config.goatedApiUrl.trim() !== '');
+            : true; // Goated always has API URL hardcoded
             
         const defaultApiUrls = {
             thrill: 'https://api.thrill.com/leaderboard',
-            goated: 'https://api.goated.com/leaderboard'
+            goated: 'https://apis.goated.com/user/affiliate/referral-leaderboard/UCW47GH'
         };
         
         const apiUrl = casino === 'thrill' 
             ? (config.thrillApiUrl || defaultApiUrls.thrill)
-            : (config.goatedApiUrl || defaultApiUrls.goated);
+            : defaultApiUrls.goated; // Always use hardcoded URL for goated
 
         // If no API URL is available, throw error immediately
         if (!apiUrl) {
@@ -1389,12 +1386,12 @@ class LeaderboardManager {
         const config = this.configManager.getApiConfig();
         const defaultApiUrls = {
             thrill: 'https://api.thrill.com/leaderboard',
-            goated: 'https://api.goated.com/leaderboard'
+            goated: 'https://apis.goated.com/user/affiliate/referral-leaderboard/UCW47GH'
         };
         
         return casino === 'thrill' 
             ? (config.thrillApiUrl || defaultApiUrls.thrill)
-            : (config.goatedApiUrl || defaultApiUrls.goated);
+            : defaultApiUrls.goated; // Always use hardcoded URL for goated
     }
 
     analyzeError(error, apiUrl) {
