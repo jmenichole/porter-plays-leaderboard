@@ -19,7 +19,6 @@ class ConfigManager {
         const saved = localStorage.getItem('porterPlaysApiConfig');
         const base = saved ? JSON.parse(saved) : {
             thrillApiUrl: '',
-            goatedApiUrl: '',
             apiKey: '',
             settings: {
                 thrill: { enabled: true, prizeTotal: 5000, placesPaid: 10, customPrizes: [2000, 1000, 750, 500, 300, 200, 150, 75, 50, 25] },
@@ -266,7 +265,6 @@ class AdminSystem {
     loadApiConfiguration() {
         const config = this.configManager.getApiConfig();
         document.getElementById('thrillApiUrl').value = config.thrillApiUrl || '';
-        document.getElementById('goatedApiUrl').value = config.goatedApiUrl || '';
         document.getElementById('apiKey').value = config.apiKey || '';
         // Load settings
         if (this.thrillPrizeTotal) this.thrillPrizeTotal.value = config.settings?.thrill?.prizeTotal ?? 5000;
@@ -283,7 +281,6 @@ class AdminSystem {
     saveApiConfiguration() {
         const config = {
             thrillApiUrl: document.getElementById('thrillApiUrl').value,
-            goatedApiUrl: document.getElementById('goatedApiUrl').value,
             apiKey: document.getElementById('apiKey').value
         };
 
@@ -878,16 +875,16 @@ class LeaderboardManager {
         // Check if user has configured custom API URLs
         const hasCustomApiUrl = casino === 'thrill' 
             ? (config.thrillApiUrl && config.thrillApiUrl.trim() !== '')
-            : (config.goatedApiUrl && config.goatedApiUrl.trim() !== '');
+            : true; // Goated always has API URL hardcoded
             
         const defaultApiUrls = {
             thrill: 'https://api.thrill.com/leaderboard',
-            goated: 'https://api.goated.com/leaderboard'
+            goated: 'https://apis.goated.com/user/affiliate/referral-leaderboard/UCW47GH'
         };
         
         const apiUrl = casino === 'thrill' 
             ? (config.thrillApiUrl || defaultApiUrls.thrill)
-            : (config.goatedApiUrl || defaultApiUrls.goated);
+            : defaultApiUrls.goated; // Always use hardcoded URL for goated
 
         // If no API URL is available, throw error immediately
         if (!apiUrl) {
@@ -939,16 +936,38 @@ class LeaderboardManager {
                 
                 // Create AbortController for proper timeout handling
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 10000);
+                const timeoutId = setTimeout(() => controller.abort(), 15000); // Increased timeout
                 
-                const response = await fetch(url.toString(), { 
+                let fetchUrl = url.toString();
+                let fetchOptions = {
                     method: 'GET',
                     headers,
                     mode: 'cors',
                     credentials: 'omit',
                     cache: 'no-cache',
                     signal: controller.signal
-                });
+                };
+                
+                // For Goated API, try different approaches to bypass CORS
+                if (casino === 'goated' && attempt > 1) {
+                    const corsProxies = [
+                        'https://api.allorigins.win/raw?url=',
+                        'https://corsproxy.io/?'
+                    ];
+                    
+                    const proxyIndex = attempt - 2; // Start from 0 for attempt 2
+                    if (proxyIndex < corsProxies.length) {
+                        fetchUrl = corsProxies[proxyIndex] + encodeURIComponent(url.toString());
+                        console.log(`Using CORS proxy ${proxyIndex + 1} for attempt ${attempt}: ${fetchUrl}`);
+                        
+                        // Remove custom headers for proxy requests
+                        fetchOptions.headers = {
+                            'Accept': 'application/json'
+                        };
+                    }
+                }
+                
+                const response = await fetch(fetchUrl, fetchOptions);
                 
                 clearTimeout(timeoutId);
                 
@@ -972,16 +991,45 @@ class LeaderboardManager {
                         throw new Error('Invalid data structure: API response is not an object');
                     }
                     
-                    if (!data.players) {
-                        // Check for common alternative field names
-                        if (data.leaderboard) {
-                            data.players = data.leaderboard;
-                        } else if (data.results) {
-                            data.players = data.results;
-                        } else if (data.data) {
-                            data.players = data.data;
-                        } else {
-                            throw new Error('Invalid data structure: missing players/leaderboard data field');
+                    // Handle Goated API specific format
+                    if (casino === 'goated' && data.success && data.data) {
+                        // Transform Goated API response to expected format
+                        const playersData = Array.isArray(data.data) ? data.data : [];
+                        
+                        // Sort by this_week wager amount (descending) and assign ranks
+                        const sortedPlayers = playersData
+                            .filter(player => player.wagered && typeof player.wagered.this_week === 'number')
+                            .sort((a, b) => b.wagered.this_week - a.wagered.this_week)
+                            .map((player, index) => ({
+                                rank: index + 1,
+                                username: player.name || 'Anonymous',
+                                wager: `$${player.wagered.this_week.toLocaleString()}`,
+                                uid: player.uid
+                            }));
+                        
+                        // Create the expected data structure
+                        data = {
+                            players: sortedPlayers,
+                            period_start: periodStart.toISOString(),
+                            period_end: periodEnd.toISOString(),
+                            total_today: data.today || 0,
+                            total_week: data.this_week || 0
+                        };
+                        
+                        console.log(`Transformed Goated API data: ${sortedPlayers.length} players, top wager: ${sortedPlayers[0]?.wager || '$0'}`);
+                    } else {
+                        // Handle other API formats
+                        if (!data.players) {
+                            // Check for common alternative field names
+                            if (data.leaderboard) {
+                                data.players = data.leaderboard;
+                            } else if (data.results) {
+                                data.players = data.results;
+                            } else if (data.data) {
+                                data.players = data.data;
+                            } else {
+                                throw new Error('Invalid data structure: missing players/leaderboard data field');
+                            }
                         }
                     }
                     
@@ -1004,14 +1052,14 @@ class LeaderboardManager {
                         }
                     }
                     
-                    // Anonymize usernames from API data
+                    // Anonymize usernames from API data (only if not already anonymized)
                     data.players = data.players.map(player => ({
                         ...player,
-                        username: this.anonymizeUsername(player.username)
+                        username: this.anonymizeUsername(player.username || player.name || 'Anonymous')
                     }));
                     
                     console.log(`Successfully fetched real ${casino} leaderboard data with ${data.players.length} players`);
-                    return { ...data, isMock: false, lastUpdated: new Date().toLocaleTimeString() };
+                    return { ...data, lastUpdated: new Date().toLocaleTimeString() };
                 } else {
                     // Handle various HTTP status codes with specific error messages
                     let errorMessage;
@@ -1099,105 +1147,6 @@ class LeaderboardManager {
         }
     }
 
-    getMockLeaderboardData(casino) {
-        // Calculate time-based wager amounts that reset each leaderboard period
-        const now = new Date();
-        const periodStart = this.getCurrentLeaderboardPeriodStart();
-        const timeSincePeriodStart = now.getTime() - periodStart.getTime();
-        
-        // Calculate progress through the period (0-1, where 1 is end of week)
-        const weekDuration = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
-        const periodProgress = Math.min(timeSincePeriodStart / weekDuration, 1);
-        
-        // Calculate which day of the period we're in (0-6)
-        const daysSincePeriodStart = Math.floor(timeSincePeriodStart / (24 * 60 * 60 * 1000));
-        
-        // Generate seed based on period start time for consistent random values within the period
-        const periodSeed = Math.floor(periodStart.getTime() / weekDuration);
-        
-        // Function to generate consistent "random" values based on seed and index
-        const seededRandom = (seed, index) => {
-            const x = Math.sin(seed * 9999 + index * 7777) * 10000;
-            return x - Math.floor(x);
-        };
-        
-        // Enhanced daily variation function
-        const getDailyVariationFactor = (dayIndex, playerIndex) => {
-            // Create daily seed that changes each day but remains consistent within the day
-            const dailySeed = periodSeed + dayIndex * 1000 + Math.floor(now.getHours() / 6) * 100; // Changes every 6 hours
-            const dailyRandom = seededRandom(dailySeed, playerIndex);
-            // Daily variation between 0.85 and 1.15 (±15%)
-            return 0.85 + (dailyRandom * 0.3);
-        };
-        
-        // Generate base wager amounts that grow throughout the period with daily variation
-        const generateWagerAmount = (baseAmount, index, progress) => {
-            const randomFactor = 0.7 + (seededRandom(periodSeed, index) * 0.6); // 0.7-1.3 multiplier
-            
-            // Enhanced progress calculation with more realistic growth curve
-            // Start at 20%, grow more aggressively in middle days, slow down towards the end
-            let progressMultiplier;
-            if (progress < 0.3) {
-                // First 30% of period: Start slow but with some base activity
-                progressMultiplier = 0.2 + (progress / 0.3) * 0.3; // 20% to 50%
-            } else if (progress < 0.8) {
-                // Middle 50% of period: Aggressive growth 
-                progressMultiplier = 0.5 + ((progress - 0.3) / 0.5) * 0.4; // 50% to 90%
-            } else {
-                // Final 20% of period: Slower growth to 100%
-                progressMultiplier = 0.9 + ((progress - 0.8) / 0.2) * 0.1; // 90% to 100%
-            }
-            
-            // Add daily variation
-            const dailyVariation = getDailyVariationFactor(daysSincePeriodStart, index);
-            
-            const finalAmount = Math.floor(baseAmount * randomFactor * progressMultiplier * dailyVariation);
-            return finalAmount;
-        };
-
-        const thrillBaseAmounts = [125000, 98750, 87300, 76500, 65200, 54800, 43600, 38900, 32100, 28500];
-        const goatedBaseAmounts = [156000, 134200, 118800, 102500, 89300, 76700, 65400, 58900, 49600, 42100];
-        
-        const mockData = {
-            thrill: {
-                players: [
-                    { rank: 1, username: 'P***r2024', wager: `$${generateWagerAmount(thrillBaseAmounts[0], 1, periodProgress).toLocaleString()}`, profit: '+$12,500' },
-                    { rank: 2, username: 'V***amer', wager: `$${generateWagerAmount(thrillBaseAmounts[1], 2, periodProgress).toLocaleString()}`, profit: '+$8,900' },
-                    { rank: 3, username: 'H***oller', wager: `$${generateWagerAmount(thrillBaseAmounts[2], 3, periodProgress).toLocaleString()}`, profit: '+$7,200' },
-                    { rank: 4, username: 'C***oKing', wager: `$${generateWagerAmount(thrillBaseAmounts[3], 4, periodProgress).toLocaleString()}`, profit: '+$5,800' },
-                    { rank: 5, username: 'S***aster', wager: `$${generateWagerAmount(thrillBaseAmounts[4], 5, periodProgress).toLocaleString()}`, profit: '+$4,100' },
-                    { rank: 6, username: 'B***east', wager: `$${generateWagerAmount(thrillBaseAmounts[5], 6, periodProgress).toLocaleString()}`, profit: '+$3,200' },
-                    { rank: 7, username: 'C***haser', wager: `$${generateWagerAmount(thrillBaseAmounts[6], 7, periodProgress).toLocaleString()}`, profit: '+$2,800' },
-                    { rank: 8, username: 'R***Dice', wager: `$${generateWagerAmount(thrillBaseAmounts[7], 8, periodProgress).toLocaleString()}`, profit: '+$2,400' },
-                    { rank: 9, username: 'L***reak', wager: `$${generateWagerAmount(thrillBaseAmounts[8], 9, periodProgress).toLocaleString()}`, profit: '+$1,900' },
-                    { rank: 10, username: 'W***Wars', wager: `$${generateWagerAmount(thrillBaseAmounts[9], 10, periodProgress).toLocaleString()}`, profit: '+$1,500' }
-                ],
-                lastUpdated: new Date().toLocaleTimeString(),
-                isMock: true
-            },
-            goated: {
-                players: [
-                    { rank: 1, username: 'G***dGamer', wager: `$${generateWagerAmount(goatedBaseAmounts[0], 1, periodProgress).toLocaleString()}`, profit: '+$15,600' },
-                    { rank: 2, username: 'P***rVIP', wager: `$${generateWagerAmount(goatedBaseAmounts[1], 2, periodProgress).toLocaleString()}`, profit: '+$13,400' },
-                    { rank: 3, username: 'E***Player', wager: `$${generateWagerAmount(goatedBaseAmounts[2], 3, periodProgress).toLocaleString()}`, profit: '+$11,200' },
-                    { rank: 4, username: 'M***Better', wager: `$${generateWagerAmount(goatedBaseAmounts[3], 4, periodProgress).toLocaleString()}`, profit: '+$9,800' },
-                    { rank: 5, username: 'P***ambler', wager: `$${generateWagerAmount(goatedBaseAmounts[4], 5, periodProgress).toLocaleString()}`, profit: '+$7,900' },
-                    { rank: 6, username: 'H***takes', wager: `$${generateWagerAmount(goatedBaseAmounts[5], 6, periodProgress).toLocaleString()}`, profit: '+$6,500' },
-                    { rank: 7, username: 'C***rusher', wager: `$${generateWagerAmount(goatedBaseAmounts[6], 7, periodProgress).toLocaleString()}`, profit: '+$5,200' },
-                    { rank: 8, username: 'B***ully', wager: `$${generateWagerAmount(goatedBaseAmounts[7], 8, periodProgress).toLocaleString()}`, profit: '+$4,700' },
-                    { rank: 9, username: 'W***izard', wager: `$${generateWagerAmount(goatedBaseAmounts[8], 9, periodProgress).toLocaleString()}`, profit: '+$3,800' },
-                    { rank: 10, username: 'S***ensei', wager: `$${generateWagerAmount(goatedBaseAmounts[9], 10, periodProgress).toLocaleString()}`, profit: '+$3,200' }
-                ],
-                lastUpdated: new Date().toLocaleTimeString(),
-                isMock: true
-            }
-        };
-
-        return new Promise(resolve => {
-            setTimeout(() => resolve(mockData[casino]), 1000);
-        });
-    }
-
     anonymizeUsername(username) {
         if (username.length <= 3) return username;
         const firstChar = username.charAt(0);
@@ -1217,30 +1166,32 @@ class LeaderboardManager {
         }
         
         try {
-            // Show loading state
-            container.innerHTML = `<div class="leaderboard-loading">Loading ${casino} leaderboard data...</div>`;
-            
-            const data = await this.fetchLeaderboardData(casino);
-            
             // Check if leaderboard is enabled
             const enabled = this.settings?.[casino]?.enabled !== false;
             if (!enabled) {
                 container.innerHTML = `<div class="leaderboard-loading">Leaderboard is currently disabled for ${casino}.</div>`;
-            } else {
-                this.renderLeaderboard(container, data, casino);
+                return;
             }
+
+            // For Thrill, check if API URL is configured
+            const config = this.configManager.getApiConfig();
+            if (casino === 'thrill' && (!config.thrillApiUrl || config.thrillApiUrl.trim() === '')) {
+                container.innerHTML = `<div class="leaderboard-empty">
+                    <p>Thrill leaderboard is not configured.</p>
+                    <p>Please configure the API URL in the admin panel to display leaderboard data.</p>
+                </div>`;
+                return;
+            }
+            
+            // Show loading state
+            container.innerHTML = `<div class="leaderboard-loading">Loading ${casino} leaderboard data...</div>`;
+            
+            const data = await this.fetchLeaderboardData(casino);
+            this.renderLeaderboard(container, data, casino);
+            
         } catch (error) {
             console.error(`Error updating ${casino} leaderboard:`, error);
-            console.log(`Falling back to demo data for ${casino} leaderboard`);
-            
-            // Fall back to mock data for GitHub Pages deployment
-            try {
-                const mockData = await this.getMockLeaderboardData(casino);
-                this.renderLeaderboard(container, mockData, casino);
-            } catch (mockError) {
-                console.error(`Error generating mock data for ${casino}:`, mockError);
-                this.renderError(container, error, casino);
-            }
+            this.renderError(container, error, casino);
         } finally {
             this.isLoading = false;
         }
@@ -1251,8 +1202,8 @@ class LeaderboardManager {
         const table = document.querySelector('.pp-table');
         if (!table) return;
 
-        // Only populate when using real API data to avoid fabricated numbers
-        if (!data || data.isMock || !Array.isArray(data.players)) {
+        // Only populate when we have valid data
+        if (!data || !Array.isArray(data.players)) {
             return;
         }
 
@@ -1305,9 +1256,7 @@ class LeaderboardManager {
                 <div class="live-indicator">
                     ${liveDot}<span class="live-text">Live</span>
                     <span class="countdown-timer">Resets in ${countdownTimer}</span>
-                    ${data.isMock 
-                        ? '<span class="data-source mock-data" title="Demo data - Configure API URLs in admin panel for real data">📊 Demo</span>'
-                        : '<span class="data-source real-data" title="Live data from API">🔥 Live</span>'}
+                    <span class="data-source real-data" title="Live data from API">🔥 Live</span>
                 </div>
                 <h3>Top Players</h3>
                 <p class="last-updated">Last updated: ${lastUpdated}</p>
@@ -1391,12 +1340,12 @@ class LeaderboardManager {
         const config = this.configManager.getApiConfig();
         const defaultApiUrls = {
             thrill: 'https://api.thrill.com/leaderboard',
-            goated: 'https://api.goated.com/leaderboard'
+            goated: 'https://apis.goated.com/user/affiliate/referral-leaderboard/UCW47GH'
         };
         
         return casino === 'thrill' 
             ? (config.thrillApiUrl || defaultApiUrls.thrill)
-            : (config.goatedApiUrl || defaultApiUrls.goated);
+            : defaultApiUrls.goated; // Always use hardcoded URL for goated
     }
 
     analyzeError(error, apiUrl) {
