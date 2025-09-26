@@ -810,6 +810,8 @@ class LeaderboardManager {
 
     updateApiConfig(config) {
         this.configManager.saveApiConfig(config);
+        // Reload the config to ensure the configManager has the latest data
+        this.configManager.apiConfig = this.configManager.loadApiConfig();
         if (config.settings) this.settings = config.settings;
     }
 
