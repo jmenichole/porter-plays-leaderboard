@@ -934,16 +934,38 @@ class LeaderboardManager {
                 
                 // Create AbortController for proper timeout handling
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 10000);
+                const timeoutId = setTimeout(() => controller.abort(), 15000); // Increased timeout
                 
-                const response = await fetch(url.toString(), { 
+                let fetchUrl = url.toString();
+                let fetchOptions = {
                     method: 'GET',
                     headers,
                     mode: 'cors',
                     credentials: 'omit',
                     cache: 'no-cache',
                     signal: controller.signal
-                });
+                };
+                
+                // For Goated API, try different approaches to bypass CORS
+                if (casino === 'goated' && attempt > 1) {
+                    const corsProxies = [
+                        'https://api.allorigins.win/raw?url=',
+                        'https://corsproxy.io/?'
+                    ];
+                    
+                    const proxyIndex = attempt - 2; // Start from 0 for attempt 2
+                    if (proxyIndex < corsProxies.length) {
+                        fetchUrl = corsProxies[proxyIndex] + encodeURIComponent(url.toString());
+                        console.log(`Using CORS proxy ${proxyIndex + 1} for attempt ${attempt}: ${fetchUrl}`);
+                        
+                        // Remove custom headers for proxy requests
+                        fetchOptions.headers = {
+                            'Accept': 'application/json'
+                        };
+                    }
+                }
+                
+                const response = await fetch(fetchUrl, fetchOptions);
                 
                 clearTimeout(timeoutId);
                 
@@ -967,16 +989,45 @@ class LeaderboardManager {
                         throw new Error('Invalid data structure: API response is not an object');
                     }
                     
-                    if (!data.players) {
-                        // Check for common alternative field names
-                        if (data.leaderboard) {
-                            data.players = data.leaderboard;
-                        } else if (data.results) {
-                            data.players = data.results;
-                        } else if (data.data) {
-                            data.players = data.data;
-                        } else {
-                            throw new Error('Invalid data structure: missing players/leaderboard data field');
+                    // Handle Goated API specific format
+                    if (casino === 'goated' && data.success && data.data) {
+                        // Transform Goated API response to expected format
+                        const playersData = Array.isArray(data.data) ? data.data : [];
+                        
+                        // Sort by this_week wager amount (descending) and assign ranks
+                        const sortedPlayers = playersData
+                            .filter(player => player.wagered && typeof player.wagered.this_week === 'number')
+                            .sort((a, b) => b.wagered.this_week - a.wagered.this_week)
+                            .map((player, index) => ({
+                                rank: index + 1,
+                                username: player.name || 'Anonymous',
+                                wager: `$${player.wagered.this_week.toLocaleString()}`,
+                                uid: player.uid
+                            }));
+                        
+                        // Create the expected data structure
+                        data = {
+                            players: sortedPlayers,
+                            period_start: periodStart.toISOString(),
+                            period_end: periodEnd.toISOString(),
+                            total_today: data.today || 0,
+                            total_week: data.this_week || 0
+                        };
+                        
+                        console.log(`Transformed Goated API data: ${sortedPlayers.length} players, top wager: ${sortedPlayers[0]?.wager || '$0'}`);
+                    } else {
+                        // Handle other API formats
+                        if (!data.players) {
+                            // Check for common alternative field names
+                            if (data.leaderboard) {
+                                data.players = data.leaderboard;
+                            } else if (data.results) {
+                                data.players = data.results;
+                            } else if (data.data) {
+                                data.players = data.data;
+                            } else {
+                                throw new Error('Invalid data structure: missing players/leaderboard data field');
+                            }
                         }
                     }
                     
@@ -999,10 +1050,10 @@ class LeaderboardManager {
                         }
                     }
                     
-                    // Anonymize usernames from API data
+                    // Anonymize usernames from API data (only if not already anonymized)
                     data.players = data.players.map(player => ({
                         ...player,
-                        username: this.anonymizeUsername(player.username)
+                        username: this.anonymizeUsername(player.username || player.name || 'Anonymous')
                     }));
                     
                     console.log(`Successfully fetched real ${casino} leaderboard data with ${data.players.length} players`);
