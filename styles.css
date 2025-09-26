@@ -2100,6 +2100,22 @@ body.pp-root {
     text-align: center;
 }
 
+.leaderboard-empty {
+    color: var(--text-secondary);
+    text-align: center;
+    padding: 3rem 2rem;
+}
+
+.leaderboard-empty p {
+    margin: 0.5rem 0;
+    line-height: 1.5;
+}
+
+.leaderboard-empty p:first-child {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
 /* VIP Highlight Section */
 .vip-highlight {
     padding: 4rem 2rem;
