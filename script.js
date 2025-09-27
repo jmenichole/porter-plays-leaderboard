@@ -1729,6 +1729,17 @@ class ChatSystem {
                     { name: 'Shuffle Official', url: 'https://t.me/shufflecom' }
                 ],
                 porterChannel: 'https://t.me/playshuffle'
+            },
+            shuffleus: {
+                name: 'Shuffle US',
+                code: 'playShuffleUS',
+                bonus: 'US-exclusive welcome bonus package',
+                features: 'premier US crypto casino experience',
+                url: 'https://shuffle.us/?r=playShuffleUS',
+                telegramChannels: [
+                    { name: 'Shuffle Official', url: 'https://t.me/shufflecom' }
+                ],
+                porterChannel: 'https://t.me/playshuffle'
             }
         };
 
