@@ -1718,10 +1718,10 @@ class ChatSystem {
             },
             shuffle: {
                 name: 'Shuffle',
-                code: 'playShuffle',
+                code: 'playShuffleUS',
                 bonus: 'welcome bonus package',
                 features: 'modern casino experience & original games',
-                url: 'https://shuffle.com/?r=playShuffle',
+                url: 'https://shuffle.us/?r=playShuffleUS',
                 telegramChannels: [
                     { name: 'Shuffle Official', url: 'https://t.me/shufflecom' }
                 ],
