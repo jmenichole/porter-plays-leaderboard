@@ -1723,7 +1723,7 @@ class ChatSystem {
                 name: 'Shuffle',
                 code: 'playShuffle',
                 bonus: 'welcome bonus package',
-                features: 'modern casino experience & original games',
+                features: 'the next generation in social online casinos with the best rewards',
                 url: 'https://shuffle.com/?r=playShuffle',
                 telegramChannels: [
                     { name: 'Shuffle Official', url: 'https://t.me/shufflecom' }
