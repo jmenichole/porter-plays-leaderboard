@@ -1718,9 +1718,20 @@ class ChatSystem {
             },
             shuffle: {
                 name: 'Shuffle',
-                code: 'playShuffleUS',
+                code: 'playShuffle',
                 bonus: 'welcome bonus package',
                 features: 'modern casino experience & original games',
+                url: 'https://shuffle.com/?r=playShuffle',
+                telegramChannels: [
+                    { name: 'Shuffle Official', url: 'https://t.me/shufflecom' }
+                ],
+                porterChannel: 'https://t.me/playshuffle'
+            },
+            shuffleus: {
+                name: 'Shuffle US',
+                code: 'playShuffleUS',
+                bonus: 'US-exclusive welcome bonus package',
+                features: 'premier US crypto casino experience',
                 url: 'https://shuffle.us/?r=playShuffleUS',
                 telegramChannels: [
                     { name: 'Shuffle Official', url: 'https://t.me/shufflecom' }
