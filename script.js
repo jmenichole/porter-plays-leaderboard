@@ -1247,9 +1247,12 @@ class LeaderboardManager {
         const liveDot = '<span class="live-dot" aria-hidden="true"></span>';
         const countdownTimer = this.getCountdownTimer();
         
+        // Limit to top 20 players (wager highest to lowest)
+        const top20Players = data.players.slice(0, 20);
+        
         // Separate top 3 players for podium display
-        const topThree = data.players.slice(0, 3);
-        const remainingPlayers = data.players.slice(3);
+        const topThree = top20Players.slice(0, 3);
+        const remainingPlayers = top20Players.slice(3);
         
         const html = `
             <div class="leaderboard-header">
