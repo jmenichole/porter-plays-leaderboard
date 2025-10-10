@@ -29,10 +29,12 @@ A modern, real-time wager leaderboard platform for competitive casino gaming. Tr
 ## 🛠️ Tech Stack
 
 - **Frontend**: Vanilla HTML5, CSS3, JavaScript (ES6+)
+- **Backend**: Node.js (for webhook service)
 - **Styling**: Custom CSS with CSS Grid and Flexbox
 - **Fonts**: Oxanium (display), Barlow Condensed (UI), Inter (body)
 - **Icons**: Unicode emojis and custom SVG assets
 - **Storage**: localStorage for configuration persistence
+- **Integrations**: Telegram Bot API, Discord Webhooks
 - **Version Control**: Git with GitHub integration
 
 ## 🚀 Quick Start
@@ -91,6 +93,34 @@ A modern, real-time wager leaderboard platform for competitive casino gaming. Tr
 ### Shuffle Casino
 - **Affiliate Link**: `?r=playShuffle`
 - **Features**: Modern experience, original games, active events
+
+## 🤖 Telegram to Discord Webhook Service
+
+A separate backend service monitors Telegram channels for casino promo codes and automatically posts them to the appropriate Discord channels.
+
+### Features
+- **Automatic Code Detection**: Monitors Telegram messages for promo codes
+- **Smart Routing**: Routes codes to specific Discord channels based on casino (Thrill → Thrill Codes channel, etc.)
+- **Real-time Updates**: Instant notifications when new codes are posted
+- **Code Extraction**: Automatically highlights promo codes in messages
+
+### Setup
+
+See [`webhook-service/README.md`](webhook-service/README.md) for detailed setup instructions.
+
+Quick start:
+```bash
+cd webhook-service
+npm install
+cp .env.example .env
+# Edit .env with your credentials
+npm start
+```
+
+Requirements:
+- Telegram Bot Token (from @BotFather)
+- Discord Webhook URLs for each casino channel
+- Server with public HTTPS endpoint
 
 ## 📊 Admin Features
 

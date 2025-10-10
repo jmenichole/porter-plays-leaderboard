@@ -1,0 +1,19 @@
+[Unit]
+Description=Porter Plays Telegram to Discord Webhook Service
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/opt/porter-plays-webhook
+Environment=NODE_ENV=production
+EnvironmentFile=/opt/porter-plays-webhook/.env
+ExecStart=/usr/bin/node server.js
+Restart=on-failure
+RestartSec=10
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=porter-plays-webhook
+
+[Install]
+WantedBy=multi-user.target
