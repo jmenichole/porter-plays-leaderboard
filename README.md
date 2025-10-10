@@ -2,6 +2,19 @@
 
 A modern, real-time wager leaderboard platform for competitive casino gaming. Track performance, compete for exclusive prize pools, and dominate the leaderboards across multiple casino platforms.
 
+---
+
+## 📦 For Affiliates & New Developers
+
+**Taking over this project?** See the complete **[Developer Handoff Document](DEVELOPER_HANDOFF.md)** for:
+- Complete project architecture and component overview
+- Access credentials and configuration details
+- Deployment instructions and maintenance guidelines
+- Troubleshooting guides and support contacts
+- Next steps and onboarding checklist
+
+---
+
 ## 🎯 Features
 
 ### Live Leaderboards
@@ -187,6 +200,7 @@ This project is proprietary software for Porter Plays. All rights reserved.
 - **Discord**: [Join our community](https://discord.gg/porterplays)
 - **Admin Panel**: Built-in support ticket system
 - **Documentation**: This README and inline code comments
+- **Developer Handoff**: See [DEVELOPER_HANDOFF.md](DEVELOPER_HANDOFF.md) for complete technical documentation
 
 ## 👨‍💻 Developer Credits
 
