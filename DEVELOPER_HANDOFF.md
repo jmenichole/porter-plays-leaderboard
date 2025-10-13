@@ -29,10 +29,11 @@
 
 ### What This Project Does
 
-The **Porter Plays Leaderboard Platform** is a comprehensive solution for the competitive casino gaming community consisting of two main components:
+The **Porter Plays Leaderboard Platform** is a comprehensive solution for the competitive casino gaming community consisting of three main components:
 
 1. **Frontend Leaderboard Application** - A responsive web app displaying real-time casino leaderboards with admin management capabilities
-2. **Backend Webhook Service** - An automated system that monitors Telegram channels for casino promo codes and posts them to Discord
+2. **Discord Bot** - An automated help ticket system and chatbot for community support
+3. **Backend Webhook Service** - An automated system that monitors Telegram channels for casino promo codes and posts them to Discord
 
 ### Key Features
 
@@ -42,6 +43,13 @@ The **Porter Plays Leaderboard Platform** is a comprehensive solution for the co
 - Customizable prize pools and distribution
 - Mobile-responsive dark neon theme
 - AI-powered chat assistant for user support
+
+#### Discord Bot
+- Thread-based help ticket system with mod notifications
+- Automated casino information and promo codes
+- FAQ system for common questions
+- Ticket management (claim, close, track)
+- Support channel: 1256569414455922719, Mod role: 1271984805436854283
 
 #### Webhook Service
 - Automatic promo code detection from Telegram messages
@@ -54,10 +62,11 @@ The **Porter Plays Leaderboard Platform** is a comprehensive solution for the co
 
 - **Frontend:** Vanilla HTML5, CSS3, JavaScript (ES6+)
 - **Backend:** Node.js + Express
+- **Discord Bot:** discord.js v14, dotenv
 - **Dependencies:** axios, dotenv (minimal footprint)
-- **Storage:** localStorage (frontend), environment variables (backend)
-- **Integrations:** Telegram Bot API, Discord Webhooks
-- **Deployment:** Static hosting (frontend), Node.js server (backend)
+- **Storage:** localStorage (frontend), environment variables (backend/bot)
+- **Integrations:** Discord Bot API, Telegram Bot API, Discord Webhooks
+- **Deployment:** Static hosting (frontend), Node.js server (backend + bot)
 
 ---
 
@@ -77,6 +86,15 @@ porter-plays-leaderboard/
 │   ├── shufflelogo.png
 │   └── .nojekyll               # GitHub Pages config
 │
+├── Discord Bot (Help Ticket System)
+│   └── discord-bot/            # Complete Discord bot service
+│       ├── bot.js              # Main bot application (400+ lines)
+│       ├── package.json        # Node.js dependencies
+│       ├── .env.example        # Environment template
+│       ├── .gitignore          # Git ignore rules
+│       ├── README.md           # Bot documentation
+│       └── install-bot-service.sh  # Linux service installer
+│
 ├── Backend Webhook Service
 │   └── webhook-service/        # Complete Node.js service
 │       ├── server.js           # Main Express server (204 lines)
@@ -92,8 +110,11 @@ porter-plays-leaderboard/
 │
 └── Documentation
     ├── README.md               # Main project readme
+    ├── SETUP.md                # Complete setup guide for Porter
     ├── WEBHOOK_SERVICE.md      # Webhook overview
     ├── github-pages-debug.md   # Deployment notes
+    ├── discord-bot/
+    │   └── README.md           # Bot documentation
     └── webhook-service/
         ├── README.md           # Service documentation
         ├── QUICK_START.md      # 5-minute setup guide
@@ -119,6 +140,22 @@ porter-plays-leaderboard/
 │  Casino APIs → Fetch Leaderboard Data                       │
 │     ↓                                                        │
 │  Display Rankings + Admin Panel                             │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│                    DISCORD BOT (SUPPORT)                     │
+│                                                              │
+│  Discord User                                               │
+│     ↓ (!ticket command)                                     │
+│  discord-bot/bot.js                                         │
+│     ├── Create Thread for Ticket                            │
+│     ├── Notify Moderators                                   │
+│     ├── Handle Casino Info (!casino)                        │
+│     ├── Provide Promo Codes (!codes)                        │
+│     └── Answer FAQs (!faq)                                  │
+│         ↓                                                    │
+│  Discord Channel/Thread (response)                          │
 │                                                              │
 └─────────────────────────────────────────────────────────────┘
 
@@ -198,7 +235,68 @@ porter-plays-leaderboard/
 - Safari (14+) ✅
 - Mobile browsers ✅
 
-### 2. Backend Webhook Service
+### 2. Discord Bot (Help Ticket System)
+
+**Location:** `discord-bot/`  
+**Type:** Discord.js bot application  
+**Guild:** 1203402161707425862  
+**Support Channel:** 1256569414455922719  
+**Mod Role:** 1271984805436854283
+
+#### Core Components
+
+##### bot.js (400+ lines)
+Main bot file with:
+
+**Configuration:**
+```javascript
+DISCORD_BOT_TOKEN        // Bot authentication
+GUILD_ID                 // Server ID (1203402161707425862)
+SUPPORT_CHANNEL_ID       // Support channel (1256569414455922719)
+MOD_ROLE_ID              // Moderator role (1271984805436854283)
+BOT_PREFIX               // Command prefix (default: !)
+```
+
+**Key Features:**
+- Thread-based ticket system
+- Automatic mod notifications
+- Casino information commands
+- FAQ system
+- Ticket management (claim, close)
+
+**Commands:**
+- `!help` - Show all commands
+- `!ticket <message>` - Create support ticket
+- `!casino <name>` - Get casino info (thrill, goated, shuffle, shuffleus)
+- `!codes` - Get all promo codes
+- `!faq` - Show frequently asked questions
+- `!claim` - (Mods) Claim a ticket
+- `!close` - (Mods) Close a ticket
+
+**Casino Data:**
+```javascript
+thrill:    PORTERVIP, $2,500 bonus, VIP transfer
+goated:    PLAYGOATED, VIP program, daily rakeback
+shuffle:   playShuffle, welcome bonus, original games
+shuffleus: playShuffleUS, USA-friendly platform
+```
+
+**Ticket System:**
+- Creates thread for each ticket
+- Mentions user and mod role
+- Tracks active tickets per user
+- Auto-archives on close
+- Prevents duplicate tickets
+
+##### package.json
+Dependencies:
+- discord.js ^14.14.1 - Discord Bot API wrapper
+- dotenv ^16.3.1 - Environment variable management
+
+##### install-bot-service.sh
+Automated systemd service installer for Linux servers.
+
+### 3. Backend Webhook Service
 
 **Location:** `webhook-service/`  
 **Type:** Node.js Express server  
