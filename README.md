@@ -107,7 +107,36 @@ A modern, real-time wager leaderboard platform for competitive casino gaming. Tr
 - **Affiliate Link**: `?r=playShuffle`
 - **Features**: Modern experience, original games, active events
 
-## 🤖 Telegram to Discord Webhook Service
+## 🤖 Discord Bot - Help Ticket System
+
+An automated Discord bot provides support ticket management and helpful casino information for the Porter Plays community.
+
+### Features
+- **Ticket System**: Users can create support tickets with thread-based conversations
+- **Mod Notifications**: Automatic notifications to moderators when tickets are created
+- **Casino Information**: Quick access to promo codes and casino details
+- **FAQ System**: Automated answers to common questions
+- **Ticket Management**: Mods can claim and close tickets
+
+### Setup
+
+See [`discord-bot/README.md`](discord-bot/README.md) for detailed setup instructions.
+
+Quick start:
+```bash
+cd discord-bot
+npm install
+cp .env.example .env
+# Edit .env with your bot token and server IDs
+npm start
+```
+
+Requirements:
+- Discord Bot Token (from Discord Developer Portal)
+- Server IDs (Guild: 1203402161707425862, Support Channel: 1256569414455922719)
+- Mod Role ID (1271984805436854283)
+
+## 🔗 Telegram to Discord Webhook Service
 
 A separate backend service monitors Telegram channels for casino promo codes and automatically posts them to the appropriate Discord channels.
 
@@ -197,8 +226,9 @@ This project is proprietary software for Porter Plays. All rights reserved.
 
 ## 🆘 Support
 
-- **Discord**: [Join our community](https://discord.gg/porterplays)
-- **Admin Panel**: Built-in support ticket system
+- **Discord Bot**: Automated help ticket system in support channel
+- **Discord Community**: [Join our community](https://discord.gg/porterplays)
+- **Setup Guide**: See [SETUP.md](SETUP.md) for complete setup instructions
 - **Documentation**: This README and inline code comments
 - **Developer Handoff**: See [DEVELOPER_HANDOFF.md](DEVELOPER_HANDOFF.md) for complete technical documentation
 
